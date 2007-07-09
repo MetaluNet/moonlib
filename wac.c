@@ -2,7 +2,8 @@
    wacom graphire on serial port only...
 */
 
-#include <m_imp.h>
+#include <m_pd.h>
+#include <s_stuff.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>

@@ -121,7 +121,7 @@ static void *dinlet_newsig(t_floatarg f)
 {
     t_vinlet *x = (t_vinlet *)pd_new(vinlet_class);
     x->x_canvas = canvas_getcurrent();
-    x->x_inlet = canvas_addinlet(x->x_canvas, &x->x_obj.ob_pd, &s_signal,0);
+    x->x_inlet = canvas_addinlet(x->x_canvas, &x->x_obj.ob_pd, &s_signal);
     x->x_endbuf = x->x_buf = (t_float *)getbytes(0);
     x->x_bufsize = 0;
     x->x_directsignal = 0;

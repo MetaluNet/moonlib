@@ -1,3 +1,4 @@
+#ifdef __gnu_linux__
 /*
 'pd_joystik' (An external library for Miller Puckette's 'PD' software
 adding PC and/or USB joystik control capabilities)
@@ -189,3 +190,4 @@ static void joystik_read(GList *l,int fd)
 	}
 }
 
+#endif /* __gnu_linux__ */
