@@ -1,0 +1,18 @@
+#N canvas 36 264 527 298 10;
+#X text 27 268 (c) Antoine Rousseau 2001;
+#X obj 18 27 makecolor;
+#X text 91 22 A color-symbol builder \, transforming RGB values in
+one hexa symbol.;
+#X obj 161 149 makecolor;
+#X symbolatom 161 186 10 0 0;
+#X floatatom 144 85 5 0 0;
+#X floatatom 190 85 5 0 0;
+#X floatatom 235 86 5 0 0;
+#X obj 161 127 b;
+#X connect 3 0 4 0;
+#X connect 5 0 3 0;
+#X connect 6 0 3 1;
+#X connect 6 0 8 0;
+#X connect 7 0 3 2;
+#X connect 7 0 8 0;
+#X connect 8 0 3 0;

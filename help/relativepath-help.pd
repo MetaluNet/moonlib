@@ -1,0 +1,13 @@
+#N canvas 14 323 660 379 10;
+#X text 17 352 (c) Antoine Rousseau 2004;
+#X obj 33 108 absolutepath;
+#X symbolatom 33 131 0 0 0;
+#X msg 33 51 symbol absolutepath.pd;
+#X obj 33 220 relativepath;
+#X symbolatom 33 245 0 0 0;
+#X text 14 6 absolutepath / relativepath : use filenames relatively
+to the patch's path.;
+#X connect 1 0 2 0;
+#X connect 2 0 4 0;
+#X connect 3 0 1 0;
+#X connect 4 0 5 0;

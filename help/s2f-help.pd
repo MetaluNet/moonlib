@@ -1,0 +1,18 @@
+#N canvas 106 74 492 266 10;
+#X obj 0 0 cnv 8 100 60 empty empty s2f 10 20 1 18 -262144 -1109 0
+;
+#X text 1 244 (c) Moonix: Antoine Rousseau 2003;
+#X text 129 8 symbol to float converter;
+#X obj 197 159 s2f;
+#X floatatom 197 184 0 0 0;
+#X symbolatom 197 142 0 0 0;
+#X obj 345 105 makesymbol %s;
+#X msg 48 84 symbol 0.0003125foo;
+#X msg 197 85 symbol 54.123e-3bar;
+#X msg 345 85 13.25;
+#X connect 3 0 4 0;
+#X connect 5 0 3 0;
+#X connect 6 0 5 0;
+#X connect 7 0 5 0;
+#X connect 8 0 5 0;
+#X connect 9 0 6 0;
