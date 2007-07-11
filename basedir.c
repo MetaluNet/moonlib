@@ -1,3 +1,4 @@
+#ifndef _WIN32
 /*
 Copyright (C) 2002 Antoine Rousseau 
 
@@ -70,3 +71,5 @@ void basedir_setup(void)
 	class_addsymbol(basedir_class, basedir_symbol);
 }
 
+
+#endif /* NOT _WIN32 */

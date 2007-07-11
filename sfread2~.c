@@ -1,14 +1,16 @@
+#ifndef _WIN32
+
 #include <m_pd.h>
 //#include <m_imp.h>
 #include "g_canvas.h"
-#ifdef NT
+#ifdef _MSC_VER
 #pragma warning( disable : 4244 )
 #pragma warning( disable : 4305 )
 #endif
 
 #include <stdio.h>
 #include <string.h>
-#ifndef NT
+#ifndef _WIN32
 #include <unistd.h>
 #include <sys/mman.h>
 #else
@@ -21,7 +23,7 @@
 
 /* ------------------------ sfread~ ----------------------------- */
 
-#ifdef NT
+#ifdef _WIN32
 #define BINREADMODE "rb"
 #else
 #define BINREADMODE "r"
@@ -407,4 +409,5 @@ void sfread2_tilde_setup(void)
 
 
 
+#endif /* NOT _WIN32 */
 

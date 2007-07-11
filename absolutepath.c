@@ -1,3 +1,4 @@
+#ifndef _WIN32
 /*
 Copyright (C) 2002 Antoine Rousseau 
 
@@ -138,3 +139,4 @@ void absolutepath_setup(void)
 	class_addsymbol(absolutepath_class, absolutepath_symbol);
 }
 
+#endif /* NOT _WIN32 */

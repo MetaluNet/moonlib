@@ -1,4 +1,4 @@
-/*
+emacs /*
 Copyright (C) 2002 Antoine Rousseau 
 
 This library is free software; you can redistribute it and/or
@@ -21,7 +21,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include <m_pd.h>
 #include "g_canvas.h"
 
-#ifdef NT
+#ifdef _MSC_VER
 #pragma warning( disable : 4244 )
 #pragma warning( disable : 4305 )
 #endif

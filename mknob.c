@@ -17,7 +17,7 @@
 #include "g_all_guis.h"
 #include <math.h>
 
-#ifdef NT
+#ifdef _WIN32
 #include <io.h>
 #else
 #include <unistd.h>

@@ -1,3 +1,4 @@
+#ifndef _WIN32
 /* Copyright (c) 1997-1999 Miller Puckette.
 * For information on usage and redistribution, and for a DISCLAIMER OF ALL
 * WARRANTIES, see the file, "LICENSE.txt," in this distribution.  */
@@ -25,7 +26,7 @@ for Windows if someone were willing to find a Pthreads package for it. */
 #include <fcntl.h>
 #endif
 #include <pthread.h>
-#ifdef NT
+#ifdef _WIN32
 #include <io.h>
 #endif
 #include <stdio.h>
@@ -152,7 +153,7 @@ typedef struct _aiff
 
 #define OBUFSIZE MAXPDSTRING  /* assume MAXPDSTRING is bigger than headers */
 
-#ifdef NT
+#ifdef _WIN32
 #include <fcntl.h>
 #define BINCREATE _O_WRONLY | _O_CREAT | _O_BINARY | _O_TRUNC |
 #else
@@ -1680,4 +1681,4 @@ void readsfv_tilde_setup(void)
 
 
 
-
+#endif /* NOT _WIN32 */

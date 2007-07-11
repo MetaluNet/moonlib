@@ -1,3 +1,4 @@
+#ifndef _WIN32
 /*
 Copyright (C) 2002 Antoine Rousseau 
 
@@ -144,3 +145,4 @@ void relativepath_setup(void)
 	class_addsymbol(relativepath_class, relativepath_symbol);
 }
 
+#endif /* NOT _WIN32 */
