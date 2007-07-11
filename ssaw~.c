@@ -72,12 +72,12 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define int32 int32_t
 
 #else
-#ifdef MACOSX
+#ifdef __APPLE__
 #define HIOFFSET 0    /* word offset to find MSB */
 #define LOWOFFSET 1    /* word offset to find LSB */
 #define int32 int  /* a data type that has 32 bits */
 
-#endif /* MACOSX */
+#endif /* __APPLE__ */
 #endif /* __linux__ */
 #endif /* MSW */
 #endif /* SGI */
