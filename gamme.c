@@ -1,4 +1,4 @@
-emacs /*
+/*
 Copyright (C) 2002 Antoine Rousseau 
 
 This library is free software; you can redistribute it and/or
