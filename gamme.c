@@ -300,7 +300,8 @@ static void gamme_save(t_gobj *z, t_binbuf *b)
 	 
     binbuf_addv(b, "ssiisiiiiiiiiiiiiii", gensym("#X"),gensym("obj"),
 		(t_int)x->x_obj.te_xpos, (t_int)x->x_obj.te_ypos,  
-		gensym("gamme"),x->x_width,x->x_height,
+        atom_getsymbol(binbuf_getvec(x->x_obj.te_binbuf)),
+		x->x_width,x->x_height,
 		c[0],c[1],c[2],c[3],c[4],c[5],c[6],c[7],c[8],c[9],c[10],c[11]);
     binbuf_addv(b, ";");
 }

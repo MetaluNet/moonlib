@@ -173,7 +173,8 @@ static void image_save(t_gobj *z, t_binbuf *b)
     t_image *x = (t_image *)z;
     binbuf_addv(b, "ssiissi", gensym("#X"),gensym("obj"),
 		x->x_obj.te_xpix, x->x_obj.te_ypix,   
-		gensym("image"),x->x_image,x->x_type);
+        atom_getsymbol(binbuf_getvec(x->x_obj.te_binbuf)),
+		x->x_image,x->x_type);
     binbuf_addv(b, ";");
 }
 
