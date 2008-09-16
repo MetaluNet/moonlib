@@ -110,7 +110,7 @@ void tabdump2_setup(void)
 			     0, sizeof(t_tabdump), 0, A_DEFSYM, 0);
   class_addbang(tabdump_class, (t_method)tabdump_bang);
   class_addmethod(tabdump_class, (t_method)tabdump_dump,gensym("dump"),
-  			A_FLOAT,A_FLOAT);
+  			A_FLOAT,A_FLOAT,0);
   class_addmethod(tabdump_class, (t_method)tabdump_set, gensym("set"),
 		  A_SYMBOL, 0);
 
