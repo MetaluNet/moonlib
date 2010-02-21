@@ -21,13 +21,12 @@ for Windows if someone were willing to find a Pthreads package for it. */
 	Antoine Rousseau
 */
 
-#ifdef UNIX
-#include <unistd.h>
-#include <fcntl.h>
-#endif
 #include <pthread.h>
 #ifdef _WIN32
 #include <io.h>
+#else
+#include <unistd.h>
+#include <fcntl.h>
 #endif
 #include <stdio.h>
 #include <string.h>

@@ -1,0 +1,16 @@
+Source: pd-moonlib
+Section: sound
+Priority: optional
+Maintainer: Paul Brossier <piem@debian.org>
+Build-Depends: debhelper (>= 7.0.50~), puredata (>= 0.42.5-3.1~)
+Standards-Version: 3.8.3
+Homepage: http://puredata.info
+
+Package: pd-moonlib
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, pd
+Description: library of objects related to GUI control
+ Moonlib includes three sub-sections: nilib, which is a kind of wrapper
+ between Pd and Gtk, sublib, which is a collection of gui control objects, and
+ other, which are miscellaneous objects.
+
