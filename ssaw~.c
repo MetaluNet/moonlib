@@ -34,7 +34,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define LOWOFFSET 1    /* word offset to find LSB */
 #define int32 long  /* a data type that has 32 bits */
 #else
-#ifdef MSW
+#ifdef _WIN32
     /* little-endian; most significant byte is at highest address */
 #define HIOFFSET 1
 #define LOWOFFSET 0
@@ -79,7 +79,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #endif /* __APPLE__ */
 #endif /* __linux__ */
-#endif /* MSW */
+#endif /* _WIN32 */
 #endif /* SGI */
 
 union tabfudge
