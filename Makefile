@@ -105,6 +105,8 @@ ifeq ($(UNAME),Darwin)
     STRIP = strip -x
     DISTDIR=$(LIBRARY_NAME)-$(LIBRARY_VERSION)
     DISTBINDIR=$(DISTDIR)-$(OS)
+# install into ~/Library/Pd on Mac OS X since /usr/local isn't used much
+    pkglibdir=$(HOME)/Library/Pd
   endif
 endif
 ifeq ($(UNAME),Linux)
@@ -283,3 +285,4 @@ showsetup:
 	@echo "ALLSOURCES: $(ALLSOURCES)"
 	@echo "UNAME: $(UNAME)"
 	@echo "CPU: $(CPU)"
+	@echo "pkglibdir: $(pkglibdir)"
