@@ -1,7 +1,7 @@
 Source: pd-moonlib
 Section: sound
 Priority: optional
-Maintainer: Paul Brossier <piem@debian.org>
+Maintainer: Hans-Christoph Steiner <hans@eds.org>
 Build-Depends: debhelper (>= 7.0.50~), puredata (>= 0.42.5-3.1~)
 Standards-Version: 3.8.3
 Homepage: http://puredata.info
