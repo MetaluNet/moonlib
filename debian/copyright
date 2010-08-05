@@ -2,6 +2,8 @@ Debianized-By: Hans-Christoph Steiner <hans@eds.org>
 Debianized-Date: Sat, 20 Feb 2010 17:14:25 -0400
 Files: *
 Copyright: 2001-2004, Antoine Rousseau
+Copyright: 2001-2004, Guenter Geiger
+Copyright: 2001-2004, Joseph A. Sarlo
 
 License: GPL-2+
  This package is free software; you can redistribute it and/or modify
