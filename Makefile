@@ -1,4 +1,4 @@
-## Pd library template version 1.0
+## Pd library template version 1.0.1
 # For instructions on how to use this template, see:
 #  http://puredata.info/docs/developer/MakefileTemplate
 LIBRARY_NAME = moonlib
@@ -63,6 +63,9 @@ LIBS =
 ALLSOURCES := $(SOURCES) $(SOURCES_android) $(SOURCES_cygwin) $(SOURCES_macosx) \
 	         $(SOURCES_iphoneos) $(SOURCES_linux) $(SOURCES_windows)
 
+DISTDIR=$(LIBRARY_NAME)-$(LIBRARY_VERSION)
+ORIGDIR=pd-$(LIBRARY_NAME)_$(LIBRARY_VERSION)
+
 UNAME := $(shell uname -s)
 ifeq ($(UNAME),Darwin)
   CPU := $(shell uname -p)
@@ -82,7 +85,6 @@ ifeq ($(UNAME),Darwin)
     LDFLAGS += -arch armv6 -bundle -undefined dynamic_lookup $(ISYSROOT)
     LIBS += -lc 
     STRIP = strip -x
-    DISTDIR=$(LIBRARY_NAME)-$(LIBRARY_VERSION)
     DISTBINDIR=$(DISTDIR)-$(OS)
   else # Mac OS X
     SOURCES += $(SOURCES_macosx)
@@ -103,7 +105,6 @@ ifeq ($(UNAME),Darwin)
     LDFLAGS += $(shell test -e $(PD_PATH)/bin/pd && echo -bundle_loader $(PD_PATH)/bin/pd)
     LIBS += -lc 
     STRIP = strip -x
-    DISTDIR=$(LIBRARY_NAME)-$(LIBRARY_VERSION)
     DISTBINDIR=$(DISTDIR)-$(OS)
 # install into ~/Library/Pd on Mac OS X since /usr/local isn't used much
     pkglibdir=$(HOME)/Library/Pd
@@ -118,7 +119,6 @@ ifeq ($(UNAME),Linux)
   LDFLAGS += -Wl,--export-dynamic  -shared -fPIC
   LIBS += -lc
   STRIP = strip --strip-unneeded -R .note -R .comment
-  DISTDIR=$(LIBRARY_NAME)-$(LIBRARY_VERSION)
   DISTBINDIR=$(DISTDIR)-$(OS)-$(shell uname -m)
 endif
 ifeq (CYGWIN,$(findstring CYGWIN,$(UNAME)))
@@ -130,7 +130,6 @@ ifeq (CYGWIN,$(findstring CYGWIN,$(UNAME)))
   LDFLAGS += -Wl,--export-dynamic -shared -L$(PD_PATH)/src
   LIBS += -lc -lpd
   STRIP = strip --strip-unneeded -R .note -R .comment
-  DISTDIR=$(LIBRARY_NAME)-$(LIBRARY_VERSION)
   DISTBINDIR=$(DISTDIR)-$(OS)
 endif
 ifeq (MINGW,$(findstring MINGW,$(UNAME)))
@@ -143,7 +142,6 @@ ifeq (MINGW,$(findstring MINGW,$(UNAME)))
   LDFLAGS += -s -shared -Wl,--enable-auto-import
   LIBS += -L$(PD_PATH)/src -L$(PD_PATH)/bin -L$(PD_PATH)/obj -lpd -lwsock32 -lkernel32 -luser32 -lgdi32
   STRIP = strip --strip-unneeded -R .note -R .comment
-  DISTDIR=$(LIBRARY_NAME)-$(LIBRARY_VERSION)
   DISTBINDIR=$(DISTDIR)-$(OS)
 endif
 
@@ -225,6 +223,8 @@ distclean: clean
 	-rm -rf -- $(DISTBINDIR)
 	-rm -f -- $(DISTDIR).tar.gz
 	-rm -rf -- $(DISTDIR)
+	-rm -f -- $(ORIGDIR).tar.gz
+	-rm -rf -- $(ORIGDIR)
 
 
 $(DISTBINDIR):
@@ -240,6 +240,9 @@ libdir: all $(DISTBINDIR)
 
 $(DISTDIR):
 	$(INSTALL_DIR) $(DISTDIR)
+
+$(ORIGDIR):
+	$(INSTALL_DIR) $(ORIGDIR)
 
 dist: $(DISTDIR)
 	$(INSTALL_FILE) Makefile  $(DISTDIR)
@@ -271,6 +274,15 @@ dist: $(DISTDIR)
 	$(INSTALL_FILE) d/d*.gif $(DISTDIR)/d/
 	tar --exclude-vcs -czpf $(DISTDIR).tar.gz $(DISTDIR)
 
+# make a Debian source package
+dpkg-source:
+	debclean
+	make distclean dist
+	mv $(DISTDIR) $(ORIGDIR)
+	tar --exclude-vcs -czpf ../$(ORIGDIR).orig.tar.gz $(ORIGDIR)
+	rm -f -- $(DISTDIR).tar.gz
+	rm -rf -- $(DISTDIR) $(ORIGDIR)
+	cd .. && dpkg-source -b $(LIBRARY_NAME)
 
 etags:
 	etags *.h $(SOURCES) ../../pd/src/*.[ch] /usr/include/*.h /usr/include/*/*.h
@@ -286,3 +298,5 @@ showsetup:
 	@echo "UNAME: $(UNAME)"
 	@echo "CPU: $(CPU)"
 	@echo "pkglibdir: $(pkglibdir)"
+	@echo "DISTDIR: $(DISTDIR)"
+	@echo "ORIGDIR: $(ORIGDIR)"
