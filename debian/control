@@ -10,6 +10,7 @@ Homepage: http://puredata.info
 Package: pd-moonlib
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, pd
+Recommends: pd-libdir
 Description: library of Pd objects related to GUI control
  Moonlib includes three sub-sections: nilib, which is a kind of wrapper
  between Pd and Gtk, sublib, which is a collection of gui control objects, and
