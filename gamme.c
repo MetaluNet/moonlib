@@ -257,7 +257,7 @@ static void gamme_displace(t_gobj *z, t_glist *glist,
     x->x_obj.te_xpos += dx;
     x->x_obj.te_ypos += dy;
     gamme_drawme(x, glist, 0);
-    canvas_fixlinesfor(glist_getcanvas(glist),(t_text*) x);
+    canvas_fixlinesfor(glist,(t_text*) x);
 }
 
 static void gamme_select(t_gobj *z, t_glist *glist, int state)
@@ -519,7 +519,6 @@ static void *gamme_new(t_symbol *s, int argc, t_atom *argv)
 
 void gamme_setup(void)
 {
-    post("gamme_setup");
 	 gamme_class = class_new(gensym("gamme"), (t_newmethod)gamme_new, 0,
 				sizeof(t_gamme),0, A_GIMME,0);
 
