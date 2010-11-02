@@ -12,8 +12,8 @@ Package: pd-moonlib
 Architecture: any
 Depends: ${shlibs:Depends},
          pd,
-         ${misc:Depends}
-Recommends: pd-libdir
+         ${misc:Depends},
+         pd-libdir
 Description: library of Pd objects related to GUI control
  Moonlib includes three sub-sections: nilib, which is a kind of wrapper
  between Pd and Gtk, sublib, which is a collection of gui control objects, and
