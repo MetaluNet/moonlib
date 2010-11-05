@@ -16,7 +16,7 @@ SOURCES_linux = readsfv~.c
 PDOBJECTS = 
 
 # example patches and related files, in the 'examples' subfolder
-EXAMPLES = pause.gif play.gif playy.gif rec.gif saww.gif sin.gif sinw.gif squarew.gifd0.gif d10.gif d11.gif d12.gif d13.gif d14.gif d15.gif d16.gif d17.gif d18.gif d19.gif d1.gif d20.gif d21.gif d22.gif d23.gif d24.gif d25.gif d26.gif d27.gif d28.gif d29.gif d2.gif d30.gif d31.gif d32.gif d33.gif d34.gif d35.gif d36.gif d37.gif d38.gif d39.gif d3.gif d40.gif d41.gif d42.gif d43.gif d44.gif d45.gif d46.gif d47.gif d48.gif d49.gif d4.gif d50.gif d51.gif d52.gif d53.gif d54.gif d55.gif d56.gif d57.gif d58.gif d59.gif d5.gif d60.gif d61.gif d62.gif d63.gif d6.gif d7.gif d8.gif d9.gif
+EXAMPLES = pause.gif play.gif playy.gif rec.gif saww.gif sin.gif sinw.gif squarew.gif d0.gif d10.gif d11.gif d12.gif d13.gif d14.gif d15.gif d16.gif d17.gif d18.gif d19.gif d1.gif d20.gif d21.gif d22.gif d23.gif d24.gif d25.gif d26.gif d27.gif d28.gif d29.gif d2.gif d30.gif d31.gif d32.gif d33.gif d34.gif d35.gif d36.gif d37.gif d38.gif d39.gif d3.gif d40.gif d41.gif d42.gif d43.gif d44.gif d45.gif d46.gif d47.gif d48.gif d49.gif d4.gif d50.gif d51.gif d52.gif d53.gif d54.gif d55.gif d56.gif d57.gif d58.gif d59.gif d5.gif d60.gif d61.gif d62.gif d63.gif d6.gif d7.gif d8.gif d9.gif
 
 # manuals and related files, in the 'manual' subfolder
 MANUAL = 
