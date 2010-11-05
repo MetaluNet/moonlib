@@ -277,7 +277,7 @@ dist: $(DISTDIR)
 		done
 # special case for this library
 	$(INSTALL_DIR) $(DISTDIR)/d
-	$(INSTALL_FILE) d/d*.gif $(DISTDIR)/d/
+	$(INSTALL_DATA) d/d*.gif $(DISTDIR)/d/
 	tar --exclude-vcs -czpf $(DISTDIR).tar.gz $(DISTDIR)
 
 # make a Debian source package
