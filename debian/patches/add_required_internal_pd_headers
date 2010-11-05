@@ -1,0 +1,1389 @@
+Description: workaround for headers missing from 'puredata' Currently the
+ 'puredata' package only includes the header m_pd.h, but other headers are
+ need to build this package, specifically m_imp.h, g_all_guis.h, s_stuff.h and
+ g_canvas.h.  This patch adds the two headers from 'puredata' version 0.42.6
+ until the other headers are included in Debian.
+Author: Hans-Christoph Steiner <hans@eds.org>
+Bug-Debian: http://bugs.debian.org/568770
+Forwarded: not-needed
+Reviewed-By: Hans-Christoph Steiner <hans@eds.org>
+Last-Update: <2010-11-05>
+
+--- /dev/null
++++ pd-moonlib-0.2/m_imp.h
+@@ -0,0 +1,82 @@
++/* Copyright (c) 1997-1999 Miller Puckette.
++* For information on usage and redistribution, and for a DISCLAIMER OF ALL
++* WARRANTIES, see the file, "LICENSE.txt," in this distribution.  */
++
++/* This file contains function prototypes and data types used to implement
++Pd, but not shared with Pd objects. */
++
++/* NOTE: this file describes Pd implementation details which may change
++in future releases.  The public (stable) API is in m_pd.h. */  
++
++/* LATER consider whether to use 'char' for method arg types to save space */
++#ifndef __m_imp_h_
++
++/* the structure for a method handler ala Max */
++typedef struct _methodentry
++{
++    t_symbol *me_name;
++    t_gotfn me_fun;
++    t_atomtype me_arg[MAXPDARG+1];
++} t_methodentry;
++
++EXTERN_STRUCT _widgetbehavior;
++
++typedef void (*t_bangmethod)(t_pd *x);
++typedef void (*t_pointermethod)(t_pd *x, t_gpointer *gp);
++typedef void (*t_floatmethod)(t_pd *x, t_float f);
++typedef void (*t_symbolmethod)(t_pd *x, t_symbol *s);
++typedef void (*t_listmethod)(t_pd *x, t_symbol *s, int argc, t_atom *argv);
++typedef void (*t_anymethod)(t_pd *x, t_symbol *s, int argc, t_atom *argv);
++
++struct _class
++{
++    t_symbol *c_name;                   /* name (mostly for error reporting) */
++    t_symbol *c_helpname;               /* name of help file */
++    t_symbol *c_externdir;              /* directory extern was loaded from */
++    size_t c_size;                      /* size of an instance */
++    t_methodentry *c_methods;           /* methods other than bang, etc below */
++    int c_nmethod;                      /* number of methods */
++    t_method c_freemethod;              /* function to call before freeing */
++    t_bangmethod c_bangmethod;          /* common methods */
++    t_pointermethod c_pointermethod;
++    t_floatmethod c_floatmethod;
++    t_symbolmethod c_symbolmethod;
++    t_listmethod c_listmethod;
++    t_anymethod c_anymethod;
++    struct _widgetbehavior *c_wb;       /* "gobjs" only */
++    struct _parentwidgetbehavior *c_pwb;/* widget behavior in parent */
++    t_savefn c_savefn;                  /* function to call when saving */
++    t_propertiesfn c_propertiesfn;      /* function to start prop dialog */
++    int c_floatsignalin;                /* onset to float for signal input */
++    char c_gobj;                        /* true if is a gobj */
++    char c_patchable;                   /* true if we have a t_object header */
++    char c_firstin;                 /* if patchable, true if draw first inlet */
++    char c_drawcommand;             /* a drawing command for a template */
++};
++
++
++/* m_obj.c */
++EXTERN int obj_noutlets(t_object *x);
++EXTERN int obj_ninlets(t_object *x);
++EXTERN t_outconnect *obj_starttraverseoutlet(t_object *x, t_outlet **op,
++    int nout);
++EXTERN t_outconnect *obj_nexttraverseoutlet(t_outconnect *lastconnect,
++    t_object **destp, t_inlet **inletp, int *whichp);
++EXTERN t_outconnect *obj_connect(t_object *source, int outno,
++    t_object *sink, int inno);
++EXTERN void obj_disconnect(t_object *source, int outno, t_object *sink,
++    int inno);
++EXTERN void outlet_setstacklim(void);
++EXTERN int obj_issignalinlet(t_object *x, int m);
++EXTERN int obj_issignaloutlet(t_object *x, int m);
++EXTERN int obj_nsiginlets(t_object *x);
++EXTERN int obj_nsigoutlets(t_object *x);
++EXTERN int obj_siginletindex(t_object *x, int m);
++EXTERN int obj_sigoutletindex(t_object *x, int m);
++
++/* misc */
++EXTERN void glob_evalfile(t_pd *ignore, t_symbol *name, t_symbol *dir);
++EXTERN void glob_initfromgui(void *dummy, t_symbol *s, int argc, t_atom *argv);
++EXTERN void glob_quit(void *dummy);
++#define __m_imp_h_
++#endif /* __m_imp_h_ */
+--- /dev/null
++++ pd-moonlib-0.2/g_all_guis.h
+@@ -0,0 +1,333 @@
++/* Copyright (c) 1997-1999 Miller Puckette.
++* For information on usage and redistribution, and for a DISCLAIMER OF ALL
++* WARRANTIES, see the file, "LICENSE.txt," in this distribution. */
++/* g_7_guis.h written by Thomas Musil (c) IEM KUG Graz Austria 2000-2001 */
++
++
++#define IEM_GUI_COLNR_WHITE          0
++#define IEM_GUI_COLNR_ML_GREY        1
++#define IEM_GUI_COLNR_D_GREY         2
++#define IEM_GUI_COLNR_L_RED          3
++#define IEM_GUI_COLNR_L_ORANGE       4
++#define IEM_GUI_COLNR_L_YELLOW       5
++#define IEM_GUI_COLNR_L_GREEN        6
++#define IEM_GUI_COLNR_L_CYAN         7
++#define IEM_GUI_COLNR_L_BLUE         8
++#define IEM_GUI_COLNR_L_MAGENTA      9
++
++#define IEM_GUI_COLNR_LL_GREY        10
++#define IEM_GUI_COLNR_M_GREY         11
++#define IEM_GUI_COLNR_DD_GREY        12
++#define IEM_GUI_COLNR_RED            13
++#define IEM_GUI_COLNR_ORANGE         14
++#define IEM_GUI_COLNR_YELLOW         15
++#define IEM_GUI_COLNR_GREEN          16
++#define IEM_GUI_COLNR_CYAN           17
++#define IEM_GUI_COLNR_BLUE           18
++#define IEM_GUI_COLNR_MAGENTA        19
++
++#define IEM_GUI_COLNR_L_GREY         20
++#define IEM_GUI_COLNR_MD_GREY        21
++#define IEM_GUI_COLNR_BLACK          22
++#define IEM_GUI_COLNR_D_RED          23
++#define IEM_GUI_COLNR_D_ORANGE       24
++#define IEM_GUI_COLNR_D_YELLOW       25
++#define IEM_GUI_COLNR_D_GREEN        26
++#define IEM_GUI_COLNR_D_CYAN         27
++#define IEM_GUI_COLNR_D_BLUE         28
++#define IEM_GUI_COLNR_D_MAGENTA      29
++
++#define IEM_GUI_COLOR_SELECTED       255
++#define IEM_GUI_COLOR_NORMAL         0
++
++#define IEM_GUI_MAX_COLOR            30
++
++#define IEM_GUI_DEFAULTSIZE 15
++#define IEM_GUI_MINSIZE 8
++#define IEM_GUI_MAXSIZE 1000
++#define IEM_SL_DEFAULTSIZE 128
++#define IEM_SL_MINSIZE 2
++#define IEM_FONT_MINSIZE 4
++
++#define IEM_BNG_DEFAULTHOLDFLASHTIME 250
++#define IEM_BNG_DEFAULTBREAKFLASHTIME 50
++#define IEM_BNG_MINHOLDFLASHTIME 50
++#define IEM_BNG_MINBREAKFLASHTIME 10
++
++#define IEM_VU_DEFAULTSIZE 3
++#define IEM_VU_LARGESMALL  2
++#define IEM_VU_MINSIZE     2
++#define IEM_VU_MAXSIZE     25
++#define IEM_VU_STEPS       40
++
++#define IEM_VU_MINDB    -99.9
++#define IEM_VU_MAXDB    12.0
++#define IEM_VU_OFFSET   100.0
++
++#define IEM_RADIO_MAX   128
++
++#define IEM_SYM_UNIQUE_SND  256
++#define IEM_SYM_UNIQUE_RCV  512
++#define IEM_SYM_UNIQUE_LAB  1024
++#define IEM_SYM_UNIQUE_ALL  1792
++#define IEM_FONT_STYLE_ALL  255
++
++#define IEM_MAX_SYM_LEN      127
++
++#define IEM_GUI_DRAW_MODE_UPDATE 0
++#define IEM_GUI_DRAW_MODE_MOVE   1
++#define IEM_GUI_DRAW_MODE_NEW    2
++#define IEM_GUI_DRAW_MODE_SELECT 3
++#define IEM_GUI_DRAW_MODE_ERASE  4
++#define IEM_GUI_DRAW_MODE_CONFIG 5
++#define IEM_GUI_DRAW_MODE_IO     6
++
++
++#define IS_A_POINTER(atom,index) ((atom+index)->a_type == A_POINTER)
++#define IS_A_FLOAT(atom,index) ((atom+index)->a_type == A_FLOAT)
++#define IS_A_SYMBOL(atom,index) ((atom+index)->a_type == A_SYMBOL)
++#define IS_A_DOLLAR(atom,index) ((atom+index)->a_type == A_DOLLAR)
++#define IS_A_DOLLSYM(atom,index) ((atom+index)->a_type == A_DOLLSYM)
++
++#define IEM_FSTYLE_FLAGS_ALL 0x007fffff
++#define IEM_INIT_ARGS_ALL    0x01ffffff
++
++#define IEM_GUI_OLD_SND_FLAG 1
++#define IEM_GUI_OLD_RCV_FLAG 2
++
++#define IEM_GUI_COLOR_EDITED 16711680
++#define IEMGUI_MAX_NUM_LEN 32
++
++typedef struct _iem_fstyle_flags
++{
++    unsigned int x_font_style:6;
++    unsigned int x_rcv_able:1;
++    unsigned int x_snd_able:1;
++    unsigned int x_lab_is_unique:1;
++    unsigned int x_rcv_is_unique:1;
++    unsigned int x_snd_is_unique:1;
++    unsigned int x_lab_arg_tail_len:6;
++    unsigned int x_lab_is_arg_num:6;
++    unsigned int x_shiftdown:1;
++    unsigned int x_selected:1;
++    unsigned int x_finemoved:1;
++    unsigned int x_put_in2out:1;
++    unsigned int x_change:1;
++    unsigned int x_thick:1;
++    unsigned int x_lin0_log1:1;
++    unsigned int x_steady:1;
++    unsigned int dummy:1;
++} t_iem_fstyle_flags;
++
++typedef struct _iem_init_symargs
++{
++    unsigned int x_loadinit:1;
++    unsigned int x_rcv_arg_tail_len:6;
++    unsigned int x_snd_arg_tail_len:6;
++    unsigned int x_rcv_is_arg_num:6;
++    unsigned int x_snd_is_arg_num:6;
++    unsigned int x_scale:1;
++    unsigned int x_flashed:1;
++    unsigned int x_locked:1;
++    unsigned int x_reverse:1; /* bugfix */
++    unsigned int dummy:3;
++} t_iem_init_symargs;
++
++typedef void (*t_iemfunptr)(void *x, t_glist *glist, int mode);
++
++typedef struct _iemgui
++{
++    t_object           x_obj;
++    t_glist            *x_glist;
++    t_iemfunptr        x_draw;
++    int                x_h;
++    int                x_w;
++    int                x_ldx;
++    int                x_ldy;
++    char               x_font[MAXPDSTRING]; /* font names can be long! */
++    t_iem_fstyle_flags x_fsf;
++    int                x_fontsize;
++    t_iem_init_symargs x_isa;
++    int                x_fcol;
++    int                x_bcol;
++    int                x_lcol;
++    t_symbol           *x_snd;              /* send symbol */
++    t_symbol           *x_rcv;              /* receive */
++    t_symbol           *x_lab;              /* label */
++    t_symbol           *x_snd_unexpanded;   /* same 3, with '$' unexpanded */
++    t_symbol           *x_rcv_unexpanded;
++    t_symbol           *x_lab_unexpanded;
++    int                x_binbufindex;       /* where in binbuf to find these */
++    int                x_labelbindex;       /* where in binbuf to find label */
++} t_iemgui;
++
++typedef struct _iemguidummy
++{
++    t_iemgui x_gui;
++    int      x_dum1;
++    int      x_dum2;
++    int      x_dum3;
++} t_iemguidummy;
++
++typedef struct _bng
++{
++    t_iemgui x_gui;
++    int      x_flashed;
++    int      x_flashtime_break;
++    int      x_flashtime_hold;
++    t_clock  *x_clock_hld;
++    t_clock  *x_clock_brk;
++    t_clock  *x_clock_lck;
++} t_bng;
++
++typedef struct _hslider
++{
++    t_iemgui x_gui;
++    int      x_pos;
++    int      x_val;
++    int      x_center;
++    int      x_thick;
++    int      x_lin0_log1;
++    int      x_steady;
++    double   x_min;
++    double   x_max;
++    double   x_k;
++} t_hslider;
++
++typedef struct _hdial
++{
++    t_iemgui x_gui;
++    int      x_on;
++    int      x_on_old;  /* LATER delete this; it's used for old version */
++    int      x_change;
++    int      x_number;
++    int      x_drawn;
++    t_atom   x_at[2];
++} t_hdial;
++
++typedef struct _toggle
++{
++    t_iemgui x_gui;
++    t_float    x_on;
++    t_float    x_nonzero;
++} t_toggle;
++
++typedef struct _my_canvas
++{
++    t_iemgui x_gui;
++    t_atom   x_at[3];
++    int      x_vis_w;
++    int      x_vis_h;
++} t_my_canvas;
++
++typedef struct _vslider
++{
++    t_iemgui x_gui;
++    int      x_pos;
++    int      x_val;
++    int      x_lin0_log1;
++    int      x_steady;
++    double   x_min;
++    double   x_max;
++    double   x_k;
++} t_vslider;
++
++typedef struct _vu
++{
++    t_iemgui x_gui;
++    int      x_led_size;
++    int      x_peak;
++    int      x_rms;
++    t_float    x_fp;
++    t_float    x_fr;
++    int      x_scale;
++    void     *x_out_rms;
++    void     *x_out_peak;
++    unsigned int x_updaterms:1;
++    unsigned int x_updatepeak:1;
++} t_vu;
++
++typedef struct _my_numbox
++{
++    t_iemgui x_gui;
++    t_clock  *x_clock_reset;
++    t_clock  *x_clock_wait;
++    double   x_val;
++    double   x_min;
++    double   x_max;
++    double   x_k;
++    int      x_lin0_log1;
++    char     x_buf[IEMGUI_MAX_NUM_LEN];
++    int      x_numwidth;
++    int      x_log_height;
++} t_my_numbox;
++
++typedef struct _vdial
++{
++    t_iemgui x_gui;
++    int      x_on;
++    int      x_on_old;
++    int      x_change;
++    int      x_number;
++    int      x_drawn;
++    t_atom   x_at[2];
++} t_vdial;
++
++#define t_vradio t_vdial
++#define t_hradio t_hdial
++
++extern int sys_noloadbang;
++extern int iemgui_color_hex[];
++extern int iemgui_vu_db2i[];
++extern int iemgui_vu_col[];
++extern char *iemgui_vu_scale_str[];
++
++EXTERN int iemgui_clip_size(int size);
++EXTERN int iemgui_clip_font(int size);
++EXTERN int iemgui_modulo_color(int col);
++EXTERN t_symbol *iemgui_unique2dollarzero(t_symbol *s, int unique_num, int and_unique_flag);
++EXTERN t_symbol *iemgui_sym2dollararg(t_symbol *s, int nth_arg, int tail_len);
++EXTERN t_symbol *iemgui_dollarzero2unique(t_symbol *s, int unique_num);
++EXTERN t_symbol *iemgui_dollararg2sym(t_symbol *s, int nth_arg, int tail_len, int pargc, t_atom *pargv);
++EXTERN int iemgui_is_dollarzero(t_symbol *s);
++EXTERN int iemgui_is_dollararg(t_symbol *s, int *tail_len);
++EXTERN void iemgui_fetch_unique(t_iemgui *iemgui);
++EXTERN void iemgui_fetch_parent_args(t_iemgui *iemgui, int *pargc, t_atom **pargv);
++EXTERN void iemgui_verify_snd_ne_rcv(t_iemgui *iemgui);
++EXTERN void iemgui_all_unique2dollarzero(t_iemgui *iemgui, t_symbol **srlsym);
++EXTERN void iemgui_all_sym2dollararg(t_iemgui *iemgui, t_symbol **srlsym);
++EXTERN void iemgui_all_dollarzero2unique(t_iemgui *iemgui, t_symbol **srlsym);
++EXTERN t_symbol *iemgui_new_dogetname(t_iemgui *iemgui, int indx, t_atom *argv);
++EXTERN void iemgui_new_getnames(t_iemgui *iemgui, int indx, t_atom *argv);
++EXTERN void iemgui_all_dollararg2sym(t_iemgui *iemgui, t_symbol **srlsym);
++EXTERN void iemgui_first_dollararg2sym(t_iemgui *iemgui, t_symbol **srlsym);
++EXTERN void iemgui_all_col2save(t_iemgui *iemgui, int *bflcol);
++EXTERN void iemgui_all_colfromload(t_iemgui *iemgui, int *bflcol);
++EXTERN int iemgui_compatible_col(int i);
++EXTERN void iemgui_all_dollar2raute(t_symbol **srlsym);
++EXTERN void iemgui_all_raute2dollar(t_symbol **srlsym);
++EXTERN void iemgui_send(void *x, t_iemgui *iemgui, t_symbol *s);
++EXTERN void iemgui_receive(void *x, t_iemgui *iemgui, t_symbol *s);
++EXTERN void iemgui_label(void *x, t_iemgui *iemgui, t_symbol *s);
++EXTERN void iemgui_label_pos(void *x, t_iemgui *iemgui, t_symbol *s, int ac, t_atom *av);
++EXTERN void iemgui_label_font(void *x, t_iemgui *iemgui, t_symbol *s, int ac, t_atom *av);
++EXTERN void iemgui_size(void *x, t_iemgui *iemgui);
++EXTERN void iemgui_delta(void *x, t_iemgui *iemgui, t_symbol *s, int ac, t_atom *av);
++EXTERN void iemgui_pos(void *x, t_iemgui *iemgui, t_symbol *s, int ac, t_atom *av);
++EXTERN void iemgui_color(void *x, t_iemgui *iemgui, t_symbol *s, int ac, t_atom *av);
++EXTERN int iemgui_list(void *x, t_iemgui *iemgui, t_symbol *s, int ac, t_atom *av);
++EXTERN void iemgui_displace(t_gobj *z, t_glist *glist, int dx, int dy);
++EXTERN void iemgui_select(t_gobj *z, t_glist *glist, int selected);
++EXTERN void iemgui_delete(t_gobj *z, t_glist *glist);
++EXTERN void iemgui_vis(t_gobj *z, t_glist *glist, int vis);
++EXTERN void iemgui_save(t_iemgui *iemgui, t_symbol **srl, int *bflcol);
++EXTERN void iemgui_properties(t_iemgui *iemgui, t_symbol **srl);
++EXTERN int iemgui_dialog(t_iemgui *iemgui, t_symbol **srl, int argc, t_atom *argv);
++
++EXTERN int canvas_getdollarzero(void);
++EXTERN void canvas_getargs(int *argcp, t_atom **argvp);
++
++EXTERN void iem_inttosymargs(t_iem_init_symargs *symargp, int n);
++EXTERN int iem_symargstoint(t_iem_init_symargs *symargp);
++EXTERN void iem_inttofstyle(t_iem_fstyle_flags *fstylep, int n);
++EXTERN int iem_fstyletoint(t_iem_fstyle_flags *fstylep);
+--- /dev/null
++++ pd-moonlib-0.2/s_stuff.h
+@@ -0,0 +1,333 @@
++/* Copyright (c) 1997-1999 Miller Puckette.
++* For information on usage and redistribution, and for a DISCLAIMER OF ALL
++* WARRANTIES, see the file, "LICENSE.txt," in this distribution.  */
++
++/* Audio and MIDI I/O, and other scheduling and system stuff. */
++
++/* NOTE: this file describes Pd implementation details which may change
++in future releases.  The public (stable) API is in m_pd.h. */  
++
++/* in s_path.c */
++
++typedef struct _namelist    /* element in a linked list of stored strings */
++{
++    struct _namelist *nl_next;  /* next in list */
++    char *nl_string;            /* the string */
++} t_namelist;
++
++t_namelist *namelist_append(t_namelist *listwas, const char *s, int allowdup);
++t_namelist *namelist_append_files(t_namelist *listwas, const char *s);
++void namelist_free(t_namelist *listwas);
++char *namelist_get(t_namelist *namelist, int n);
++void sys_setextrapath(const char *p);
++extern int sys_usestdpath;
++extern t_namelist *sys_externlist;
++extern t_namelist *sys_searchpath;
++extern t_namelist *sys_helppath;
++int sys_open_absolute(const char *name, const char* ext,
++    char *dirresult, char **nameresult, unsigned int size, int bin, int *fdp);
++int sys_trytoopenone(const char *dir, const char *name, const char* ext,
++    char *dirresult, char **nameresult, unsigned int size, int bin);
++t_symbol *sys_decodedialog(t_symbol *s);
++
++/* s_file.c */
++
++void sys_loadpreferences( void);
++void sys_savepreferences( void);
++extern int sys_defeatrt;
++extern t_symbol *sys_flags;
++
++/* s_main.c */
++extern int sys_debuglevel;
++extern int sys_verbose;
++extern int sys_noloadbang;
++extern int sys_nogui;
++extern char *sys_guicmd;
++
++EXTERN int sys_nearestfontsize(int fontsize);
++EXTERN int sys_hostfontsize(int fontsize);
++
++extern int sys_defaultfont;
++extern t_symbol *sys_libdir;    /* library directory for auxilliary files */
++extern t_symbol *sys_guidir;    /* directory holding pd_gui, u_pdsend, etc */
++
++/* s_loader.c */
++
++typedef int (*loader_t)(t_canvas *canvas, char *classname); /* callback type */
++EXTERN int sys_load_lib(t_canvas *canvas, char *filename);
++EXTERN void sys_register_loader(loader_t loader);
++
++/* s_audio.c */
++
++#define SENDDACS_NO 0           /* return values for sys_send_dacs() */
++#define SENDDACS_YES 1 
++#define SENDDACS_SLEPT 2
++
++#define DEFDACBLKSIZE 64
++extern int sys_schedblocksize;  /* audio block size for scheduler */
++extern int sys_hipriority;      /* real-time flag, true if priority boosted */
++extern t_sample *sys_soundout;
++extern t_sample *sys_soundin;
++extern int sys_inchannels;
++extern int sys_outchannels;
++extern int sys_advance_samples; /* scheduler advance in samples */
++extern int sys_blocksize;       /* audio I/O block size in sample frames */
++extern t_float sys_dacsr;
++extern int sys_schedadvance;
++extern int sys_sleepgrain;
++void sys_set_audio_settings(int naudioindev, int *audioindev,
++    int nchindev, int *chindev,
++    int naudiooutdev, int *audiooutdev, int nchoutdev, int *choutdev,
++    int srate, int advance, int callback);
++void sys_reopen_audio( void);
++void sys_close_audio(void);
++
++
++int sys_send_dacs(void);
++void sys_reportidle(void);
++void sys_set_priority(int higher);
++void sys_audiobuf(int nbufs);
++void sys_getmeters(t_sample *inmax, t_sample *outmax);
++void sys_listdevs(void);
++void sys_setblocksize(int n);
++
++/* s_midi.c */
++#define MAXMIDIINDEV 16         /* max. number of input ports */
++#define MAXMIDIOUTDEV 16        /* max. number of output ports */
++extern int sys_nmidiin;
++extern int sys_nmidiout;
++extern int sys_midiindevlist[];
++extern int sys_midioutdevlist[];
++
++void sys_open_midi(int nmidiin, int *midiinvec,
++    int nmidiout, int *midioutvec, int enable);
++void sys_get_midi_params(int *pnmidiindev, int *pmidiindev,
++    int *pnmidioutdev, int *pmidioutdev);
++
++void sys_get_midi_apis(char *buf);
++
++void sys_reopen_midi( void);
++void sys_close_midi( void);
++EXTERN void sys_putmidimess(int portno, int a, int b, int c);
++EXTERN void sys_putmidibyte(int portno, int a);
++EXTERN void sys_poll_midi(void);
++EXTERN void sys_setmiditimediff(double inbuftime, double outbuftime);
++EXTERN void sys_midibytein(int portno, int byte);
++
++    /* implemented in the system dependent MIDI code (s_midi_pm.c, etc. ) */
++void midi_getdevs(char *indevlist, int *nindevs,
++    char *outdevlist, int *noutdevs, int maxndev, int devdescsize);
++void sys_do_open_midi(int nmidiindev, int *midiindev,
++    int nmidioutdev, int *midioutdev);
++
++#ifdef USEAPI_ALSA
++EXTERN void sys_alsa_putmidimess(int portno, int a, int b, int c);
++EXTERN void sys_alsa_putmidibyte(int portno, int a);
++EXTERN void sys_alsa_poll_midi(void);
++EXTERN void sys_alsa_setmiditimediff(double inbuftime, double outbuftime);
++EXTERN void sys_alsa_midibytein(int portno, int byte);
++EXTERN void sys_alsa_close_midi( void);
++
++
++    /* implemented in the system dependent MIDI code (s_midi_pm.c, etc. ) */
++void midi_alsa_getdevs(char *indevlist, int *nindevs,
++    char *outdevlist, int *noutdevs, int maxndev, int devdescsize);
++void sys_alsa_do_open_midi(int nmidiindev, int *midiindev,
++    int nmidioutdev, int *midioutdev);
++#endif
++
++/* m_sched.c */
++EXTERN void sys_log_error(int type);
++#define ERR_NOTHING 0
++#define ERR_ADCSLEPT 1
++#define ERR_DACSLEPT 2
++#define ERR_RESYNC 3
++#define ERR_DATALATE 4
++
++#define SCHED_AUDIO_NONE 0
++#define SCHED_AUDIO_POLL 1 
++#define SCHED_AUDIO_CALLBACK 2
++void sched_set_using_audio(int flag);
++
++/* s_inter.c */
++
++EXTERN void sys_microsleep(int microsec);
++
++EXTERN void sys_bail(int exitcode);
++EXTERN int sys_pollgui(void);
++
++EXTERN_STRUCT _socketreceiver;
++#define t_socketreceiver struct _socketreceiver
++
++typedef void (*t_socketnotifier)(void *x);
++typedef void (*t_socketreceivefn)(void *x, t_binbuf *b);
++
++EXTERN t_socketreceiver *socketreceiver_new(void *owner,
++    t_socketnotifier notifier, t_socketreceivefn socketreceivefn, int udp);
++EXTERN void socketreceiver_read(t_socketreceiver *x, int fd);
++EXTERN void sys_sockerror(char *s);
++EXTERN void sys_closesocket(int fd);
++
++typedef void (*t_fdpollfn)(void *ptr, int fd);
++EXTERN void sys_addpollfn(int fd, t_fdpollfn fn, void *ptr);
++EXTERN void sys_rmpollfn(int fd);
++#ifdef UNIX
++void sys_setalarm(int microsec);
++void sys_setvirtualalarm( void);
++#endif
++
++#define API_NONE 0
++#define API_ALSA 1
++#define API_OSS 2
++#define API_MMIO 3
++#define API_PORTAUDIO 4
++#define API_JACK 5
++#define API_SGI 6
++
++#ifdef __linux__
++#define API_DEFAULT API_OSS
++#define API_DEFSTRING "OSS"
++#endif
++#ifdef MSW
++#define API_DEFAULT API_MMIO
++#define API_DEFSTRING "MMIO"
++#endif
++#ifdef __APPLE__
++#define API_DEFAULT API_PORTAUDIO
++#define API_DEFSTRING "portaudio"
++#endif
++#ifdef IRIX
++#define API_DEFAULT API_SGI
++#define API_DEFSTRING "SGI Digital Media"
++#endif
++#define DEFAULTAUDIODEV 0
++
++#define MAXAUDIOINDEV 4
++#define MAXAUDIOOUTDEV 4
++
++#define DEFMIDIDEV 0
++
++#define DEFAULTSRATE 44100
++#ifdef MSW
++#define DEFAULTADVANCE 70
++#else
++#define DEFAULTADVANCE 50
++#endif
++
++typedef void (*t_audiocallback)(void);
++
++int pa_open_audio(int inchans, int outchans, int rate, t_sample *soundin,
++    t_sample *soundout, int framesperbuf, int nbuffers,
++    int indeviceno, int outdeviceno, t_audiocallback callback);
++void pa_close_audio(void);
++int pa_send_dacs(void);
++void sys_reportidle(void);
++void pa_listdevs(void);
++void pa_getdevs(char *indevlist, int *nindevs,
++    char *outdevlist, int *noutdevs, int *canmulti, 
++        int maxndev, int devdescsize);
++
++int oss_open_audio(int naudioindev, int *audioindev, int nchindev,
++    int *chindev, int naudiooutdev, int *audiooutdev, int nchoutdev,
++    int *choutdev, int rate);
++void oss_close_audio(void);
++int oss_send_dacs(void);
++void oss_reportidle(void);
++void oss_getdevs(char *indevlist, int *nindevs,
++    char *outdevlist, int *noutdevs, int *canmulti, 
++        int maxndev, int devdescsize);
++
++int alsa_open_audio(int naudioindev, int *audioindev, int nchindev,
++    int *chindev, int naudiooutdev, int *audiooutdev, int nchoutdev,
++    int *choutdev, int rate);
++void alsa_close_audio(void);
++int alsa_send_dacs(void);
++void alsa_reportidle(void);
++void alsa_getdevs(char *indevlist, int *nindevs,
++    char *outdevlist, int *noutdevs, int *canmulti, 
++        int maxndev, int devdescsize);
++
++int jack_open_audio(int wantinchans, int wantoutchans, int srate);
++void jack_close_audio(void);
++int jack_send_dacs(void);
++void jack_reportidle(void);
++void jack_getdevs(char *indevlist, int *nindevs,
++    char *outdevlist, int *noutdevs, int *canmulti, 
++        int maxndev, int devdescsize);
++void jack_listdevs(void);
++
++int mmio_open_audio(int naudioindev, int *audioindev,
++    int nchindev, int *chindev, int naudiooutdev, int *audiooutdev,
++    int nchoutdev, int *choutdev, int rate);
++void mmio_close_audio( void);
++void mmio_reportidle(void);
++int mmio_send_dacs(void);
++void mmio_getdevs(char *indevlist, int *nindevs,
++    char *outdevlist, int *noutdevs, int *canmulti, 
++        int maxndev, int devdescsize);
++
++void sys_listmididevs(void);
++void sys_set_midi_api(int whichapi);
++void sys_set_audio_api(int whichapi);
++void sys_get_audio_apis(char *buf);
++extern int sys_audioapi;
++void sys_set_audio_state(int onoff);
++
++/* API dependent audio flags and settings */
++void oss_set32bit( void);
++void linux_alsa_devname(char *devname);
++
++void sys_get_audio_params(
++    int *pnaudioindev, int *paudioindev, int *chindev,
++    int *pnaudiooutdev, int *paudiooutdev, int *choutdev,
++    int *prate, int *padvance, int *callback);
++void sys_save_audio_params(
++    int naudioindev, int *audioindev, int *chindev,
++    int naudiooutdev, int *audiooutdev, int *choutdev,
++    int rate, int advance, int callback);
++
++/* s_file.c */
++
++typedef void (*t_printhook)(const char *s);
++extern t_printhook sys_printhook;  /* set this to override printing */
++extern int sys_printtostderr;
++
++/* jsarlo { */
++
++EXTERN double sys_time;
++EXTERN double sys_time_per_dsp_tick;
++EXTERN int sys_externalschedlib;
++
++EXTERN t_sample* get_sys_soundout(void ) ;
++EXTERN t_sample* get_sys_soundin(void ) ;
++EXTERN int* get_sys_main_advance(void ) ;
++EXTERN double* get_sys_time_per_dsp_tick(void ) ;
++EXTERN int* get_sys_schedblocksize(void ) ;
++EXTERN double* get_sys_time(void ) ;
++EXTERN t_float* get_sys_dacsr(void ) ;
++EXTERN int* get_sys_sleepgrain(void ) ;
++EXTERN int* get_sys_schedadvance(void ) ;
++
++EXTERN void sys_clearhist(void );
++EXTERN void sys_initmidiqueue(void );
++EXTERN int sys_addhist(int phase);
++EXTERN void sys_setmiditimediff(double inbuftime, double outbuftime);
++EXTERN void sched_tick(double next_sys_time);
++EXTERN void sys_pollmidiqueue(void );
++EXTERN int sys_pollgui(void );
++EXTERN void sys_setchsr(int chin, int chout, int sr);
++
++EXTERN void inmidi_noteon(int portno, int channel, int pitch, int velo);
++EXTERN void inmidi_controlchange(int portno,
++                                 int channel,
++                                 int ctlnumber,
++                                 int value);
++EXTERN void inmidi_programchange(int portno, int channel, int value);
++EXTERN void inmidi_pitchbend(int portno, int channel, int value);
++EXTERN void inmidi_aftertouch(int portno, int channel, int value);
++EXTERN void inmidi_polyaftertouch(int portno,
++                                  int channel,
++                                  int pitch,
++                                  int value);
++/* } jsarlo */
++extern t_widgetbehavior text_widgetbehavior;
+--- /dev/null
++++ pd-moonlib-0.2/g_canvas.h
+@@ -0,0 +1,618 @@
++/* Copyright (c) 1997-1999 Miller Puckette.
++* For information on usage and redistribution, and for a DISCLAIMER OF ALL
++* WARRANTIES, see the file, "LICENSE.txt," in this distribution.  */
++
++/* this file defines the structure for "glists" and related structures and
++functions.  "Glists" and "canvases" and "graphs" used to be different
++structures until being unified in version 0.35.
++
++A glist occupies its own window if the "gl_havewindow" flag is set.  Its
++appearance on its "parent", also called "owner", (if it has one) is as a graph
++if "gl_isgraph" is set, and otherwise as a text box.
++
++A glist is "root" if it has no owner, i.e., a document window.  In this
++case "gl_havewindow" is always set.
++
++We maintain a list of root windows, so that we can traverse the whole
++collection of everything in a Pd process.
++
++If a glist has a window it may still not be "mapped."  Miniaturized
++windows aren't mapped, for example, but a window is also not mapped
++immediately upon creation.  In either case gl_havewindow is true but
++gl_mapped is false.
++
++Closing a non-root window makes it invisible; closing a root destroys it.
++
++A glist that's just a text object on its parent is always "toplevel."  An
++embedded glist can switch back and forth to appear as a toplevel by double-
++clicking on it.  Single-clicking a text box makes the toplevel become visible
++and raises the window it's in.
++
++If a glist shows up as a graph on its parent, the graph is blanked while the
++glist has its own window, even if miniaturized.
++
++*/
++
++/* NOTE: this file describes Pd implementation details which may change
++in future releases.  The public (stable) API is in m_pd.h. */  
++
++#if defined(_LANGUAGE_C_PLUS_PLUS) || defined(__cplusplus)
++extern "C" {
++#endif
++
++/* --------------------- geometry ---------------------------- */
++#define IOWIDTH 7       /* width of an inlet/outlet in pixels */
++#define IOMIDDLE ((IOWIDTH-1)/2)
++#define GLIST_DEFGRAPHWIDTH 200
++#define GLIST_DEFGRAPHHEIGHT 140
++/* ----------------------- data ------------------------------- */
++
++typedef struct _updateheader
++{
++    struct _updateheader *upd_next;
++    unsigned int upd_array:1;       /* true if array, false if glist */
++    unsigned int upd_queued:1;      /* true if we're queued */
++} t_updateheader;
++
++    /* types to support glists grabbing mouse motion or keys from parent */
++typedef void (*t_glistmotionfn)(void *z, t_floatarg dx, t_floatarg dy);
++typedef void (*t_glistkeyfn)(void *z, t_floatarg key);
++
++EXTERN_STRUCT _rtext;
++#define t_rtext struct _rtext
++
++EXTERN_STRUCT _gtemplate;
++#define t_gtemplate struct _gtemplate
++
++EXTERN_STRUCT _guiconnect;
++#define t_guiconnect struct _guiconnect
++
++EXTERN_STRUCT _tscalar;
++#define t_tscalar struct _tscalar
++
++EXTERN_STRUCT _canvasenvironment;
++#define t_canvasenvironment struct _canvasenvironment 
++
++EXTERN_STRUCT _fielddesc;
++#define t_fielddesc struct _fielddesc
++
++typedef struct _selection
++{
++    t_gobj *sel_what;
++    struct _selection *sel_next;
++} t_selection;
++
++    /* this structure is instantiated whenever a glist becomes visible. */
++typedef struct _editor
++{
++    t_updateheader e_upd;           /* update header structure */
++    t_selection *e_updlist;         /* list of objects to update */
++    t_rtext *e_rtext;               /* text responder linked list */
++    t_selection *e_selection;       /* head of the selection list */
++    t_rtext *e_textedfor;           /* the rtext if any that we are editing */
++    t_gobj *e_grab;                 /* object being "dragged" */
++    t_glistmotionfn e_motionfn;     /* ... motion callback */
++    t_glistkeyfn e_keyfn;           /* ... keypress callback */
++    t_binbuf *e_connectbuf;         /* connections to deleted objects */
++    t_binbuf *e_deleted;            /* last stuff we deleted */
++    t_guiconnect *e_guiconnect;     /* GUI connection for filtering messages */
++    struct _glist *e_glist;         /* glist which owns this */
++    int e_xwas;                     /* xpos on last mousedown or motion event */
++    int e_ywas;                     /* ypos, similarly */
++    int e_selectline_index1;        /* indices for the selected line if any */
++    int e_selectline_outno;         /* (only valid if e_selectedline is set) */
++    int e_selectline_index2;
++    int e_selectline_inno;
++    t_outconnect *e_selectline_tag;
++    unsigned int e_onmotion: 3;     /* action to take on motion */
++    unsigned int e_lastmoved: 1;    /* one if mouse has moved since click */
++    unsigned int e_textdirty: 1;    /* one if e_textedfor has changed */
++    unsigned int e_selectedline: 1; /* one if a line is selected */
++} t_editor;
++
++#define MA_NONE    0    /* e_onmotion: do nothing on mouse motion */
++#define MA_MOVE    1    /* drag the selection around */
++#define MA_CONNECT 2    /* make a connection */
++#define MA_REGION  3    /* selection region */
++#define MA_PASSOUT 4    /* send on to e_grab */
++#define MA_DRAGTEXT 5   /* drag in text editor to alter selection */
++
++/* editor structure for "garrays".  We don't bother to delete and regenerate
++this structure when the "garray" becomes invisible or visible, although we
++could do so if the structure gets big (like the "editor" above.) */
++    
++typedef struct _arrayvis
++{
++    t_updateheader av_upd;          /* update header structure */
++    t_garray *av_garray;            /* owning structure */    
++} t_arrayvis;
++
++/* the t_tick structure describes where to draw x and y "ticks" for a glist */
++
++typedef struct _tick    /* where to put ticks on x or y axes */
++{
++    t_float k_point;      /* one point to draw a big tick at */
++    t_float k_inc;        /* x or y increment per little tick */
++    int k_lperb;        /* little ticks per big; 0 if no ticks to draw */
++} t_tick;
++
++/* the t_glist structure, which describes a list of elements that live on an
++area of a window.
++
++*/
++
++struct _glist
++{  
++    t_object gl_obj;            /* header in case we're a glist */
++    t_gobj *gl_list;            /* the actual data */
++    struct _gstub *gl_stub;     /* safe pointer handler */
++    int gl_valid;               /* incremented when pointers might be stale */
++    struct _glist *gl_owner;    /* parent glist, supercanvas, or 0 if none */
++    int gl_pixwidth;            /* width in pixels (on parent, if a graph) */
++    int gl_pixheight;
++    t_float gl_x1;                /* bounding rectangle in our own coordinates */
++    t_float gl_y1;
++    t_float gl_x2;
++    t_float gl_y2;
++    int gl_screenx1;            /* screen coordinates when toplevel */
++    int gl_screeny1;
++    int gl_screenx2;
++    int gl_screeny2;
++    int gl_xmargin;                /* origin for GOP rectangle */
++    int gl_ymargin;
++    t_tick gl_xtick;            /* ticks marking X values */    
++    int gl_nxlabels;            /* number of X coordinate labels */
++    t_symbol **gl_xlabel;           /* ... an array to hold them */
++    t_float gl_xlabely;               /* ... and their Y coordinates */
++    t_tick gl_ytick;            /* same as above for Y ticks and labels */
++    int gl_nylabels;
++    t_symbol **gl_ylabel;
++    t_float gl_ylabelx;
++    t_editor *gl_editor;        /* editor structure when visible */
++    t_symbol *gl_name;          /* symbol bound here */
++    int gl_font;                /* nominal font size in points, e.g., 10 */
++    struct _glist *gl_next;         /* link in list of toplevels */
++    t_canvasenvironment *gl_env;    /* root canvases and abstractions only */
++    unsigned int gl_havewindow:1;   /* true if we own a window */
++    unsigned int gl_mapped:1;       /* true if, moreover, it's "mapped" */
++    unsigned int gl_dirty:1;        /* (root canvas only:) patch has changed */
++    unsigned int gl_loading:1;      /* am now loading from file */
++    unsigned int gl_willvis:1;      /* make me visible after loading */ 
++    unsigned int gl_edit:1;         /* edit mode */
++    unsigned int gl_isdeleting:1;   /* we're inside glist_delete -- hack! */
++    unsigned int gl_goprect:1;      /* draw rectangle for graph-on-parent */
++    unsigned int gl_isgraph:1;      /* show as graph on parent */
++    unsigned int gl_hidetext:1;     /* hide object-name + args when doing graph on parent */
++};
++
++#define gl_gobj gl_obj.te_g
++#define gl_pd gl_gobj.g_pd
++
++/* a data structure to describe a field in a pure datum */
++
++#define DT_FLOAT 0
++#define DT_SYMBOL 1
++#define DT_LIST 2
++#define DT_ARRAY 3
++
++typedef struct _dataslot
++{
++    int ds_type;
++    t_symbol *ds_name;
++    t_symbol *ds_arraytemplate;     /* filled in for arrays only */
++} t_dataslot;
++
++typedef struct _template
++{
++    t_pd t_pdobj;               /* header */
++    struct _gtemplate *t_list;  /* list of "struct"/gtemplate objects */
++    t_symbol *t_sym;            /* name */
++    int t_n;                    /* number of dataslots (fields) */
++    t_dataslot *t_vec;          /* array of dataslots */
++} t_template;
++
++struct _array
++{
++    int a_n;            /* number of elements */
++    int a_elemsize;     /* size in bytes; LATER get this from template */
++    char *a_vec;        /* array of elements */
++    t_symbol *a_templatesym;    /* template for elements */
++    int a_valid;        /* protection against stale pointers into array */
++    t_gpointer a_gp;    /* pointer to scalar or array element we're in */
++    t_gstub *a_stub;    /* stub for pointing into this array */
++};
++
++    /* structure for traversing all the connections in a glist */
++typedef struct _linetraverser
++{
++    t_canvas *tr_x;
++    t_object *tr_ob;
++    int tr_nout;
++    int tr_outno;
++    t_object *tr_ob2;
++    t_outlet *tr_outlet;
++    t_inlet *tr_inlet;
++    int tr_nin;
++    int tr_inno;
++    int tr_x11, tr_y11, tr_x12, tr_y12;
++    int tr_x21, tr_y21, tr_x22, tr_y22;
++    int tr_lx1, tr_ly1, tr_lx2, tr_ly2;
++    t_outconnect *tr_nextoc;
++    int tr_nextoutno;
++} t_linetraverser;
++
++/* function types used to define graphical behavior for gobjs, a bit like X
++widgets.  We don't use Pd methods because Pd's typechecking can't specify the
++types of pointer arguments.  Also it's more convenient this way, since
++every "patchable" object can just get the "text" behaviors. */
++
++        /* Call this to get a gobj's bounding rectangle in pixels */
++typedef void (*t_getrectfn)(t_gobj *x, struct _glist *glist,
++    int *x1, int *y1, int *x2, int *y2);
++        /* and this to displace a gobj: */
++typedef void (*t_displacefn)(t_gobj *x, struct _glist *glist, int dx, int dy);
++        /* change color to show selection: */
++typedef void (*t_selectfn)(t_gobj *x, struct _glist *glist, int state);
++        /* change appearance to show activation/deactivation: */
++typedef void (*t_activatefn)(t_gobj *x, struct _glist *glist, int state);
++        /* warn a gobj it's about to be deleted */
++typedef void (*t_deletefn)(t_gobj *x, struct _glist *glist);
++        /*  making visible or invisible */
++typedef void (*t_visfn)(t_gobj *x, struct _glist *glist, int flag);
++        /* field a mouse click (when not in "edit" mode) */
++typedef int (*t_clickfn)(t_gobj *x, struct _glist *glist,
++    int xpix, int ypix, int shift, int alt, int dbl, int doit);
++        /* ... and later, resizing; getting/setting font or color... */
++
++struct _widgetbehavior
++{
++    t_getrectfn w_getrectfn;
++    t_displacefn w_displacefn;
++    t_selectfn w_selectfn;
++    t_activatefn w_activatefn;
++    t_deletefn w_deletefn;
++    t_visfn w_visfn;
++    t_clickfn w_clickfn;
++};
++
++/* -------- behaviors for scalars defined by objects in template --------- */
++/* these are set by "drawing commands" in g_template.c which add appearance to
++scalars, which live in some other window.  If the scalar is just included
++in a canvas the "parent" is a misnomer.  There is also a text scalar object
++which really does draw the scalar on the parent window; see g_scalar.c. */
++
++/* note how the click function wants the whole scalar, not the "data", so
++doesn't work on array elements... LATER reconsider this */
++
++        /* bounding rectangle: */
++typedef void (*t_parentgetrectfn)(t_gobj *x, struct _glist *glist,
++    t_word *data, t_template *tmpl, t_float basex, t_float basey,
++    int *x1, int *y1, int *x2, int *y2);
++        /* displace it */
++typedef void (*t_parentdisplacefn)(t_gobj *x, struct _glist *glist, 
++    t_word *data, t_template *tmpl, t_float basex, t_float basey,
++    int dx, int dy);
++        /* change color to show selection */
++typedef void (*t_parentselectfn)(t_gobj *x, struct _glist *glist,
++    t_word *data, t_template *tmpl, t_float basex, t_float basey,
++    int state);
++        /* change appearance to show activation/deactivation: */
++typedef void (*t_parentactivatefn)(t_gobj *x, struct _glist *glist,
++    t_word *data, t_template *tmpl, t_float basex, t_float basey,
++    int state);
++        /*  making visible or invisible */
++typedef void (*t_parentvisfn)(t_gobj *x, struct _glist *glist,
++    t_word *data, t_template *tmpl, t_float basex, t_float basey,
++    int flag);
++        /*  field a mouse click */
++typedef int (*t_parentclickfn)(t_gobj *x, struct _glist *glist,
++    t_word *data, t_template *tmpl, t_scalar *sc, t_array *ap,
++    t_float basex, t_float basey,
++    int xpix, int ypix, int shift, int alt, int dbl, int doit);
++
++struct _parentwidgetbehavior
++{
++    t_parentgetrectfn w_parentgetrectfn;
++    t_parentdisplacefn w_parentdisplacefn;
++    t_parentselectfn w_parentselectfn;
++    t_parentactivatefn w_parentactivatefn;
++    t_parentvisfn w_parentvisfn;
++    t_parentclickfn w_parentclickfn;
++};
++
++    /* cursor definitions; used as return value for t_parentclickfn */
++#define CURSOR_RUNMODE_NOTHING 0
++#define CURSOR_RUNMODE_CLICKME 1
++#define CURSOR_RUNMODE_THICKEN 2
++#define CURSOR_RUNMODE_ADDPOINT 3
++#define CURSOR_EDITMODE_NOTHING 4
++#define CURSOR_EDITMODE_CONNECT 5
++#define CURSOR_EDITMODE_DISCONNECT 6
++EXTERN void canvas_setcursor(t_glist *x, unsigned int cursornum);
++
++extern t_canvas *canvas_editing;    /* last canvas to start text edting */ 
++extern t_canvas *canvas_whichfind;  /* last canvas we did a find in */ 
++extern t_canvas *canvas_list;       /* list of all root canvases */
++extern t_class *vinlet_class, *voutlet_class;
++extern int glist_valid;         /* incremented when pointers might be stale */
++
++#define PLOTSTYLE_POINTS 0     /* plotting styles for arrays */
++#define PLOTSTYLE_POLY 1
++#define PLOTSTYLE_BEZ 2
++
++/* ------------------- functions on any gobj ----------------------------- */
++EXTERN void gobj_getrect(t_gobj *x, t_glist *owner, int *x1, int *y1,
++    int *x2, int *y2);
++EXTERN void gobj_displace(t_gobj *x, t_glist *owner, int dx, int dy);
++EXTERN void gobj_select(t_gobj *x, t_glist *owner, int state);
++EXTERN void gobj_activate(t_gobj *x, t_glist *owner, int state);
++EXTERN void gobj_delete(t_gobj *x, t_glist *owner);
++EXTERN void gobj_vis(t_gobj *x, t_glist *glist, int flag);
++EXTERN int gobj_click(t_gobj *x, struct _glist *glist,
++    int xpix, int ypix, int shift, int alt, int dbl, int doit);
++EXTERN void gobj_save(t_gobj *x, t_binbuf *b);
++EXTERN void gobj_properties(t_gobj *x, struct _glist *glist);
++EXTERN void gobj_save(t_gobj *x, t_binbuf *b);
++EXTERN int gobj_shouldvis(t_gobj *x, struct _glist *glist);
++
++/* -------------------- functions on glists --------------------- */
++EXTERN t_glist *glist_new( void);
++EXTERN void glist_init(t_glist *x);
++EXTERN void glist_add(t_glist *x, t_gobj *g);
++EXTERN void glist_cleanup(t_glist *x);
++EXTERN void glist_free(t_glist *x);
++
++EXTERN void glist_clear(t_glist *x);
++EXTERN t_canvas *glist_getcanvas(t_glist *x);
++EXTERN int glist_isselected(t_glist *x, t_gobj *y);
++EXTERN void glist_select(t_glist *x, t_gobj *y);
++EXTERN void glist_deselect(t_glist *x, t_gobj *y);
++EXTERN void glist_noselect(t_glist *x);
++EXTERN void glist_selectall(t_glist *x);
++EXTERN void glist_delete(t_glist *x, t_gobj *y);
++EXTERN void glist_retext(t_glist *x, t_text *y);
++EXTERN void glist_grab(t_glist *x, t_gobj *y, t_glistmotionfn motionfn,
++    t_glistkeyfn keyfn, int xpos, int ypos);
++EXTERN int glist_isvisible(t_glist *x);
++EXTERN int glist_istoplevel(t_glist *x);
++EXTERN t_glist *glist_findgraph(t_glist *x);
++EXTERN int glist_getfont(t_glist *x);
++EXTERN void glist_sort(t_glist *canvas);
++EXTERN void glist_read(t_glist *x, t_symbol *filename, t_symbol *format);
++EXTERN void glist_mergefile(t_glist *x, t_symbol *filename, t_symbol *format);
++
++EXTERN t_float glist_pixelstox(t_glist *x, t_float xpix);
++EXTERN t_float glist_pixelstoy(t_glist *x, t_float ypix);
++EXTERN t_float glist_xtopixels(t_glist *x, t_float xval);
++EXTERN t_float glist_ytopixels(t_glist *x, t_float yval);
++EXTERN t_float glist_dpixtodx(t_glist *x, t_float dxpix);
++EXTERN t_float glist_dpixtody(t_glist *x, t_float dypix);
++
++EXTERN void glist_getnextxy(t_glist *gl, int *xval, int *yval);
++EXTERN void glist_glist(t_glist *g, t_symbol *s, int argc, t_atom *argv);
++EXTERN t_glist *glist_addglist(t_glist *g, t_symbol *sym,
++    t_float x1, t_float y1, t_float x2, t_float y2,
++    t_float px1, t_float py1, t_float px2, t_float py2);
++EXTERN void glist_arraydialog(t_glist *parent, t_symbol *name,
++    t_floatarg size, t_floatarg saveit, t_floatarg newgraph);
++EXTERN t_binbuf *glist_writetobinbuf(t_glist *x, int wholething);
++EXTERN int glist_isgraph(t_glist *x);
++EXTERN void glist_redraw(t_glist *x);
++EXTERN void glist_drawiofor(t_glist *glist, t_object *ob, int firsttime,
++    char *tag, int x1, int y1, int x2, int y2);
++EXTERN void glist_eraseiofor(t_glist *glist, t_object *ob, char *tag);
++EXTERN void canvas_create_editor(t_glist *x);
++EXTERN void canvas_destroy_editor(t_glist *x);
++void canvas_deletelinesforio(t_canvas *x, t_text *text,
++    t_inlet *inp, t_outlet *outp);
++extern int glist_amreloadingabstractions; /* stop GUI changes while reloading */ 
++
++/* -------------------- functions on texts ------------------------- */
++EXTERN void text_setto(t_text *x, t_glist *glist, char *buf, int bufsize);
++EXTERN void text_drawborder(t_text *x, t_glist *glist, char *tag,
++    int width, int height, int firsttime);
++EXTERN void text_eraseborder(t_text *x, t_glist *glist, char *tag);
++EXTERN int text_xcoord(t_text *x, t_glist *glist);
++EXTERN int text_ycoord(t_text *x, t_glist *glist);
++EXTERN int text_xpix(t_text *x, t_glist *glist);
++EXTERN int text_ypix(t_text *x, t_glist *glist);
++
++/* -------------------- functions on rtexts ------------------------- */
++#define RTEXT_DOWN 1
++#define RTEXT_DRAG 2
++#define RTEXT_DBL 3
++#define RTEXT_SHIFT 4
++
++EXTERN t_rtext *rtext_new(t_glist *glist, t_text *who);
++EXTERN t_rtext *glist_findrtext(t_glist *gl, t_text *who);
++EXTERN void rtext_draw(t_rtext *x);
++EXTERN void rtext_erase(t_rtext *x);
++EXTERN t_rtext *rtext_remove(t_rtext *first, t_rtext *x);
++EXTERN int rtext_height(t_rtext *x);
++EXTERN void rtext_displace(t_rtext *x, int dx, int dy);
++EXTERN void rtext_select(t_rtext *x, int state);
++EXTERN void rtext_activate(t_rtext *x, int state);
++EXTERN void rtext_free(t_rtext *x);
++EXTERN void rtext_key(t_rtext *x, int n, t_symbol *s);
++EXTERN void rtext_mouse(t_rtext *x, int xval, int yval, int flag);
++EXTERN void rtext_retext(t_rtext *x);
++EXTERN int rtext_width(t_rtext *x);
++EXTERN int rtext_height(t_rtext *x);
++EXTERN char *rtext_gettag(t_rtext *x);
++EXTERN void rtext_gettext(t_rtext *x, char **buf, int *bufsize);
++EXTERN void rtext_getseltext(t_rtext *x, char **buf, int *bufsize);
++
++/* -------------------- functions on canvases ------------------------ */
++EXTERN t_class *canvas_class;
++
++EXTERN t_canvas *canvas_new(void *dummy, t_symbol *sel, int argc, t_atom *argv);
++EXTERN t_symbol *canvas_makebindsym(t_symbol *s);
++EXTERN void canvas_vistext(t_canvas *x, t_text *y);
++EXTERN void canvas_fixlinesfor(t_canvas *x, t_text *text);
++EXTERN void canvas_deletelinesfor(t_canvas *x, t_text *text);
++EXTERN void canvas_stowconnections(t_canvas *x);
++EXTERN void canvas_restoreconnections(t_canvas *x);
++EXTERN void canvas_redraw(t_canvas *x);
++
++EXTERN t_inlet *canvas_addinlet(t_canvas *x, t_pd *who, t_symbol *sym);
++EXTERN void canvas_rminlet(t_canvas *x, t_inlet *ip);
++EXTERN t_outlet *canvas_addoutlet(t_canvas *x, t_pd *who, t_symbol *sym);
++EXTERN void canvas_rmoutlet(t_canvas *x, t_outlet *op);
++EXTERN void canvas_redrawallfortemplate(t_template *tmpl, int action);
++EXTERN void canvas_redrawallfortemplatecanvas(t_canvas *x, int action);
++EXTERN void canvas_zapallfortemplate(t_canvas *tmpl);
++EXTERN void canvas_setusedastemplate(t_canvas *x);
++EXTERN t_canvas *canvas_getcurrent(void);
++EXTERN void canvas_setcurrent(t_canvas *x);
++EXTERN void canvas_unsetcurrent(t_canvas *x);
++EXTERN t_symbol *canvas_realizedollar(t_canvas *x, t_symbol *s);
++EXTERN t_canvas *canvas_getrootfor(t_canvas *x);
++EXTERN void canvas_dirty(t_canvas *x, t_floatarg n);
++EXTERN int canvas_getfont(t_canvas *x);
++typedef int (*t_canvasapply)(t_canvas *x, t_int x1, t_int x2, t_int x3);
++
++EXTERN t_int *canvas_recurapply(t_canvas *x, t_canvasapply *fn,
++    t_int x1, t_int x2, t_int x3);
++
++EXTERN void canvas_resortinlets(t_canvas *x);
++EXTERN void canvas_resortoutlets(t_canvas *x);
++EXTERN void canvas_free(t_canvas *x);
++EXTERN void canvas_updatewindowlist( void);
++EXTERN void canvas_editmode(t_canvas *x, t_floatarg yesplease);
++EXTERN int canvas_isabstraction(t_canvas *x);
++EXTERN int canvas_istable(t_canvas *x);
++EXTERN int canvas_showtext(t_canvas *x);
++EXTERN void canvas_vis(t_canvas *x, t_floatarg f);
++EXTERN t_canvasenvironment *canvas_getenv(t_canvas *x);
++EXTERN void canvas_rename(t_canvas *x, t_symbol *s, t_symbol *dir);
++EXTERN void canvas_loadbang(t_canvas *x);
++EXTERN int canvas_hitbox(t_canvas *x, t_gobj *y, int xpos, int ypos,
++    int *x1p, int *y1p, int *x2p, int *y2p);
++EXTERN int canvas_setdeleting(t_canvas *x, int flag);
++
++typedef void (*t_undofn)(t_canvas *canvas, void *buf,
++    int action);        /* a function that does UNDO/REDO */
++#define UNDO_FREE 0                     /* free current undo/redo buffer */
++#define UNDO_UNDO 1                     /* undo */
++#define UNDO_REDO 2                     /* redo */
++EXTERN void canvas_setundo(t_canvas *x, t_undofn undofn, void *buf,
++    const char *name);
++EXTERN void canvas_noundo(t_canvas *x);
++EXTERN int canvas_getindex(t_canvas *x, t_gobj *y);
++
++EXTERN void canvas_connect(t_canvas *x,
++    t_floatarg fwhoout, t_floatarg foutno,t_floatarg fwhoin, t_floatarg finno);
++EXTERN void canvas_disconnect(t_canvas *x,
++    t_float index1, t_float outno, t_float index2, t_float inno);
++EXTERN int canvas_isconnected (t_canvas *x,
++    t_text *ob1, int n1, t_text *ob2, int n2);
++EXTERN void canvas_selectinrect(t_canvas *x, int lox, int loy, int hix, int hiy);
++
++
++/* ---- functions on canvasses as objects  --------------------- */
++
++EXTERN void canvas_fattenforscalars(t_canvas *x,
++    int *x1, int *y1, int *x2, int *y2);
++EXTERN void canvas_visforscalars(t_canvas *x, t_glist *glist, int vis);
++EXTERN int canvas_clicksub(t_canvas *x, int xpix, int ypix, int shift,
++    int alt, int dbl, int doit);
++EXTERN t_glist *canvas_getglistonsuper(void);
++
++EXTERN void linetraverser_start(t_linetraverser *t, t_canvas *x);
++EXTERN t_outconnect *linetraverser_next(t_linetraverser *t);
++EXTERN void linetraverser_skipobject(t_linetraverser *t);
++
++/* --------- functions on garrays (graphical arrays) -------------------- */
++
++EXTERN t_template *garray_template(t_garray *x);
++
++/* -------------------- arrays --------------------- */
++EXTERN t_garray *graph_array(t_glist *gl, t_symbol *s, t_symbol *tmpl,
++    t_floatarg f, t_floatarg saveit);
++EXTERN t_array *array_new(t_symbol *templatesym, t_gpointer *parent);
++EXTERN void array_resize(t_array *x, int n);
++EXTERN void array_free(t_array *x);
++
++/* --------------------- gpointers and stubs ---------------- */
++EXTERN t_gstub *gstub_new(t_glist *gl, t_array *a);
++EXTERN void gstub_cutoff(t_gstub *gs);
++EXTERN void gpointer_setglist(t_gpointer *gp, t_glist *glist, t_scalar *x);
++EXTERN void gpointer_setarray(t_gpointer *gp, t_array *array, t_word *w);
++
++/* --------------------- scalars ------------------------- */
++EXTERN void word_init(t_word *wp, t_template *tmpl, t_gpointer *gp);
++EXTERN void word_restore(t_word *wp, t_template *tmpl,
++    int argc, t_atom *argv);
++EXTERN t_scalar *scalar_new(t_glist *owner,
++    t_symbol *templatesym);
++EXTERN void word_free(t_word *wp, t_template *tmpl);
++EXTERN void scalar_getbasexy(t_scalar *x, t_float *basex, t_float *basey);
++EXTERN void scalar_redraw(t_scalar *x, t_glist *glist);
++
++/* ------helper routines for "garrays" and "plots" -------------- */
++EXTERN int array_doclick(t_array *array, t_glist *glist, t_scalar *sc, t_array *ap,
++    t_symbol *elemtemplatesym,
++    t_float linewidth, t_float xloc, t_float xinc, t_float yloc, t_float scalarvis,
++    t_fielddesc *xfield, t_fielddesc *yfield, t_fielddesc *wfield,
++    int xpix, int ypix, int shift, int alt, int dbl, int doit);
++
++EXTERN void array_getcoordinate(t_glist *glist,
++    char *elem, int xonset, int yonset, int wonset, int indx,
++    t_float basex, t_float basey, t_float xinc,
++    t_fielddesc *xfielddesc, t_fielddesc *yfielddesc, t_fielddesc *wfielddesc,
++    t_float *xp, t_float *yp, t_float *wp);
++
++EXTERN int array_getfields(t_symbol *elemtemplatesym,
++    t_canvas **elemtemplatecanvasp,
++    t_template **elemtemplatep, int *elemsizep,
++    t_fielddesc *xfielddesc, t_fielddesc *yfielddesc, t_fielddesc *wfielddesc, 
++    int *xonsetp, int *yonsetp, int *wonsetp);
++
++/* --------------------- templates ------------------------- */
++EXTERN t_template *template_new(t_symbol *sym, int argc, t_atom *argv);
++EXTERN void template_free(t_template *x);
++EXTERN int template_match(t_template *x1, t_template *x2);
++EXTERN int template_find_field(t_template *x, t_symbol *name, int *p_onset,
++    int *p_type, t_symbol **p_arraytype);
++EXTERN t_float template_getfloat(t_template *x, t_symbol *fieldname, t_word *wp,
++    int loud);
++EXTERN void template_setfloat(t_template *x, t_symbol *fieldname, t_word *wp,
++    t_float f, int loud);
++EXTERN t_symbol *template_getsymbol(t_template *x, t_symbol *fieldname,
++    t_word *wp, int loud);
++EXTERN void template_setsymbol(t_template *x, t_symbol *fieldname,
++    t_word *wp, t_symbol *s, int loud);
++
++EXTERN t_template *gtemplate_get(t_gtemplate *x);
++EXTERN t_template *template_findbyname(t_symbol *s);
++EXTERN t_canvas *template_findcanvas(t_template *tmpl);
++EXTERN void template_notify(t_template *tmpl,
++    t_symbol *s, int argc, t_atom *argv);
++
++EXTERN t_float template_getfloat(t_template *x, t_symbol *fieldname,
++    t_word *wp, int loud);
++EXTERN void template_setfloat(t_template *x, t_symbol *fieldname,
++    t_word *wp, t_float f, int loud);
++EXTERN t_symbol *template_getsymbol(t_template *x, t_symbol *fieldname,
++    t_word *wp, int loud);
++EXTERN void template_setsymbol(t_template *x, t_symbol *fieldname,
++    t_word *wp, t_symbol *s, int loud);
++EXTERN t_float fielddesc_getcoord(t_fielddesc *f, t_template *tmpl,
++    t_word *wp, int loud);
++EXTERN void fielddesc_setcoord(t_fielddesc *f, t_template *tmpl,
++    t_word *wp, t_float pix, int loud);
++EXTERN t_float fielddesc_cvttocoord(t_fielddesc *f, t_float val);
++EXTERN t_float fielddesc_cvtfromcoord(t_fielddesc *f, t_float coord);
++
++
++/* ----------------------- guiconnects, g_guiconnect.c --------- */
++EXTERN t_guiconnect *guiconnect_new(t_pd *who, t_symbol *sym);
++EXTERN void guiconnect_notarget(t_guiconnect *x, double timedelay);
++
++/* ------------- IEMGUI routines used in other g_ files ---------------- */
++EXTERN t_symbol *iemgui_raute2dollar(t_symbol *s);
++EXTERN t_symbol *iemgui_dollar2raute(t_symbol *s);
++
++#if defined(_LANGUAGE_C_PLUS_PLUS) || defined(__cplusplus)
++}
++#endif
