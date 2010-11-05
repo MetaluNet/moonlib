@@ -5,7 +5,7 @@ PACKAGE = pd-$(LIBRARY_NAME)
 pkglibdir = /usr/lib/pd/extra
 
 %:
-	dh $@ --buildsystem=makefile
+	dh --with quilt $@ --buildsystem=makefile
 
 override_dh_auto_install:
 	dh_auto_install -- prefix=/usr pkglibdir=$(pkglibdir)
