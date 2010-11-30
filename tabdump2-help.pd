@@ -1,11 +1,11 @@
-#N canvas 21 53 496 358 10;
+#N canvas 0 31 496 358 10;
 #X obj 13 21 tabdump2;
-#X obj 187 37 tabdump;
+#X obj 187 40 tabdump;
 #X text 22 332 (c) Antoine Rousseau 2004;
 #X text 104 21 dump the contents of a table as a list;
 #X text 104 37 like zexy's;
 #X text 244 38 but with min/max dumping limits.;
-#N canvas 0 0 450 300 graph5 0;
+#N canvas 0 0 450 300 (subpatch) 0;
 #X array \$0-array 10 float 0;
 #X coords 0 1 9 0 100 80 1;
 #X restore 330 71 graph;
@@ -21,6 +21,16 @@
 #X msg 95 203 dump 5 10;
 #X text 18 177 dump N M: from N to (M-1);
 #X msg 174 203 dump 5 6;
+#N canvas 502 150 494 344 META 0;
+#X text 12 25 LICENSE GPL v2;
+#X text 12 105 AUTHOR Antoine Rousseau;
+#X text 12 125 HELP_PATCH_AUTHORS Antoine Rousseau. "pd meta" information
+added by Jonathan Wilkes for Pd version 0.42.;
+#X text 12 5 KEYWORDS control array;
+#X text 12 45 DESCRIPTION dump the contents of a table as a list;
+#X text 12 65 INLET_0 bang dump;
+#X text 12 85 OUTLET_0 list;
+#X restore 440 329 pd META;
 #X connect 8 0 7 0;
 #X connect 9 0 8 0;
 #X connect 10 0 11 0;

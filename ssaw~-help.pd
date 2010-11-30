@@ -1,4 +1,4 @@
-#N canvas 106 74 492 266 10;
+#N canvas 0 31 492 266 10;
 #X obj 0 0 cnv 8 100 60 empty empty ssaw 10 20 1 18 -262144 -1109 0
 ;
 #X text 8 243 (c) Moonix: Antoine Rousseau 2004;
@@ -12,6 +12,17 @@
 #X obj 159 193 dac~;
 #X text 124 19 sweet sawtooth generator;
 #X text 121 32 (not to much aliasing below 10kHz);
+#N canvas 502 150 494 344 META 0;
+#X text 12 25 LICENSE GPL v2;
+#X text 12 125 AUTHOR Antoine Rousseau;
+#X text 12 145 HELP_PATCH_AUTHORS Antoine Rousseau. "pd meta" information
+added by Jonathan Wilkes for Pd version 0.42.;
+#X text 12 5 KEYWORDS signal bandlimited;
+#X text 12 45 DESCRIPTION sweet sawtooth generator;
+#X text 12 65 INLET_0 signal;
+#X text 12 85 INLET_1 float;
+#X text 12 105 OUTLET_0 signal;
+#X restore 434 232 pd META;
 #X connect 2 0 3 0;
 #X connect 3 0 8 0;
 #X connect 3 0 8 1;

@@ -1,4 +1,4 @@
-#N canvas 38 250 582 490 10;
+#N canvas 0 31 582 490 10;
 #X obj 0 0 cnv 8 100 60 empty empty sfread2~ 10 20 1 18 -262144 -1109
 0;
 #X text 2 459 (c) Moonix: Antoine Rousseau 2003;
@@ -40,6 +40,21 @@ opened (use of C function mmap()).;
 0.37...);
 #X text 59 378 CAUTION: you should hack pd sources to have d-t-d working.
 ;
+#N canvas 592 238 494 344 META 0;
+#X text 12 25 LICENSE GPL v2;
+#X text 12 165 AUTHOR Antoine Rousseau;
+#X text 12 185 HELP_PATCH_AUTHORS Antoine Rousseau. "pd meta" information
+added by Jonathan Wilkes for Pd version 0.42.;
+#X text 12 5 KEYWORDS signal soundfile;
+#X text 12 45 DESCRIPTION soundfile reader at variable speed (possibly
+negative) \, whith 4-point interpolation and loop;
+#X text 12 85 INLET_0 float bang interp open index loop;
+#X text 12 105 INLET_1 float;
+#X text 12 145;
+#X text 12 125 OUTLET_N signal;
+#X text 12 145 OUTLET_R float;
+#X restore 526 459 pd META;
+#X obj 286 303 sfread2~ 4;
 #X connect 3 0 12 0;
 #X connect 3 1 12 1;
 #X connect 4 0 3 0;

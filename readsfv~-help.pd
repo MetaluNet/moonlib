@@ -1,4 +1,4 @@
-#N canvas 117 77 546 422 10;
+#N canvas 0 31 546 422 10;
 #X obj 0 0 cnv 8 100 60 empty empty readsfv~ 10 20 1 18 -262144 -1109
 0;
 #X text 4 400 (c) Moonix: Antoine Rousseau 2003;
@@ -35,6 +35,18 @@
 #X text 230 104 read manual of;
 #X text 390 103 for more details...;
 #X obj 335 102 readsf~;
+#N canvas 524 187 494 344 META 0;
+#X text 12 25 LICENSE GPL v2;
+#X text 12 135 AUTHOR Antoine Rousseau;
+#X text 12 155 HELP_PATCH_AUTHORS Antoine Rousseau. "pd meta" information
+added by Jonathan Wilkes for Pd version 0.42.;
+#X text 12 5 KEYWORDS signal soundfile;
+#X text 12 45 DESCRIPTION read a big soundfile in direct-to-disk mode
+at variable speed;
+#X text 12 75 INLET_0 float start speed stop open print;
+#X text 12 95 OUTLET_0 signal;
+#X text 12 115 OUTLET_1 signal;
+#X restore 487 387 pd META;
 #X connect 3 0 2 0;
 #X connect 3 0 2 1;
 #X connect 3 1 8 0;

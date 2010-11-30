@@ -1,4 +1,4 @@
-#N canvas 479 347 565 404 10;
+#N canvas 0 31 565 404 10;
 #X obj 0 0 cnv 8 100 60 empty empty dispatch 10 20 1 18 -262144 -1109
 0;
 #X obj 40 131 r foo1-rcv;
@@ -36,7 +36,7 @@
 #X obj 49 276 r \$0-bar-snd;
 #X obj 173 276 hdl 15 0 0 4 empty empty empty 0 -6 0 8 -262144 -1 -1
 1;
-#X obj 185 221 dispatch \$0-bar 0 3;
+#X obj 183 221 dispatch \$0-bar 0 3;
 #X msg 173 297 \$1 bang;
 #X obj 49 298 unpack f f;
 #X floatatom 49 319 2 0 0 0 - - -;
@@ -47,9 +47,19 @@
 #X text 362 241 _______;
 #X text 351 280 (notice the -snd and -rcv);
 #X text 351 268 skeletonX-snd skeletonX-rcv;
-#X text 134 24 a single one \, in which datas are prepended by the
-number;
 #X text 134 37 of the receiver/sender.;
+#N canvas 579 234 494 344 META 0;
+#X text 12 25 LICENSE GPL v2;
+#X text 12 95 AUTHOR Antoine Rousseau;
+#X text 12 115 HELP_PATCH_AUTHORS Antoine Rousseau. "pd meta" information
+added by Jonathan Wilkes for Pd version 0.42.;
+#X text 12 45 DESCRIPTION link several pairs of send/receive addresses
+to a single one;
+#X text 12 75 INLET_0;
+#X text 12 5 KEYWORDS control nonlocal needs_work (inlet_0?);
+#X restore 508 371 pd META;
+#X text 134 24 a single one \, in which data is prepended by the number
+;
 #X connect 1 0 2 0;
 #X connect 3 0 4 0;
 #X connect 5 0 6 0;

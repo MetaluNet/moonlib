@@ -1,11 +1,11 @@
-#N canvas 158 412 745 484 10;
+#N canvas 0 31 758 515 10;
 #X obj 0 0 cnv 8 100 60 empty empty sarray 10 20 1 18 -262144 -1109
 0;
 #X text 2 467 (c) Moonix: Antoine Rousseau 2003;
 #X msg 74 275 1;
 #X msg 103 275 2;
 #X msg 131 275 3;
-#X symbolatom 139 356 10 0 0;
+#X symbolatom 139 356 10 0 0 0 - - -;
 #X msg 533 269 reset;
 #X text 109 12 shared array of symbols;
 #X obj 47 146 sarray foo 8;
@@ -60,6 +60,16 @@
 #X msg 528 402 print;
 #X msg 577 403 setarray foo;
 #X msg 577 422 setarray foo2;
+#N canvas 501 307 494 344 META 0;
+#X text 12 25 LICENSE GPL v2;
+#X text 12 105 AUTHOR Antoine Rousseau;
+#X text 12 125 HELP_PATCH_AUTHORS Antoine Rousseau. "pd meta" information
+added by Jonathan Wilkes for Pd version 0.42.;
+#X text 12 5 KEYWORDS control storage list_op;
+#X text 12 45 DESCRIPTION shared array of symbols;
+#X text 12 65 INLET_0 setlen set print get dump reset setarray;
+#X text 12 85 OUTLET_0 symbol list;
+#X restore 702 485 pd META;
 #X connect 2 0 16 0;
 #X connect 3 0 16 0;
 #X connect 4 0 16 0;

@@ -1,4 +1,4 @@
-#N canvas 172 316 715 428 10;
+#N canvas 0 31 715 428 10;
 #X obj 0 0 cnv 8 100 60 empty empty comma 10 20 1 18 -262144 -1109
 0;
 #X text 109 12 how to write " \, " in a message...;
@@ -17,7 +17,7 @@
 #X obj 407 171 t b a;
 #X msg 331 82 set;
 #X msg 427 110 bar 20;
-#X msg 417 249 foo 10 \, bar 20 \,;
+#X msg 417 249 foo 10 \, bar 20 \, foo 10 \,;
 #X obj 517 171 bng 15 250 50 0 empty empty empty 0 -6 0 8 -262144 -1
 -1;
 #X text 39 72 0: what we want to do is to;
@@ -25,6 +25,17 @@
 #X text 375 92 2: add parts;
 #X text 467 153 (or click the message directly);
 #X text 453 142 3: send the message;
+#N canvas 380 146 494 344 META 0;
+#X text 12 25 LICENSE GPL v2;
+#X text 12 105 AUTHOR Antoine Rousseau;
+#X text 12 125 HELP_PATCH_AUTHORS Antoine Rousseau. "pd meta" information
+added by Jonathan Wilkes for Pd version 0.42.;
+#X text 12 5 KEYWORDS control deprecated;
+#X text 12 45 DESCRIPTION how to write " \, " in a message... (deprecated)
+;
+#X text 12 65 INLET_0 bang;
+#X text 12 85 OUTLET_0 comma;
+#X restore 653 397 pd META;
 #X connect 3 0 6 0;
 #X connect 6 0 4 0;
 #X connect 6 1 5 0;

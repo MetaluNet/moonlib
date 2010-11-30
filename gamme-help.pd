@@ -1,13 +1,13 @@
-#N canvas 246 348 520 515 10;
+#N canvas 0 31 520 515 10;
 #X text 10 491 (c) Antoine Rousseau 2001;
 #X text 85 3 gamme: a musical scale selector.;
-#X obj 113 187 gamme 90 40 1 0 0 0 1 0 0 1 0 0 0 0;
+#X obj 113 187 gamme 90 40 1 0 0 1 0 0 1 1 1 0 0 1;
 #X floatatom 51 244 6 0 0 0 - - -;
 #X floatatom 134 71 4 0 0 0 - - -;
 #X floatatom 33 78 4 0 0 0 - - -;
 #X floatatom 154 244 4 0 0 0 - - -;
 #X msg 280 256 set \$1 \$2;
-#X obj 280 288 gamme 90 40 1 0 0 0 1 0 0 1 0 0 0 0;
+#X obj 280 288 gamme 90 40 1 0 0 1 0 0 1 1 1 0 0 1;
 #X msg 401 177 getall;
 #X floatatom 322 336 4 0 0 0 - - -;
 #X floatatom 282 72 6 0 0 0 - - -;
@@ -25,7 +25,7 @@
 #X text 344 55 rounding strength;
 #X obj 303 93 t b f;
 #X text 19 59 semitone;
-#X text 152 33 ARPEGE;
+#X text 152 32 ARPEGE;
 #X text 28 39 FILTER;
 #X text 324 36 ROUNDING;
 #X text 51 263 Result;
@@ -35,7 +35,7 @@
 #X text 383 225 Last change;
 #X text 371 158 get all the key set.;
 #N canvas 483 118 375 520 audio 0;
-#X obj 4 356 gamme 90 40 1 0 1 0 1 0 0 1 0 1 0 0;
+#X obj 4 356 gamme 90 40 1 0 1 1 0 0 1 1 1 1 0 1;
 #X obj 28 464 *~;
 #X obj 4 419 mtof;
 #X obj 4 442 osc~;
@@ -80,7 +80,7 @@
 #X obj 62 421 pow 4;
 #X obj 4 189 metro 180;
 #X obj 4 211 i;
-#X obj 4 162 tgl 20 0 empty empty play 0 -8 1 10 -262144 -1 -1 1 1
+#X obj 4 162 tgl 20 0 empty empty play 0 -8 1 10 -262144 -1 -1 0 1
 ;
 #X obj 29 211 + 1;
 #X obj 4 286 spigot;
@@ -148,6 +148,18 @@
 #X connect 31 0 0 0;
 #X coords 0 0 1 1 210 110 1;
 #X restore 33 325 pd audio demo;
+#N canvas 518 217 494 344 META 0;
+#X text 12 25 LICENSE GPL v2;
+#X text 12 145 AUTHOR Antoine Rousseau;
+#X text 12 165 HELP_PATCH_AUTHORS Antoine Rousseau. "pd meta" information
+added by Jonathan Wilkes for Pd version 0.42.;
+#X text 12 45 DESCRIPTION a musical scale selector;
+#X text 12 65 INLET_0 float get round getall;
+#X text 12 85 OUTLET_0 float;
+#X text 12 105 OUTLET_1 float;
+#X text 12 125 OUTLET_2 list;
+#X text 12 5 KEYWORDS control GUI storage MIDI;
+#X restore 460 480 pd META;
 #X connect 2 0 3 0;
 #X connect 2 1 6 0;
 #X connect 2 2 7 0;

@@ -1,7 +1,7 @@
-#N canvas 133 15 811 538 10;
+#N canvas 0 31 811 538 10;
 #X floatatom 62 381 5 0 0 0 - - -;
-#N canvas 0 0 450 300 graph29 0;
-#X array source1 100 float 1;
+#N canvas 0 0 450 300 (subpatch) 0;
+#X array \$0-source1 100 float 1;
 #A 0 -0.0428565 -0.0571422 0.085715 0.228572 0.442858 0.657144 0.871429
 1.08572 1.22857 1.51429 1.72857 1.94286 2.22857 2.37143 2.58571 2.72857
 2.87143 2.94286 3.15714 3.3 3.3 3.44286 3.58571 3.65714 3.72857 3.8
@@ -16,19 +16,18 @@
 ;
 #X coords 0 10 99 0 200 140 1;
 #X restore 60 133 graph;
-#N canvas 0 0 450 300 graph29 0;
-#X array dest 100 float 0;
+#N canvas 0 0 450 300 (subpatch) 0;
+#X array \$0-dest 100 float 0;
 #X coords 0 100 99 0 200 140 1;
 #X restore 547 129 graph;
 #X obj 10 8 tabsort2;
-#X text 75 9 2 dimensionnal sort.;
 #X text 24 99 args: source_table1 source_table2 dest_table;
 #X text 248 8 write to dest_table the indices of the first N source_table1's
 elements sorted by decreasing order (biggest first) \, then sort the
 "columns" of sqrt(N) indices decreasingly according to their values
 in source_table2 (is it clear?).;
-#N canvas 0 0 450 300 graph29 0;
-#X array source2 100 float 1;
+#N canvas 0 0 450 300 (subpatch) 0;
+#X array \$0-source2 100 float 1;
 #A 0 7.71429 7.64286 7.64286 7.57143 7.5 7.35714 7.21428 6.92857 6.57143
 6 5.71428 5.57143 5.21428 4.5 4.35714 4.28571 4.28571 4.28571 4.28571
 4.28571 4.42857 4.57143 4.64285 4.78571 4.92857 5.14285 5.35714 5.71428
@@ -43,42 +42,53 @@ in source_table2 (is it clear?).;
 #X coords 0 10 99 0 200 140 1;
 #X restore 311 131 graph;
 #X msg 62 340 100;
-#X obj 62 360 tabsort2 source1 source2 dest;
-#X obj 500 416 tabread dest;
 #X obj 452 362 * 10;
 #X obj 500 391 +;
-#X floatatom 451 346 5 0 9 0 - - -;
+#X floatatom 452 342 5 0 9 0 - - -;
 #X obj 528 361 t b f;
-#X floatatom 528 344 5 0 9 0 - - -;
+#X floatatom 528 340 5 0 9 0 - - -;
 #X floatatom 407 485 0 0 0 0 - - -;
-#X obj 407 465 tabread source1;
-#X obj 557 467 tabread source2;
 #X floatatom 557 487 0 0 0 0 - - -;
 #X floatatom 527 393 5 0 0 0 - - -;
-#X text 433 328 x(columns);
-#X text 521 327 y(lines);
+#X text 434 324 x(columns);
+#X text 521 323 y(lines);
 #X text 403 504 decrease with x;
 #X text 555 505 decrease with y;
 #X text 49 305 1) Sort it:;
 #X text 381 304 2) Try it:;
 #X text 8 520 (c) Antoine Rousseau 2002;
 #X floatatom 603 441 5 0 0 0 - - -;
-#X text 604 416 index of sources;
-#X text 606 426 elements;
+#X text 604 414 index of sources;
+#X text 606 424 elements;
 #X text 28 396 output=sqrt(N)=the width/height;
 #X text 28 410 of the destination "square".;
-#X text 61 326 sort the N first elements;
+#X text 61 323 sort the N first elements;
+#X obj 500 416 tabread \$0-dest;
+#X obj 407 465 tabread \$0-source1;
+#X obj 557 467 tabread \$0-source2;
+#X obj 62 360 tabsort2 \$0-source1 \$0-source2 \$0-dest;
+#N canvas 572 197 494 344 META 0;
+#X text 12 25 LICENSE GPL v2;
+#X text 12 105 AUTHOR Antoine Rousseau;
+#X text 12 125 HELP_PATCH_AUTHORS Antoine Rousseau. "pd meta" information
+added by Jonathan Wilkes for Pd version 0.42.;
+#X text 12 85 OUTLET_0 float;
+#X text 12 5 KEYWORDS control array;
+#X text 12 65 INLET_0 float;
+#X text 12 45 DESCRIPTION two dimensional sort;
+#X restore 750 506 pd META;
+#X text 75 9 2 dimensional sort;
+#X connect 7 0 32 0;
 #X connect 8 0 9 0;
-#X connect 9 0 0 0;
-#X connect 10 0 17 0;
-#X connect 10 0 18 0;
-#X connect 10 0 28 0;
-#X connect 11 0 12 0;
-#X connect 12 0 10 0;
-#X connect 12 0 20 0;
-#X connect 13 0 11 0;
-#X connect 14 0 12 0;
-#X connect 14 1 12 1;
-#X connect 15 0 14 0;
-#X connect 17 0 16 0;
-#X connect 18 0 19 0;
+#X connect 9 0 15 0;
+#X connect 9 0 29 0;
+#X connect 10 0 8 0;
+#X connect 11 0 9 0;
+#X connect 11 1 9 1;
+#X connect 12 0 11 0;
+#X connect 29 0 23 0;
+#X connect 29 0 30 0;
+#X connect 29 0 31 0;
+#X connect 30 0 13 0;
+#X connect 31 0 14 0;
+#X connect 32 0 0 0;
