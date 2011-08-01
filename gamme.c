@@ -125,13 +125,13 @@ static void draw_inlets(t_gamme *x, t_glist *glist, int firsttime, int nin, int 
      {
 	  int onset = xpos + (x->x_width - IOWIDTH) * i / nplus;
 	  if (firsttime)
-	       sys_vgui(".x%x.c create rectangle %d %d %d %d -tags %xo%d\n",
+	       sys_vgui(".x%lx.c create rectangle %d %d %d %d -tags %xo%d\n",
 			glist_getcanvas(glist),
 			onset, ypos + x->x_height - 1,
 			onset + IOWIDTH, ypos + x->x_height,
 			x, i);
 	  else
-	       sys_vgui(".x%x.c coords %xo%d %d %d %d %d\n",
+	       sys_vgui(".x%lx.c coords %xo%d %d %d %d %d\n",
 			glist_getcanvas(glist), x, i,
 			onset, ypos + x->x_height - 1,
 			onset + IOWIDTH, ypos + x->x_height);
@@ -142,13 +142,13 @@ static void draw_inlets(t_gamme *x, t_glist *glist, int firsttime, int nin, int 
      {
 	  int onset = xpos + (x->x_width - IOWIDTH) * i / nplus;
 	  if (firsttime)
-	       sys_vgui(".x%x.c create rectangle %d %d %d %d -tags %xi%d\n",
+	       sys_vgui(".x%lx.c create rectangle %d %d %d %d -tags %xi%d\n",
 			glist_getcanvas(glist),
 			onset, ypos,
 			onset + IOWIDTH, ypos + 1,
 			x, i);
 	  else
-	       sys_vgui(".x%x.c coords %xi%d %d %d %d %d\n",
+	       sys_vgui(".x%lx.c coords %xi%d %d %d %d %d\n",
 			glist_getcanvas(glist), x, i,
 			onset, ypos,
 			onset + IOWIDTH, ypos + 1);
@@ -166,7 +166,7 @@ void gamme_drawme(t_gamme *x, t_glist *glist, int firsttime)
     int ypos=text_ypix(&x->x_obj, glist);
 	  
 	  if (firsttime) {
-	  sys_vgui(".x%x.c create rectangle \
+	  sys_vgui(".x%lx.c create rectangle \
 %d %d %d %d -tags %xS "BACKGROUND"\n",
 		   glist_getcanvas(glist),
 		   xpos, ypos,
@@ -175,7 +175,7 @@ void gamme_drawme(t_gamme *x, t_glist *glist, int firsttime)
 	  
      }     
      else {
-	  sys_vgui(".x%x.c coords %xS \
+	  sys_vgui(".x%lx.c coords %xS \
 %d %d %d %d\n",
 		   glist_getcanvas(glist), x,
 		   xpos, ypos,
@@ -193,13 +193,13 @@ void gamme_drawme(t_gamme *x, t_glist *glist, int firsttime)
 	  if (firsttime) {
 		color=x->x_notes[i]?	(ISWHITE(i)?SELWHITECOLOR:SELBLACKCOLOR):
 							(ISWHITE(i)?WHITECOLOR:BLACKCOLOR);
-	  sys_vgui(".x%x.c create rectangle \
+	  sys_vgui(".x%lx.c create rectangle \
 %d %d %d %d -tags %x%s -fill %s\n",
 			glist_getcanvas(glist),xi1,yi1,xi2,yi2,
 			x,NoteNames[i],color);
     }     
      else {
-	  sys_vgui(".x%x.c coords %x%s \
+	  sys_vgui(".x%lx.c coords %x%s \
 %d %d %d %d\n",
 			glist_getcanvas(glist),x,NoteNames[i],xi1,yi1,xi2,yi2);
      }
@@ -214,18 +214,18 @@ void gamme_erase(t_gamme* x,t_glist* glist)
      int n;
     t_canvas *canvas=glist_getcanvas(glist);
 
-	 sys_vgui(".x%x.c delete %xS\n",canvas, x);
+	 sys_vgui(".x%lx.c delete %xS\n",canvas, x);
 
 	for(n=0;n<12;n++)
-		sys_vgui(".x%x.c delete %x%s\n",canvas,x,NoteNames[n]);
+		sys_vgui(".x%lx.c delete %x%s\n",canvas,x,NoteNames[n]);
 
      n = 1;
      while (n--) {
-	  sys_vgui(".x%x.c delete %xi%d\n",canvas,x,n);
+	  sys_vgui(".x%lx.c delete %xi%d\n",canvas,x,n);
      }
      n = 3;
      while (n--) {
-	  sys_vgui(".x%x.c delete %xo%d\n",canvas,x,n);
+	  sys_vgui(".x%lx.c delete %xo%d\n",canvas,x,n);
      }
 }
 	
@@ -263,7 +263,7 @@ static void gamme_displace(t_gobj *z, t_glist *glist,
 static void gamme_select(t_gobj *z, t_glist *glist, int state)
 {
      t_gamme *x = (t_gamme *)z;
-     sys_vgui(".x%x.c itemconfigure %xS -fill %s\n", glist, 
+     sys_vgui(".x%lx.c itemconfigure %xS -fill %s\n", glist, 
 	     x, (state? "blue" : BACKGROUNDCOLOR));
 }
 
@@ -345,7 +345,7 @@ void gamme_set(t_gamme *x,t_floatarg note,t_floatarg on)
 									(ISWHITE(notei)?WHITECOLOR:BLACKCOLOR);
 	
 	if(glist_isvisible(x->x_glist))
-		sys_vgui(".x%x.c itemconfigure %x%s -fill %s\n", canvas, 
+		sys_vgui(".x%lx.c itemconfigure %x%s -fill %s\n", canvas, 
 	     x, NoteNames[notei],color);
 	
 	x->x_n=0;

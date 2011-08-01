@@ -75,7 +75,7 @@ static void mknob_update_knob(t_mknob *x, t_glist *glist)
 	xpc=miniradius*cos(angle-M_PI/2);
 	ypc=miniradius*sin(angle-M_PI/2);
 	
-	sys_vgui(".x%x.c coords %xKNOB %d %d %d %d %d %d\n",
+	sys_vgui(".x%lx.c coords %xKNOB %d %d %d %d %d %d\n",
 		canvas,x,xp,yp,xc+xpc,yc+ypc,xc-xpc,yc-ypc);
 }
 
@@ -89,7 +89,7 @@ static void mknob_draw_update(t_mknob *x, t_glist *glist)
 	{
 	    if(!x->x_thick)
 	    {
-		sys_vgui(".x%x.c itemconfigure %xKNOB -width 7\n", canvas, x);
+		sys_vgui(".x%lx.c itemconfigure %xKNOB -width 7\n", canvas, x);
 		x->x_thick = 1;
 	    }
 	}
@@ -97,7 +97,7 @@ static void mknob_draw_update(t_mknob *x, t_glist *glist)
 	{
 	    if(x->x_thick)
 	    {
-		sys_vgui(".x%x.c itemconfigure %xKNOB -width 3\n", canvas, x);
+		sys_vgui(".x%lx.c itemconfigure %xKNOB -width 3\n", canvas, x);
 		x->x_thick = 0;
 	    }
 	}*/
@@ -113,25 +113,25 @@ static void mknob_draw_new(t_mknob *x, t_glist *glist)
 	int yc=ypos+x->x_gui.x_w/2;
     t_canvas *canvas=glist_getcanvas(glist);
 
-	sys_vgui(".x%x.c create oval %d %d %d %d -fill #%6.6x -tags %xBASE\n",
+	sys_vgui(".x%lx.c create oval %d %d %d %d -fill #%6.6x -tags %xBASE\n",
 		canvas,xpos,ypos,xpos + x->x_gui.x_w, ypos + x->x_gui.x_w,
 		x->x_gui.x_bcol,x); 
-	sys_vgui(".x%x.c create polygon %d %d %d %d %d %d -fill #%6.6x -tags %xKNOB\n",
+	sys_vgui(".x%lx.c create polygon %d %d %d %d %d %d -fill #%6.6x -tags %xKNOB\n",
 		glist_getcanvas(glist),
 		xc,ypos,xc-4,yc,xc+4,yc,x->x_gui.x_fcol,x);
 	mknob_update_knob(x,glist);
-    sys_vgui(".x%x.c create text %d %d -text {%s} -anchor w \
+    sys_vgui(".x%lx.c create text %d %d -text {%s} -anchor w \
 	     -font {%s %d bold} -fill #%6.6x -tags %xLABEL\n",
 	     canvas, xpos+x->x_gui.x_ldx,
 	     ypos+x->x_gui.x_ldy,
 	     strcmp(x->x_gui.x_lab->s_name, "empty")?x->x_gui.x_lab->s_name:"",
 	     x->x_gui.x_font, x->x_gui.x_fontsize, x->x_gui.x_lcol, x);
     /*if(!x->x_gui.x_fsf.x_snd_able)
-        sys_vgui(".x%x.c create rectangle %d %d %d %d -tags %xOUT%d\n",
+        sys_vgui(".x%lx.c create rectangle %d %d %d %d -tags %xOUT%d\n",
 	     canvas, xpos+ x->x_gui.x_w/2-3, ypos + x->x_gui.x_w-1,
 	     xpos+ x->x_gui.x_w/2+4, ypos + x->x_gui.x_w, x, 0);
     if(!x->x_gui.x_fsf.x_rcv_able)
-	sys_vgui(".x%x.c create rectangle %d %d %d %d -tags %xIN%d\n",
+	sys_vgui(".x%lx.c create rectangle %d %d %d %d -tags %xIN%d\n",
 	     canvas, xpos+ x->x_gui.x_w/2-3, ypos,
 	     xpos+ x->x_gui.x_w/2+4, ypos+1, x, 0);*/
 }
@@ -143,20 +143,20 @@ static void mknob_draw_move(t_mknob *x, t_glist *glist)
     int r = xpos + (x->x_val + 50)/100;
     t_canvas *canvas=glist_getcanvas(glist);
 
-    sys_vgui(".x%x.c coords %xBASE %d %d %d %d\n",
+    sys_vgui(".x%lx.c coords %xBASE %d %d %d %d\n",
 	     canvas, x,
 	     xpos, ypos,
 	     xpos + x->x_gui.x_w, ypos + x->x_gui.x_w);
     mknob_update_knob(x,glist);
-    sys_vgui(".x%x.c coords %xLABEL %d %d\n",
+    sys_vgui(".x%lx.c coords %xLABEL %d %d\n",
 	     canvas, x, xpos+x->x_gui.x_ldx, ypos+x->x_gui.x_ldy);
     /*if(!x->x_gui.x_fsf.x_snd_able)
-        sys_vgui(".x%x.c coords %xOUT%d %d %d %d %d\n",
+        sys_vgui(".x%lx.c coords %xOUT%d %d %d %d %d\n",
 	     canvas, x, 0,
 	     xpos+ x->x_gui.x_w/2-3, ypos + x->x_gui.x_w-1,
 	     xpos+ x->x_gui.x_w/2+4, ypos + x->x_gui.x_w);
     if(!x->x_gui.x_fsf.x_rcv_able)
-	sys_vgui(".x%x.c coords %xIN%d %d %d %d %d\n",
+	sys_vgui(".x%lx.c coords %xIN%d %d %d %d %d\n",
 	     canvas, x, 0,
 	     xpos+ x->x_gui.x_w/2-3, ypos,
 	     xpos+ x->x_gui.x_w/2+4, ypos+1);*/
@@ -166,25 +166,25 @@ static void mknob_draw_erase(t_mknob* x,t_glist* glist)
 {
     t_canvas *canvas=glist_getcanvas(glist);
 
-    sys_vgui(".x%x.c delete %xBASE\n", canvas, x);
-    sys_vgui(".x%x.c delete %xKNOB\n", canvas, x);
-    sys_vgui(".x%x.c delete %xLABEL\n", canvas, x);
+    sys_vgui(".x%lx.c delete %xBASE\n", canvas, x);
+    sys_vgui(".x%lx.c delete %xKNOB\n", canvas, x);
+    sys_vgui(".x%lx.c delete %xLABEL\n", canvas, x);
     /*if(!x->x_gui.x_fsf.x_snd_able)
-        sys_vgui(".x%x.c delete %xOUT%d\n", canvas, x, 0);
+        sys_vgui(".x%lx.c delete %xOUT%d\n", canvas, x, 0);
     if(!x->x_gui.x_fsf.x_rcv_able)
-        sys_vgui(".x%x.c delete %xIN%d\n", canvas, x, 0);*/
+        sys_vgui(".x%lx.c delete %xIN%d\n", canvas, x, 0);*/
 }
 
 static void mknob_draw_config(t_mknob* x,t_glist* glist)
 {
     t_canvas *canvas=glist_getcanvas(glist);
 
-    sys_vgui(".x%x.c itemconfigure %xLABEL -font {%s %d bold} -fill #%6.6x -text {%s} \n",
+    sys_vgui(".x%lx.c itemconfigure %xLABEL -font {%s %d bold} -fill #%6.6x -text {%s} \n",
 	     canvas, x, x->x_gui.x_font, x->x_gui.x_fontsize,
 	     x->x_gui.x_fsf.x_selected?IEM_GUI_COLOR_SELECTED:x->x_gui.x_lcol,
 	     strcmp(x->x_gui.x_lab->s_name, "empty")?x->x_gui.x_lab->s_name:"");
-    sys_vgui(".x%x.c itemconfigure %xKNOB -fill #%6.6x\n", canvas, x, x->x_gui.x_fcol);
-    sys_vgui(".x%x.c itemconfigure %xBASE -fill #%6.6x\n", canvas, x, x->x_gui.x_bcol);
+    sys_vgui(".x%lx.c itemconfigure %xKNOB -fill #%6.6x\n", canvas, x, x->x_gui.x_fcol);
+    sys_vgui(".x%lx.c itemconfigure %xBASE -fill #%6.6x\n", canvas, x, x->x_gui.x_bcol);
 }
 
 static void mknob_draw_io(t_mknob* x,t_glist* glist, int old_snd_rcv_flags)
@@ -194,17 +194,17 @@ static void mknob_draw_io(t_mknob* x,t_glist* glist, int old_snd_rcv_flags)
     t_canvas *canvas=glist_getcanvas(glist);
 
     /*if((old_snd_rcv_flags & IEM_GUI_OLD_SND_FLAG) && !x->x_gui.x_fsf.x_snd_able)
-        sys_vgui(".x%x.c create rectangle %d %d %d %d -tags %xOUT%d\n",
+        sys_vgui(".x%lx.c create rectangle %d %d %d %d -tags %xOUT%d\n",
 	     canvas, xpos+ x->x_gui.x_w/2-3, ypos + x->x_gui.x_w-1,
 	     xpos+ x->x_gui.x_w/2+4, ypos + x->x_gui.x_w, x, 0);
     if(!(old_snd_rcv_flags & IEM_GUI_OLD_SND_FLAG) && x->x_gui.x_fsf.x_snd_able)
-        sys_vgui(".x%x.c delete %xOUT%d\n", canvas, x, 0);
+        sys_vgui(".x%lx.c delete %xOUT%d\n", canvas, x, 0);
     if((old_snd_rcv_flags & IEM_GUI_OLD_RCV_FLAG) && !x->x_gui.x_fsf.x_rcv_able)
-        sys_vgui(".x%x.c create rectangle %d %d %d %d -tags %xIN%d\n",
+        sys_vgui(".x%lx.c create rectangle %d %d %d %d -tags %xIN%d\n",
 	     canvas, xpos+ x->x_gui.x_w/2-3, ypos,
 	     xpos+ x->x_gui.x_w/2+4, ypos+1, x, 0);
     if(!(old_snd_rcv_flags & IEM_GUI_OLD_RCV_FLAG) && x->x_gui.x_fsf.x_rcv_able)
-	sys_vgui(".x%x.c delete %xIN%d\n", canvas, x, 0);*/
+	sys_vgui(".x%lx.c delete %xIN%d\n", canvas, x, 0);*/
 }
 
 static void mknob_draw_select(t_mknob* x,t_glist* glist)
@@ -214,14 +214,14 @@ static void mknob_draw_select(t_mknob* x,t_glist* glist)
     if(x->x_gui.x_fsf.x_selected)
     {
 	//pd_bind(&x->x_gui.x_obj.ob_pd, iemgui_key_sym);
-	sys_vgui(".x%x.c itemconfigure %xBASE -outline #%6.6x\n", canvas, x, IEM_GUI_COLOR_SELECTED);
-	sys_vgui(".x%x.c itemconfigure %xLABEL -fill #%6.6x\n", canvas, x, IEM_GUI_COLOR_SELECTED);
+	sys_vgui(".x%lx.c itemconfigure %xBASE -outline #%6.6x\n", canvas, x, IEM_GUI_COLOR_SELECTED);
+	sys_vgui(".x%lx.c itemconfigure %xLABEL -fill #%6.6x\n", canvas, x, IEM_GUI_COLOR_SELECTED);
     }
     else
     {
 	//pd_unbind(&x->x_gui.x_obj.ob_pd, iemgui_key_sym);
-	sys_vgui(".x%x.c itemconfigure %xBASE -outline #%6.6x\n", canvas, x, IEM_GUI_COLOR_NORMAL);
-	sys_vgui(".x%x.c itemconfigure %xLABEL -fill #%6.6x\n", canvas, x, x->x_gui.x_lcol);
+	sys_vgui(".x%lx.c itemconfigure %xBASE -outline #%6.6x\n", canvas, x, IEM_GUI_COLOR_NORMAL);
+	sys_vgui(".x%lx.c itemconfigure %xLABEL -fill #%6.6x\n", canvas, x, x->x_gui.x_lcol);
     }
 }
 
