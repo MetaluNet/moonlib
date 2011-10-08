@@ -69,7 +69,7 @@ static void tabsort2_float(t_tabsort2 *x, t_floatarg n)
 {
 	t_garray *a;
 	int n1,n2,n3,i,j,h,sqn;
-	float *vec1,*vec2,*vec3,tmp;
+	t_float *vec1,*vec2,*vec3,tmp;
 
     if (!(a = (t_garray *)pd_findbyclass(x->x_arrayname1, garray_class)))
     {
@@ -135,7 +135,7 @@ static void tabsort2_float(t_tabsort2 *x, t_floatarg n)
 	}
 
 	garray_redraw(a);
-	outlet_float(((t_object *)x)->ob_outlet,(float)sqn);
+	outlet_float(((t_object *)x)->ob_outlet,(t_float)sqn);
 }
 
 static void tabsort2_tick(t_tabsort2 *x)	/* callback function for the env clock */

@@ -33,7 +33,7 @@ static void char2f_symbol(t_char2f *x,t_symbol *sym)
 {
 	if(!sym->s_name) return;
 
-	outlet_float(x->x_obj.ob_outlet,(float)sym->s_name[0]);
+	outlet_float(x->x_obj.ob_outlet,(t_float)sym->s_name[0]);
 }
 
 static void *char2f_new(void)

@@ -33,7 +33,7 @@ static void s2f_symbol(t_s2f *x,t_symbol *sym)
 {
 	if(!sym->s_name) return;
 
-	outlet_float(x->x_obj.ob_outlet,(float)strtod(sym->s_name,0));
+	outlet_float(x->x_obj.ob_outlet,(t_float)strtod(sym->s_name,0));
 }
 
 static void *s2f_new(void)

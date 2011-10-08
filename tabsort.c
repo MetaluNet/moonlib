@@ -59,7 +59,7 @@ static void tabsort_float(t_tabsort *x, t_floatarg n)
 {
 	t_garray *a;
 	int n1,n2,i,j;
-	float *vec1,*vec2,tmp;
+	t_float *vec1,*vec2,tmp;
 
     if (!(a = (t_garray *)pd_findbyclass(x->x_arrayname1, garray_class)))
     {
