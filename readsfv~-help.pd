@@ -14,7 +14,7 @@
 #X obj 159 284 symbol;
 #X msg 159 304 open \$1;
 #X msg 229 283 symbol /usr/local/lib/pd/doc/sound/bell.aiff;
-#X msg 229 262 symbol ../../sound/bell.aiff;
+#X msg 229 262 symbol ../../doc/sound/bell.aiff;
 #X msg 47 298 speed \$1;
 #X obj 266 239 openpanel;
 #X obj 266 220 bng 15 250 50 0 empty empty open 0 -6 1 8 -195568 -1

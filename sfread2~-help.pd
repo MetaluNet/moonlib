@@ -33,7 +33,7 @@
 #X obj 497 177 loadbang;
 #X msg 497 196 1;
 #X msg 261 99 symbol /usr/local/lib/pd/doc/sound/voice.wav;
-#X msg 261 78 symbol ../../sound/voice.wav;
+#X msg 261 78 symbol ../../doc/sound/voice.wav;
 #X text 66 414 If not \, the whole file will be loaded in memory when
 opened (use of C function mmap()).;
 #X text 66 401 in s_linux.c... SORRY \, I mean in s_inter.c (since
