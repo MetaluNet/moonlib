@@ -260,21 +260,19 @@ static void mknob_getrect(t_gobj *z, t_glist *glist,
 static void mknob_save(t_gobj *z, t_binbuf *b)
 {
     t_mknob *x = (t_mknob *)z;
-    int bflcol[3], *ip1, *ip2;
+    int bflcol[3];
     t_symbol *srl[3];
 
     iemgui_save(&x->x_gui, srl, bflcol);
-    ip1 = (int *)(&x->x_gui.x_isa);
-    ip2 = (int *)(&x->x_gui.x_fsf);
     binbuf_addv(b, "ssiisiiffiisssiiiiiiiii", gensym("#X"),gensym("obj"),
 		(t_int)x->x_gui.x_obj.te_xpix, (t_int)x->x_gui.x_obj.te_ypix,
         atom_getsymbol(binbuf_getvec(x->x_gui.x_obj.te_binbuf)),
         x->x_gui.x_w, x->x_gui.x_h,
 		(float)x->x_min, (float)x->x_max,
-		x->x_lin0_log1, (*ip1)&IEM_INIT_ARGS_ALL,
+		x->x_lin0_log1, iem_symargstoint(&x->x_gui.x_isa),
 		srl[0], srl[1], srl[2],
 		x->x_gui.x_ldx, x->x_gui.x_ldy,
-		(*ip2)&IEM_FSTYLE_FLAGS_ALL, x->x_gui.x_fontsize,
+		iem_fstyletoint(&x->x_gui.x_fsf), x->x_gui.x_fontsize,
 		bflcol[0], bflcol[1], bflcol[2],
 		x->x_val, x->x_steady);
     binbuf_addv(b, ";");
