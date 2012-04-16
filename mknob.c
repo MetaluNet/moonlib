@@ -121,7 +121,7 @@ static void mknob_draw_new(t_mknob *x, t_glist *glist)
 		xc,ypos,xc-4,yc,xc+4,yc,x->x_gui.x_fcol,x);
 	mknob_update_knob(x,glist);
     sys_vgui(".x%lx.c create text %d %d -text {%s} -anchor w \
-	     -font {%s %d bold} -fill #%6.6x -tags %xLABEL\n",
+	     -font {{%s} %d bold} -fill #%6.6x -tags %xLABEL\n",
 	     canvas, xpos+x->x_gui.x_ldx,
 	     ypos+x->x_gui.x_ldy,
 	     strcmp(x->x_gui.x_lab->s_name, "empty")?x->x_gui.x_lab->s_name:"",
@@ -179,7 +179,7 @@ static void mknob_draw_config(t_mknob* x,t_glist* glist)
 {
     t_canvas *canvas=glist_getcanvas(glist);
 
-    sys_vgui(".x%lx.c itemconfigure %xLABEL -font {%s %d bold} -fill #%6.6x -text {%s} \n",
+    sys_vgui(".x%lx.c itemconfigure %xLABEL -font {{%s} %d bold} -fill #%6.6x -text {%s} \n",
 	     canvas, x, x->x_gui.x_font, x->x_gui.x_fontsize,
 	     x->x_gui.x_fsf.x_selected?IEM_GUI_COLOR_SELECTED:x->x_gui.x_lcol,
 	     strcmp(x->x_gui.x_lab->s_name, "empty")?x->x_gui.x_lab->s_name:"");
