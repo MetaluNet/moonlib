@@ -37,7 +37,6 @@ const char *image_get_filename(t_image *x,char *file)
     if(fd>0)
     {
         fname[strlen(fname)]='/';
-        //post("image file: %s",fname);
         close(fd);
         return fname;
     }
@@ -235,9 +234,7 @@ void image_load(t_gobj *z,t_symbol *image,t_symbol *file)
 
     fname=image_get_filename(x,file->s_name);
     if(fname)
-    {
         sys_vgui("image create photo %s -file %s\n",image->s_name,fname);
-    }
 }
 
 void image_set(t_gobj *z,t_symbol *image)
@@ -248,10 +245,8 @@ void image_set(t_gobj *z,t_symbol *image)
     x->x_type=1;
 
     if(glist_isvisible(x->x_glist))
-    {
         sys_vgui(".x%lx.c itemconfigure %xS -image %s\n",
                  glist_getcanvas(x->x_glist),x,x->x_image->s_name);
-    }
 }
 
 
@@ -273,7 +268,7 @@ static void image_setwidget(void)
 }
 
 
-static void *image_new(t_symbol *image,int type)
+static void *image_new(t_symbol *image, t_float type)
 {
     t_image *x = (t_image *)pd_new(image_class);
 
@@ -281,7 +276,10 @@ static void *image_new(t_symbol *image,int type)
 
     x->x_width = 15;
     x->x_height = 15;
-    x->x_type=type;
+    if (type != 0)
+        x->x_type= 1;
+    else
+        x->x_type= 0;
     x->x_localimage=0;
     x->x_image = image;
 
