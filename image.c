@@ -63,7 +63,7 @@ void image_drawme(t_image *x, t_glist *glist, int firsttime)
                 sys_vgui("image create photo img%x\n",x);
                 x->x_localimage=1;
             }
-            if(fname) sys_vgui("img%x configure -file %s\n",x,fname);
+            if(fname) sys_vgui("img%x configure -file {%s}\n",x,fname);
             sys_vgui(".x%lx.c create image %d %d -image img%x -tags %xS\n",
                      glist_getcanvas(glist),
                      text_xpix(&x->x_obj, glist), text_ypix(&x->x_obj, glist),x,x);
@@ -220,7 +220,7 @@ void image_open(t_gobj *z,t_symbol *file)
                 x->x_localimage=1;
             }
             sys_vgui("img%x blank\n",x);
-            sys_vgui("img%x configure -file %s\n",x,fname);
+            sys_vgui("img%x configure -file {%s}\n",x,fname);
             if(oldtype) sys_vgui(".x%lx.c itemconfigure %xS -image img%x\n",
                                      glist_getcanvas(x->x_glist),x,x);
         }
@@ -234,7 +234,7 @@ void image_load(t_gobj *z,t_symbol *image,t_symbol *file)
 
     fname=image_get_filename(x,file->s_name);
     if(fname)
-        sys_vgui("image create photo %s -file %s\n",image->s_name,fname);
+        sys_vgui("image create photo %s -file {%s}\n",image->s_name,fname);
 }
 
 void image_set(t_gobj *z,t_symbol *image)
