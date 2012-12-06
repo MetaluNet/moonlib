@@ -48,6 +48,12 @@ void image_drawme(t_image *x, t_glist *glist, int firsttime)
 {
     if (firsttime)
     {
+        if (x->x_image == &s_) // if we have a blank image name, use the included filler
+        {
+            x->x_image = gensym("::moonlib::image::noimage");
+            x->x_type = 1;
+            pd_error(x, "[image]: no image found");
+        }
         if(x->x_type)
         {
             sys_vgui(".x%lx.c create image %d %d -tags %xS\n",
