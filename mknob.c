@@ -33,8 +33,11 @@
 typedef struct _mknob
 {
     t_iemgui x_gui;
+    int      x_prev_h;
+    int      x_prev_w;
     int      x_pos;
     int      x_val;
+    int      x_prev_val;
     int      x_center;
     int      x_thick;
     int      x_lin0_log1;
@@ -42,6 +45,7 @@ typedef struct _mknob
     double   x_min;
     double   x_max;
     int   	 x_H;
+    int   	 x_prev_H;
     double   x_k;
 } t_mknob;
 
@@ -51,6 +55,14 @@ static t_class *mknob_class;
 /* widget helper functions */
 static void mknob_update_knob(t_mknob *x, t_glist *glist)
 {
+    /* only draw if something changed */
+    if(!(x->x_val != x->x_prev_val || x->x_gui.x_h != x->x_prev_h ||
+       x->x_gui.x_w != x->x_prev_w || x->x_H != x->x_prev_H))
+        return;
+    x->x_prev_val = x->x_val;
+    x->x_prev_h = x->x_gui.x_h;
+    x->x_prev_w = x->x_gui.x_w;
+    x->x_prev_H = x->x_H;
     t_canvas *canvas=glist_getcanvas(glist);
 //	float val=(x->x_val + 50.0)/100.0/MKNOB_TANGLE;
     float val=(x->x_val + 50.0)/100.0/x->x_H;
