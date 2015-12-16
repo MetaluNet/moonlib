@@ -47,6 +47,7 @@ typedef struct _mknob
     int   	 x_H;
     int   	 x_prev_H;
     double   x_k;
+    int      x_reverse;
 } t_mknob;
 
 t_widgetbehavior mknob_widgetbehavior;
@@ -199,11 +200,11 @@ static void mknob_draw_config(t_mknob *x,t_glist *glist)
     sys_vgui(".x%lx.c itemconfigure %xBASE -fill #%6.6x\n", canvas, x, x->x_gui.x_bcol);
 }
 
-static void mknob_draw_io(t_mknob *x,t_glist *glist, int old_snd_rcv_flags)
+/*static void mknob_draw_io(t_mknob *x,t_glist *glist, int old_snd_rcv_flags)
 {
     int xpos=text_xpix(&x->x_gui.x_obj, glist);
     int ypos=text_ypix(&x->x_gui.x_obj, glist);
-    t_canvas *canvas=glist_getcanvas(glist);
+    t_canvas *canvas=glist_getcanvas(glist);*/
 
     /*if((old_snd_rcv_flags & IEM_GUI_OLD_SND_FLAG) && !x->x_gui.x_fsf.x_snd_able)
         sys_vgui(".x%lx.c create rectangle %d %d %d %d -tags %xOUT%d\n",
@@ -217,7 +218,7 @@ static void mknob_draw_io(t_mknob *x,t_glist *glist, int old_snd_rcv_flags)
          xpos+ x->x_gui.x_w/2+4, ypos+1, x, 0);
     if(!(old_snd_rcv_flags & IEM_GUI_OLD_RCV_FLAG) && x->x_gui.x_fsf.x_rcv_able)
     sys_vgui(".x%lx.c delete %xIN%d\n", canvas, x, 0);*/
-}
+//}
 
 static void mknob_draw_select(t_mknob *x,t_glist *glist)
 {
@@ -345,9 +346,9 @@ void mknob_check_minmax(t_mknob *x, double min, double max)
     x->x_min = min;
     x->x_max = max;
     if(x->x_min > x->x_max)                /* bugfix */
-        x->x_gui.x_isa.x_reverse = 1;
+        x->x_reverse = 1;
     else
-        x->x_gui.x_isa.x_reverse = 0;
+        x->x_reverse = 0;
 
     if(x->x_lin0_log1)
         x->x_k = log(x->x_max/x->x_min)/(double)(x->x_H - 1);
@@ -388,7 +389,7 @@ static void mknob_set(t_mknob *x, t_floatarg f)    /* bugfix */
 {
     double g;
 
-    if(x->x_gui.x_isa.x_reverse)    /* bugfix */
+    if(x->x_reverse)    /* bugfix */
     {
         if(f > x->x_min)
             f = x->x_min;
