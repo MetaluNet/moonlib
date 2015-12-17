@@ -1,4 +1,4 @@
-#N canvas 0 31 340 290 10;
+#N canvas 619 134 312 305 10;
 #X obj 0 0 cnv 8 100 60 empty empty panvol~ 10 20 1 18 -262144 -1109
 0;
 #X text 3 269 (c) Moonix: Antoine Rousseau 2003;
@@ -6,20 +6,16 @@
 #X obj 135 69 hsl 60 10 -45 45 0 0 empty empty pan -2 -6 0 8 -262144
 -1 -1 0 1;
 #X obj 238 41 vsl 10 60 0 1 0 0 empty empty vol 0 -8 0 8 -262144 -1
--1 0 1;
-#X floatatom 132 85 5 0 0 0 - - -;
-#X floatatom 238 107 5 0 0 0 - - -;
+-1 3600 1;
+#X floatatom 132 85 5 0 0 0 - - -, f 5;
+#X floatatom 238 107 5 0 0 0 - - -, f 5;
 #X obj 113 141 panvol~;
-#X obj 94 190 unsig~ 100;
-#X floatatom 94 210 5 0 0 0 - - -;
+#X floatatom 94 210 5 0 0 0 - - -, f 5;
 #X obj 60 85 osc~ 440;
-#X obj 173 190 unsig~ 100;
-#X floatatom 173 210 5 0 0 0 - - -;
-#X obj 94 170 envrms~;
-#X obj 173 170 envrms~;
+#X floatatom 173 210 5 0 0 0 - - -, f 5;
 #X obj 60 104 *~ 2;
 #X msg 171 46 0;
-#N canvas 350 31 494 344 META 0;
+#N canvas 348 58 494 344 META 0;
 #X text 12 25 LICENSE GPL v2;
 #X text 12 165 AUTHOR Antoine Rousseau;
 #X text 12 185 HELP_PATCH_AUTHORS Antoine Rousseau. "pd meta" information
@@ -31,17 +27,17 @@ added by Jonathan Wilkes for Pd version 0.42.;
 #X text 12 105 INLET_2 float;
 #X text 12 125 OUTLET_0 signal;
 #X text 12 145 OUTLET_1 signal;
-#X restore 285 262 pd META;
+#X restore 241 265 pd META;
+#X obj 94 169 env~;
+#X obj 173 170 env~;
 #X connect 3 0 5 0;
 #X connect 4 0 6 0;
 #X connect 5 0 7 1;
 #X connect 6 0 7 2;
-#X connect 7 0 13 0;
-#X connect 7 1 14 0;
-#X connect 8 0 9 0;
-#X connect 10 0 15 0;
-#X connect 11 0 12 0;
-#X connect 13 0 8 0;
-#X connect 14 0 11 0;
-#X connect 15 0 7 0;
-#X connect 16 0 3 0;
+#X connect 7 0 14 0;
+#X connect 7 1 15 0;
+#X connect 9 0 11 0;
+#X connect 11 0 7 0;
+#X connect 12 0 3 0;
+#X connect 14 0 8 0;
+#X connect 15 0 10 0;
