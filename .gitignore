@@ -2,7 +2,7 @@
 # objects
 #########################
 
-*.pd_linux
+*.pd_*
 *.o
 build
 
