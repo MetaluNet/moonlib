@@ -91,15 +91,12 @@ static void absolutepath_symbol(t_absolutepath *x,t_symbol *sym)
     {
         x->x_canvas = can;
         x->x_realized = 1;
-        //post("found $0 canvas : %x %d ",x->x_canvas, x->x_canvas->gl_env->ce_dollarzero );
     }
 
     if(!instr) return;
 
     candir=canvas_getdir(x->x_canvas)->s_name;
     if(!candir) candir="";
-
-    //post("input= %s   candir= %s   glname=%s",instr,candir,x->x_canvas->gl_name->s_name);
 
     strcpy(canname,x->x_canvas->gl_name->s_name);
     cnamedir=dirname(canname);
@@ -122,7 +119,7 @@ static void absolutepath_symbol(t_absolutepath *x,t_symbol *sym)
 }
 
 
-static void *absolutepath_new(t_float dolzero)
+static void *absolutepath_new(t_symbol *s,int argc,t_atom *argv)
 {
     t_absolutepath *x = (t_absolutepath *)pd_new(absolutepath_class);
     t_canvas *can=canvas_list;
@@ -130,8 +127,13 @@ static void *absolutepath_new(t_float dolzero)
 
     outlet_new(&x->x_obj, 0);
     x->x_canvas = canvas_getcurrent();
-    x->x_dolzero = dolzero;
-    x->x_realized=dolzero?0:1;
+	x->x_dolzero = 0;
+    if(argc>0){
+        if(argv->a_type==A_FLOAT) x->x_dolzero=atom_getint(argv);
+        else if(argv->a_type==A_SYMBOL)
+            x->x_dolzero=atoi(atom_getsymbol(argv)->s_name);
+    }
+    x->x_realized = x->x_dolzero?0:1;
 
     return (void *)x;
 }
