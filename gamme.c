@@ -72,12 +72,13 @@ typedef struct _gamme
     t_object x_obj;
     t_outlet *x_out_n; /*gives the number of selected notes when change occurs*/
     t_outlet *x_out_note; /*gives the number and new value of the changed notes when change occurs*/
+	t_outlet *x_out_b; /*binary output: 12bits-integer=1bit/note */
     t_glist *x_glist;
     int x_width;
     int x_height;
-    char x_n;
-    char x_notes[12];
-    char x_on_notes[12];
+    unsigned char x_n;
+    unsigned char x_notes[12];
+    unsigned char x_on_notes[12];
 } t_gamme;
 
 /* widget helper functions */
@@ -196,7 +197,7 @@ void gamme_drawme(t_gamme *x, t_glist *glist, int firsttime)
 
         if (firsttime)
         {
-            color=x->x_notes[i]?	(ISWHITE(i)?SELWHITECOLOR:SELBLACKCOLOR):
+            color=x->x_notes[i]? (ISWHITE(i)?SELWHITECOLOR:SELBLACKCOLOR):
                       (ISWHITE(i)?WHITECOLOR:BLACKCOLOR);
             sys_vgui(".x%lx.c create rectangle \
 %d %d %d %d -tags %x%s -fill %s\n",
@@ -211,7 +212,7 @@ void gamme_drawme(t_gamme *x, t_glist *glist, int firsttime)
         }
     }
 
-    draw_inlets(x, glist, firsttime, 1,3);
+    draw_inlets(x, glist, firsttime, 1,4);
 
 }
 
@@ -230,7 +231,7 @@ void gamme_erase(t_gamme *x,t_glist *glist)
     {
         sys_vgui(".x%lx.c delete %xi%d\n",canvas,x,n);
     }
-    n = 3;
+    n = 4;
     while (n--)
     {
         sys_vgui(".x%lx.c delete %xo%d\n",canvas,x,n);
@@ -328,6 +329,15 @@ void gamme_out_changed(t_gamme *x,int note)
     outlet_list(x->x_out_note,0,2,ats);
 }
 
+void gamme_out_b(t_gamme *x)
+{
+	int i,out_b=0;
+	
+	for(i=0;i<12;i++) out_b+=(x->x_notes[i]!=0)<<i;
+	
+	outlet_float(x->x_out_b,out_b);
+}
+
 inline float my_mod(float x,int n)
 {
     float y=fmod(x,n);
@@ -336,6 +346,20 @@ inline float my_mod(float x,int n)
 
 #define my_div(x,y) (floor(x/y))
 #define tonotei(x) (my_mod(rint(x),12U))
+
+void gamme_draw_note(t_gamme *x,t_floatarg note)
+{
+    t_canvas *canvas=glist_getcanvas(x->x_glist);
+    char *color;
+    int notei=note;
+	
+    if(glist_isvisible(x->x_glist)) {
+        color=x->x_notes[(int)notei]?(ISWHITE(notei)?SELWHITECOLOR:SELBLACKCOLOR):
+                    (ISWHITE(notei)?WHITECOLOR:BLACKCOLOR);
+        sys_vgui(".x%x.c itemconfigure %x%s -fill %s\n", canvas, 
+        x, NoteNames[notei],color);
+    }
+}
 
 void gamme_set(t_gamme *x,t_floatarg note,t_floatarg on)
 {
@@ -347,17 +371,33 @@ void gamme_set(t_gamme *x,t_floatarg note,t_floatarg on)
     if(x->x_notes[notei]!=on) changed=1;
     if(on<0) x->x_notes[notei]=!(x->x_notes[notei]);
     else x->x_notes[notei]=on;
-    if(changed) gamme_out_changed(x,notei);
 
-    color=x->x_notes[notei]?(ISWHITE(notei)?SELWHITECOLOR:SELBLACKCOLOR):
-              (ISWHITE(notei)?WHITECOLOR:BLACKCOLOR);
-
-    if(glist_isvisible(x->x_glist))
-        sys_vgui(".x%lx.c itemconfigure %x%s -fill %s\n", canvas,
-                 x, NoteNames[notei],color);
+    if(changed) {
+        gamme_out_changed(x,notei);
+        gamme_out_b(x);
+        gamme_draw_note(x,notei);
+    }
 
     x->x_n=0;
     for(i=0; i<12; i++) if(x->x_notes[i]) x->x_on_notes[(int)(x->x_n++)]=i;
+    gamme_getn(x);
+}
+
+void gamme_set_b(t_gamme *x,t_floatarg in_byte)
+{
+    unsigned int i,changed=0,on,in_b=in_byte;
+
+    x->x_n=0;	
+    for(i=0;i<12;i++){
+        on=((in_b&(1<<i))!=0);
+        if(x->x_notes[i]!=on) {
+            x->x_notes[i]=on;
+            gamme_out_changed(x,i);
+            gamme_draw_note(x,i);
+        }
+        if(on) x->x_on_notes[(int)(x->x_n++)]=i;
+    }	
+    gamme_out_b(x);
     gamme_getn(x);
 }
 
@@ -501,6 +541,7 @@ static void *gamme_new(t_symbol *s, int argc, t_atom *argv)
     outlet_new(&x->x_obj, &s_float);
     x->x_out_n=outlet_new(&x->x_obj, &s_float);
     x->x_out_note=outlet_new(&x->x_obj, &s_float);
+	x->x_out_b=outlet_new(&x->x_obj, &s_float);
 
     x->x_n=0;
     for(i=0; i<12; i++) x->x_notes[i]=0;
@@ -543,6 +584,9 @@ void gamme_setup(void)
 
     class_addmethod(gamme_class, (t_method)gamme_set, gensym("set"),
                     A_FLOAT, A_FLOAT, 0);
+
+    class_addmethod(gamme_class, (t_method)gamme_set_b, gensym("setb"),
+                    A_FLOAT, 0);
 
     class_addmethod(gamme_class, (t_method)gamme_get, gensym("get"),
                     A_FLOAT, A_FLOAT, 0);
