@@ -283,7 +283,7 @@ static void sfread_dsp(t_sfread *x, t_signal **sp)
                 sp[1]->s_vec,sp[2]->s_vec, sp[0]->s_n);
         break;
     case 4:
-        dsp_add(sfread_perform, 6, x, sp[0]->s_vec,
+        dsp_add(sfread_perform, 7, x, sp[0]->s_vec,
                 sp[1]->s_vec,sp[2]->s_vec,
                 sp[3]->s_vec,sp[4]->s_vec,
                 sp[0]->s_n);

@@ -1,4 +1,4 @@
-#N canvas 0 31 582 490 10;
+#N canvas 387 95 582 490 10;
 #X obj 0 0 cnv 8 100 60 empty empty sfread2~ 10 20 1 18 -262144 -1109
 0;
 #X text 2 459 (c) Moonix: Antoine Rousseau 2003;
@@ -9,7 +9,7 @@
 #X obj 19 151 bng 15 250 50 0 empty empty play 20 8 1 8 -24198 -1 -1
 ;
 #X msg 278 225 loop \$1;
-#X obj 278 207 tgl 15 1 empty empty loop 20 8 0 8 -241291 -1 -1 1 1
+#X obj 278 207 tgl 15 0 empty empty loop 20 8 0 8 -241291 -1 -1 1 1
 ;
 #X obj 57 103 tgl 15 1 empty empty interpolation 20 8 1 8 -257472 -1
 -1 1 1;
@@ -50,11 +50,10 @@ added by Jonathan Wilkes for Pd version 0.42.;
 negative) \, whith 4-point interpolation and loop;
 #X text 12 85 INLET_0 float bang interp open index loop;
 #X text 12 105 INLET_1 float;
-#X text 12 145;
+#X text 12 145 comment;
 #X text 12 125 OUTLET_N signal;
 #X text 12 145 OUTLET_R float;
 #X restore 526 459 pd META;
-#X obj 286 303 sfread2~ 4;
 #X connect 3 0 12 0;
 #X connect 3 1 12 1;
 #X connect 4 0 3 0;
