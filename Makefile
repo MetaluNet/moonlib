@@ -11,7 +11,7 @@
 
 lib.name = moonlib
 
-class.sources = absolutepath.c basedir.c char2f.c comma.c dinlet~.c dispatch.c dripchar.c f2char.c gamme.c image.c mknob.c panvol~.c popen.c relativepath.c s2f.c sarray.c sfread2~.c slist.c ssaw~.c tabdump2.c tabenv.c tabreadl.c tabsort2.c tabsort.c wac.c 
+class.sources = absolutepath.c basedir.c char2f.c comma.c dinlet~.c dispatch.c dripchar.c f2char.c f2s.c gamme.c image.c mknob.c panvol~.c popen.c relativepath.c s2f.c sarray.c sfread2~.c slist.c ssaw~.c tabdump2.c tabenv.c tabreadl.c tabsort2.c tabsort.c wac.c 
 #SOURCES_linux = readsfv~.c
 
 
