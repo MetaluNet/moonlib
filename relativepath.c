@@ -30,7 +30,12 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include <libgen.h>
 #include <string.h>
 
-//extern t_canvas *pd_this->pd_canvaslist;	    	    /* list of all root canvases */
+#if (PD_MAJOR_VERSION == 0) && (PD_MINOR_VERSION < 46)
+extern t_canvas *canvas_list;
+#else
+#define canvas_list pd_this->pd_canvaslist
+#endif
+
 extern int canvas_getdollarzero( void);
 
 struct _canvasenvironment
@@ -85,7 +90,7 @@ static void relativepath_symbol(t_relativepath *x,t_symbol *sym)
           *cnamedir;
     unsigned int n,i=0;
 
-    if(!x->x_realized) can=(t_canvas *)getcanvas(pd_this->pd_canvaslist,x->x_dolzero);
+    if(!x->x_realized) can=(t_canvas *)getcanvas(canvas_list,x->x_dolzero);
     if(can)
     {
         x->x_canvas = can;
