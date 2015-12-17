@@ -40,30 +40,18 @@ typedef struct _sarray
     t_object x_obj;
     t_symbol *x_sym;
     t_scommon *x_c;
-    //t_outlet *x_symout;
-    //t_outlet *x_lenout;
+    t_outlet *x_indexout;
 } t_sarray;
 
-/*static int scommon_find(t_scommon *x, t_symbol *s)
+static int scommon_find(t_scommon *x, t_symbol *s)
 {
-	t_sitem *si=x->first;
-	t_int i=1;
+    t_int i=0;
 
-	while(si) {
-		if(!strcmp(si->s->s_name,s->s_name)) return i;
-		si=si->next;
-		i++;
-	}
-	return 0;
-}*/
-
-static t_symbol *scommon_get(t_scommon *x, t_float f)
-{
-    int i=(int)f;
-
-    if(i<0) i=0;
-    if(i>=x->c_len) i=x->c_len-1;
-    return x->c_array[i];
+    while(i<x->c_len) {
+        if(!strcmp(x->c_array[i]->s_name,s->s_name)) return i; 
+        i++;
+    }
+    return -1;
 }
 
 static void scommon_set(t_scommon *x, t_float f, t_symbol *s)
@@ -72,8 +60,29 @@ static void scommon_set(t_scommon *x, t_float f, t_symbol *s)
 
     if((i<0)||(i>=x->c_len)) return;
     x->c_array[i]=s;
-    //x->c_array[i]=gensym(strdup(s->s_name));
-    //x->c_array[i]=gensym("ok");
+}
+
+static int scommon_add(t_scommon *x, t_symbol *s)
+{
+    t_int i=0;
+
+    while(i<x->c_len) {
+        if(x->c_array[i]==&s_) {
+            scommon_set(x,i,s);
+            return i; 
+        }
+        i++;
+    }
+    return -1;
+}
+
+static t_symbol *scommon_get(t_scommon *x, t_float f)
+{
+    int i=(int)f;
+
+    if(i<0) i=0;
+    if(i>=x->c_len) i=x->c_len-1;
+    return x->c_array[i];
 }
 
 static void scommon_setlen(t_scommon *x, t_float flen)
@@ -113,7 +122,6 @@ static t_atom *scommon_dump(t_scommon *x,t_symbol *s)
 
 static void scommon_ff(t_scommon *x)
 {
-    //scommon_reset(x);
     pd_unbind((t_pd *)x, x->c_sym);
 }
 
@@ -161,8 +169,8 @@ static void *sarray_new(t_symbol *s,t_float len)
     if(len) scommon_setlen(x->x_c,len);
 
     outlet_new(&x->x_obj, &s_anything);
-    //x->x_symout=outlet_new(&x->x_obj, &s_anything);
-    //x->x_lenout=outlet_new(&x->x_obj, &s_float);
+    x->x_indexout=outlet_new(&x->x_obj, &s_float);
+
     return (x);
 }
 
@@ -186,16 +194,21 @@ static void sarray_reset(t_sarray *x)
     scommon_reset(x->x_c);
 }
 
+static void sarray_add(t_sarray *x, t_symbol *s)
+{
+    outlet_float(x->x_indexout,scommon_add(x->x_c,s));
+}
+
+static void sarray_find(t_sarray *x, t_symbol *s)
+{
+    outlet_float(x->x_indexout,scommon_find(x->x_c,s));
+}
+
 static void sarray_set(t_sarray *x, t_symbol *sfoo,int argc, t_atom *argv)
 {
     int i,j=0;
     t_symbol *snull=&s_,*s;
 
-    /*if((argc<2)||(argv[0].a_type!=A_FLOAT))
-    {
-    	error("Bad arguments for message 'set' to object 'sarray'");
-    	return ;
-    }*/
     if(argv[0].a_type==A_SYMBOL)
     {
         snull=atom_getsymbol(&argv[0]);
@@ -254,8 +267,8 @@ void sarray_setup(void)
                              (t_method)sarray_ff,
                              sizeof(t_sarray), 0, A_DEFSYM, A_DEFFLOAT,0);
 
-    //class_addbang(sarray_class, sarray_bang);
-    //class_addfloat(sarray_class, sarray_float);
+    class_addmethod(sarray_class,(t_method)sarray_add, gensym("add"),A_SYMBOL,0);
+    class_addmethod(sarray_class,(t_method)sarray_find, gensym("find"),A_SYMBOL,0);
     class_addmethod(sarray_class,(t_method)sarray_set, gensym("set"),A_GIMME,0);
     class_addmethod(sarray_class,(t_method)sarray_get, gensym("get"),A_FLOAT,0);
     class_addmethod(sarray_class,(t_method)sarray_reset, gensym("reset"),0);
