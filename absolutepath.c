@@ -20,6 +20,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 /*#include <m_imp.h>*/
 #include "m_pd.h"
+#include "m_imp.h"
 #include "g_canvas.h"
 
 #include <unistd.h>
@@ -29,7 +30,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include <libgen.h>
 #include <string.h>
 
-extern t_canvas *canvas_list;	    	    /* list of all root canvases */
+//extern t_canvas *pd_this->pd_canvaslist;	    	    /* list of all root canvases */
 extern int canvas_getdollarzero( void);
 
 struct _canvasenvironment
@@ -86,7 +87,7 @@ static void absolutepath_symbol(t_absolutepath *x,t_symbol *sym)
     unsigned int n,i=0;
     int fd;
 
-    if(!x->x_realized) can=(t_canvas *)getcanvas(canvas_list,x->x_dolzero);
+    if(!x->x_realized) can=(t_canvas *)getcanvas(pd_this->pd_canvaslist,x->x_dolzero);
     if(can)
     {
         x->x_canvas = can;
@@ -122,7 +123,7 @@ static void absolutepath_symbol(t_absolutepath *x,t_symbol *sym)
 static void *absolutepath_new(t_symbol *s,int argc,t_atom *argv)
 {
     t_absolutepath *x = (t_absolutepath *)pd_new(absolutepath_class);
-    t_canvas *can=canvas_list;
+    t_canvas *can=pd_this->pd_canvaslist;
     int d0;
 
     outlet_new(&x->x_obj, 0);
