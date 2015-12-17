@@ -1,11 +1,11 @@
-#N canvas 0 31 492 266 10;
+#N canvas 588 67 492 285 10;
 #X obj 0 0 cnv 8 100 60 empty empty ssaw 10 20 1 18 -262144 -1109 0
 ;
 #X text 8 243 (c) Moonix: Antoine Rousseau 2004;
 #X obj 162 103 ssaw~ 440;
 #X obj 163 149 *~;
 #X obj 162 77 mtof;
-#X floatatom 161 57 5 0 0 0 - - -;
+#X floatatom 161 57 5 0 0 0 - - -, f 5;
 #X floatatom 207 77 0 0 0 0 - - -;
 #X obj 197 128 hsl 128 15 0 1 0 0 empty empty empty -2 -6 0 8 -262144
 -1 -1 0 1;

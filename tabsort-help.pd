@@ -1,4 +1,4 @@
-#N canvas 0 31 534 403 10;
+#N canvas 396 66 534 403 10;
 #X text 22 332 (c) Antoine Rousseau 2001;
 #X floatatom 39 303 5 0 0 0 - - -;
 #X obj 21 19 tabsort;
@@ -21,7 +21,7 @@ sorted by decreasing order (biggest first);
 #X text 38 248 sort the n first elements;
 #X obj 304 264 tabread dest;
 #X obj 304 285 tabread source;
-#X floatatom 304 246 5 0 0 0 - - -;
+#X floatatom 304 246 5 0 9 0 - - -;
 #X floatatom 304 305 5 0 0 0 - - -;
 #X text 347 244 try it!;
 #X text 300 321 it should decrease with input;
