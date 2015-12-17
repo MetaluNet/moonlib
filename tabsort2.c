@@ -30,12 +30,9 @@ typedef struct tabsort2
     t_symbol *x_arrayname1;
     t_symbol *x_arrayname2;
     t_symbol *x_arrayname3;
-    t_clock *x_clock;		    /* a "clock" object */
 } t_tabsort2;
 
 t_class *tabsort2_class;
-
-static void tabsort2_tick(t_tabsort2 *x);
 
 static void *tabsort2_new(t_symbol *tab1,t_symbol *tab2,t_symbol *tab3)
 {
@@ -45,7 +42,6 @@ static void *tabsort2_new(t_symbol *tab1,t_symbol *tab2,t_symbol *tab3)
     x->x_arrayname1 = tab1;
     x->x_arrayname2 = tab2;
     x->x_arrayname3 = tab3;
-    x->x_clock = clock_new(x, (t_method)tabsort2_tick);
     outlet_new((t_object *)x, &s_float);
 
     return (x);
@@ -69,7 +65,8 @@ static void tabsort2_float(t_tabsort2 *x, t_floatarg n)
 {
     t_garray *a;
     int n1,n2,n3,i,j,h,sqn;
-    t_float *vec1,*vec2,*vec3,tmp;
+    t_word *vec1,*vec2,*vec3;
+    t_float tmp;
 
     if (!(a = (t_garray *)pd_findbyclass(x->x_arrayname1, garray_class)))
     {
@@ -77,7 +74,7 @@ static void tabsort2_float(t_tabsort2 *x, t_floatarg n)
                                                    x->x_arrayname1->s_name);
         return;
     }
-    else if (!garray_getfloatarray(a, &n1, &vec1))
+    else if (!garray_getfloatwords(a, &n1, &vec1))
     {
         error("%s: bad template for tabsort2", x->x_arrayname1->s_name);
         return;
@@ -89,7 +86,7 @@ static void tabsort2_float(t_tabsort2 *x, t_floatarg n)
                                                    x->x_arrayname2->s_name);
         return;
     }
-    else if (!garray_getfloatarray(a, &n2, &vec2))
+    else if (!garray_getfloatwords(a, &n2, &vec2))
     {
         error("%s: bad template for tabsort2", x->x_arrayname2->s_name);
         return;
@@ -101,7 +98,7 @@ static void tabsort2_float(t_tabsort2 *x, t_floatarg n)
                                                    x->x_arrayname3->s_name);
         return;
     }
-    else if (!garray_getfloatarray(a, &n3, &vec3))
+    else if (!garray_getfloatwords(a, &n3, &vec3))
     {
         error("%s: bad template for tabsort2", x->x_arrayname3->s_name);
         return;
@@ -111,15 +108,15 @@ static void tabsort2_float(t_tabsort2 *x, t_floatarg n)
     if(n>n2) n=n2;
     if(n>n3) n=n3;
 
-    for(i=0; i<n; vec3[i]=i++);
+    for(i=0; i<n; vec3[i].w_float=i++);
 
     for(i=0; i<n-1; i++)
         for(j=n-1; j>i; j--)
-            if(vec1[(int)vec3[j-1]]<vec1[(int)vec3[j]])
+            if(vec1[(int)vec3[j-1].w_float].w_float<vec1[(int)vec3[j].w_float].w_float)
             {
-                tmp=vec3[j];
-                vec3[j]=vec3[j-1];
-                vec3[j-1]=tmp;
+                tmp=vec3[j].w_float;
+                vec3[j].w_float=vec3[j-1].w_float;
+                vec3[j-1].w_float=tmp;
             }
 
     sqn=(int)sqrt(n);
@@ -127,26 +124,20 @@ static void tabsort2_float(t_tabsort2 *x, t_floatarg n)
     for(h=0; h<sqn; h++)
         for(i=0; i<sqn-1; i++)
             for(j=sqn-1; j>i; j--)
-                if(vec2[(int)vec3[h*sqn+j-1]]<vec2[(int)vec3[h*sqn+j]])
+                if(vec2[(int)vec3[h*sqn+j-1].w_float].w_float<vec2[(int)vec3[h*sqn+j].w_float].w_float)
                 {
-                    tmp=vec3[h*sqn+j];
-                    vec3[h*sqn+j]=vec3[h*sqn+j-1];
-                    vec3[h*sqn+j-1]=tmp;
+                    tmp=vec3[h*sqn+j].w_float;
+                    vec3[h*sqn+j].w_float=vec3[h*sqn+j-1].w_float;
+                    vec3[h*sqn+j-1].w_float=tmp;
                 }
 
     garray_redraw(a);
     outlet_float(((t_object *)x)->ob_outlet,(t_float)sqn);
 }
 
-static void tabsort2_tick(t_tabsort2 *x)	/* callback function for the env clock */
-{
-
-    //clock_delay(x->x_clock, 0L);
-}
 
 static void tabsort2_ff(t_tabsort2 *x)		/* cleanup on free */
 {
-    clock_free(x->x_clock);
 }
 
 
@@ -158,6 +149,8 @@ void tabsort2_setup(void )
                     gensym("set1"), A_DEFSYM, 0);
     class_addmethod(tabsort2_class, (t_method)tabsort2_set2,
                     gensym("set2"), A_DEFSYM, 0);
+    class_addmethod(tabsort2_class, (t_method)tabsort2_set3,
+                    gensym("set3"), A_DEFSYM, 0);
     class_addfloat(tabsort2_class, tabsort2_float);
 
 }

@@ -34,11 +34,11 @@ static void tabreadl_float(t_tabreadl *x, t_float f)
 {
     t_garray *a;
     int npoints;
-    t_float *vec;
+    t_word *vec;
 
     if (!(a = (t_garray *)pd_findbyclass(x->x_arrayname, garray_class)))
         error("%s: no such array", x->x_arrayname->s_name);
-    else if (!garray_getfloatarray(a, &npoints, &vec))
+    else if (!garray_getfloatwords(a, &npoints, &vec))
         error("%s: bad template for tabreadl", x->x_arrayname->s_name);
     else
     {
@@ -51,11 +51,11 @@ static void tabreadl_float(t_tabreadl *x, t_float f)
         if(npoints>1)
         {
             r=f-n;
-            v=vec[n]*(1-r)+vec[n+1]*r;
+            v=vec[n].w_float*(1-r)+vec[n+1].w_float*r;
             outlet_float(x->x_obj.ob_outlet, v );
         }
         else
-            outlet_float(x->x_obj.ob_outlet, (npoints ? vec[n] : 0));
+            outlet_float(x->x_obj.ob_outlet, (npoints ? vec[n].w_float : 0));
     }
 }
 

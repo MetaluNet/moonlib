@@ -59,7 +59,8 @@ static void tabsort_float(t_tabsort *x, t_floatarg n)
 {
     t_garray *a;
     int n1,n2,i,j;
-    t_float *vec1,*vec2,tmp;
+    t_word *vec1,*vec2;
+    t_float tmp;
 
     if (!(a = (t_garray *)pd_findbyclass(x->x_arrayname1, garray_class)))
     {
@@ -67,7 +68,7 @@ static void tabsort_float(t_tabsort *x, t_floatarg n)
                                                    x->x_arrayname1->s_name);
         return;
     }
-    else if (!garray_getfloatarray(a, &n1, &vec1))
+    else if (!garray_getfloatwords(a, &n1, &vec1))
     {
         error("%s: bad template for tabsort", x->x_arrayname1->s_name);
         return;
@@ -79,7 +80,7 @@ static void tabsort_float(t_tabsort *x, t_floatarg n)
                                                    x->x_arrayname2->s_name);
         return;
     }
-    else if (!garray_getfloatarray(a, &n2, &vec2))
+    else if (!garray_getfloatwords(a, &n2, &vec2))
     {
         error("%s: bad template for tabsort", x->x_arrayname2->s_name);
         return;
@@ -89,15 +90,15 @@ static void tabsort_float(t_tabsort *x, t_floatarg n)
     if(n>n2) n=n2;
 
 
-    for(i=0; i<n; vec2[i]=i++);
+    for(i=0; i<n; vec2[i].w_float=i++);
 
     for(i=0; i<n-1; i++)
         for(j=n-1; j>i; j--)
-            if(vec1[(int)vec2[j-1]]<vec1[(int)vec2[j]])
+            if(vec1[(int)vec2[j-1].w_float].w_float<vec1[(int)vec2[j].w_float].w_float)
             {
-                tmp=vec2[j];
-                vec2[j]=vec2[j-1];
-                vec2[j-1]=tmp;
+                tmp=vec2[j].w_float;
+                vec2[j].w_float=vec2[j-1].w_float;
+                vec2[j-1].w_float=tmp;
             }
 
     garray_redraw(a);

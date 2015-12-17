@@ -35,18 +35,18 @@ static void tabdump_bang(t_tabdump *x, t_float findex)
 {
     t_garray *A;
     int npoints;
-    t_float *vec;
+    t_word *vec;
 
     if (!(A = (t_garray *)pd_findbyclass(x->x_arrayname, garray_class)))
         error("%s: no such array", x->x_arrayname->s_name);
-    else if (!garray_getfloatarray(A, &npoints, &vec))
+    else if (!garray_getfloatwords(A, &npoints, &vec))
         error("%s: bad template for tabdump", x->x_arrayname->s_name);
     else
     {
         int n;
         t_atom *atombuf = (t_atom *)getbytes(sizeof(t_atom)*npoints);
 
-        for (n = 0; n < npoints; n++) SETFLOAT(&atombuf[n], vec[n]);
+        for (n = 0; n < npoints; n++) SETFLOAT(&atombuf[n], vec[n].w_float);
         outlet_list(x->x_obj.ob_outlet, &s_list, npoints, atombuf);
     }
 }
@@ -56,11 +56,11 @@ static void tabdump_dump(t_tabdump *x, t_float min, t_float max)
 {
     t_garray *A;
     int npoints,nmin=(int)min,nmax=(int)max;
-    t_float *vec;
+    t_word *vec;
 
     if (!(A = (t_garray *)pd_findbyclass(x->x_arrayname, garray_class)))
         error("%s: no such array", x->x_arrayname->s_name);
-    else if (!garray_getfloatarray(A, &npoints, &vec))
+    else if (!garray_getfloatwords(A, &npoints, &vec))
         error("%s: bad template for tabdump", x->x_arrayname->s_name);
     else if ((min<0)||(max<=min)||(max>npoints))
         error("tabdump: bad arguments min=%d max=%d for %s (%d elements)",
@@ -73,7 +73,7 @@ static void tabdump_dump(t_tabdump *x, t_float min, t_float max)
         npoints=nmax-nmin;
         atombuf = (t_atom *)getbytes(sizeof(t_atom)*npoints);
 
-        for (n = 0; n < npoints; n++) SETFLOAT(&atombuf[n], vec[n+nmin]);
+        for (n = 0; n < npoints; n++) SETFLOAT(&atombuf[n], vec[n+nmin].w_float);
         outlet_list(x->x_obj.ob_outlet, &s_list, npoints, atombuf);
     }
 }
