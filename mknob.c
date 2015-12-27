@@ -56,10 +56,14 @@ static t_class *mknob_class;
 /* widget helper functions */
 static void mknob_update_knob(t_mknob *x, t_glist *glist)
 {
+	  
     /* only draw if something changed */
-    if(!(x->x_val != x->x_prev_val || x->x_gui.x_h != x->x_prev_h ||
+    /*if(!(x->x_val != x->x_prev_val || x->x_gui.x_h != x->x_prev_h ||
        x->x_gui.x_w != x->x_prev_w || x->x_H != x->x_prev_H))
-        return;
+        return;*/ /* actually seems not needed since value changed is already done ;
+	             and moving the knob was bugged because of that test.
+	          */
+
     x->x_prev_val = x->x_val;
     x->x_prev_h = x->x_gui.x_h;
     x->x_prev_w = x->x_gui.x_w;
