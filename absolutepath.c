@@ -30,8 +30,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include <libgen.h>
 #include <string.h>
 
-//extern t_canvas *pd_this->pd_canvaslist;	    	    /* list of all root canvases */
-//#ifdef pd_this
 #if ((PD_MAJOR_VERSION == 0) && (PD_MINOR_VERSION < 46))
 extern t_canvas *canvas_list;
 #else
@@ -131,7 +129,6 @@ static void *absolutepath_new(t_symbol *s,int argc,t_atom *argv)
 {
     t_absolutepath *x = (t_absolutepath *)pd_new(absolutepath_class);
     t_canvas *can=canvas_list;
-    int d0;
 
     outlet_new(&x->x_obj, 0);
     x->x_canvas = canvas_getcurrent();
@@ -149,7 +146,7 @@ static void *absolutepath_new(t_symbol *s,int argc,t_atom *argv)
 void absolutepath_setup(void)
 {
     absolutepath_class = class_new(gensym("absolutepath"),(t_newmethod)absolutepath_new,
-                                   0, sizeof(t_absolutepath), 0,A_DEFFLOAT, 0);
+                                   0, sizeof(t_absolutepath), 0,A_GIMME, 0);
 
     class_addsymbol(absolutepath_class, absolutepath_symbol);
 }
