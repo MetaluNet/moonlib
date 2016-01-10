@@ -1,5 +1,4 @@
-make pdincludepath=/path/to/pure-data/src/
-
+MOONLIB puredata externals
 
     tabenv : like env~, an enveloppe follower, but computing on a table, so 
 	 possibly much speeder than real-time env~'s computation.
@@ -21,7 +20,8 @@ make pdincludepath=/path/to/pure-data/src/
     image :  an improvment  of Guenter Geiger's one. Same name, but it's 
 	 compatible. Here you can share images through different objects, preload 
 	 a list of images, and animate this list.
-
+    ndmetro : a metronome/counter allowing continuous tempo change and other features.
+    
     and some others...
 
 
