@@ -1,0 +1,89 @@
+#N canvas 195 138 845 545 10;
+#X obj 0 0 cnv 8 100 60 empty empty ndmetro 10 20 1 18 -262144 -1109
+0;
+#X msg 61 57 0 1000;
+#X floatatom 62 438 5 0 0 0 - - -, f 5;
+#X floatatom 153 239 5 0 0 0 - - -, f 5;
+#X msg 149 173 -1;
+#X floatatom 131 427 5 0 0 0 - - -, f 5;
+#X msg 223 213 700;
+#X msg 188 214 1700;
+#X msg 153 215 4000;
+#X obj 62 462 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
+-1;
+#X text 16 498 (c) Moonix: Antoine Rousseau 2005-2016;
+#X msg 91 125 0;
+#X floatatom 243 439 5 0 0 0 - - -, f 5;
+#X floatatom 312 427 5 0 0 0 - - -, f 5;
+#X obj 243 463 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X msg 81 101 0 300;
+#X msg 71 80 0 2000;
+#X obj 62 401 ndmetro 64 1;
+#X obj 243 402 ndmetro 64 1;
+#X msg 476 187 4 2;
+#X msg 441 187 64 1;
+#X msg 504 187 6 3;
+#X msg 535 186 16 16;
+#X msg 596 186 64.13 0.97;
+#X obj 131 444 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 312 445 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X msg 153 299 bang;
+#X obj 62 349 t a a;
+#X msg 153 258 tempo \$1;
+#X msg 441 238 nd \$1 \$2;
+#X text 127 81 goto step STEP immediately \, and start counting at
+period MS., f 33;
+#X msg 119 125 10;
+#X msg 148 125 5.5;
+#X text 178 124 floating point STEP is accepted.;
+#X text 180 172 -1 stops.;
+#X text 440 111 nd NUM DENUM : set the decomposition of the counting.
+;
+#X text 441 132 ndmetro will count from 0 to NUM at tempo MS/DENUM.
+;
+#X text 131 60 START : STEP [MS];
+#X text 441 147 ndmetro is always in sync with an imaginary master
+clock only governed by START and tempo commands.;
+#X text 578 206 floating point NUM and DENUM accepted...;
+#X text 579 218 (who really knows what this does ?...);
+#X text 350 400 arguments : initial NUM DENUM;
+#X text 311 464 right outlet sends phase when tempo or nd change (useful
+for example to link ndmetros).;
+#X obj 61 37 loadbang;
+#X text 189 299 bang sends the current phase to right outlet.;
+#X text 210 257 tempo : set the tempo in ms.;
+#X text 109 12 num/denum metronome \, allowing continuous tempo change.
+;
+#X connect 1 0 27 0;
+#X connect 2 0 9 0;
+#X connect 3 0 28 0;
+#X connect 4 0 27 0;
+#X connect 5 0 24 0;
+#X connect 6 0 3 0;
+#X connect 7 0 3 0;
+#X connect 8 0 3 0;
+#X connect 11 0 27 0;
+#X connect 12 0 14 0;
+#X connect 13 0 25 0;
+#X connect 15 0 27 0;
+#X connect 16 0 27 0;
+#X connect 17 0 2 0;
+#X connect 17 1 5 0;
+#X connect 18 0 12 0;
+#X connect 18 1 13 0;
+#X connect 19 0 29 0;
+#X connect 20 0 29 0;
+#X connect 21 0 29 0;
+#X connect 22 0 29 0;
+#X connect 23 0 29 0;
+#X connect 26 0 27 0;
+#X connect 27 0 17 0;
+#X connect 27 1 18 0;
+#X connect 28 0 27 0;
+#X connect 29 0 18 0;
+#X connect 31 0 27 0;
+#X connect 32 0 27 0;
+#X connect 43 0 1 0;
