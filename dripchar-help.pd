@@ -1,4 +1,4 @@
-#N canvas 0 31 430 247 10;
+#N canvas 1 82 430 259 10;
 #X obj 0 0 cnv 8 100 60 empty empty dripchar 10 20 1 18 -262144 -1109
 0;
 #X text 7 221 (c) Moonix: Antoine Rousseau 2003;
@@ -7,13 +7,13 @@
 #X msg 131 69 symbol Antoine;
 #X text 132 12 drip characters from a symbol to a list;
 #X obj 131 117 unpack s s s s s s s;
-#X symbolatom 131 142 1 0 0 0 - - -;
-#X symbolatom 153 142 1 0 0 0 - - -;
-#X symbolatom 176 142 1 0 0 0 - - -;
-#X symbolatom 198 142 1 0 0 0 - - -;
-#X symbolatom 221 142 1 0 0 0 - - -;
-#X symbolatom 243 142 1 0 0 0 - - -;
-#X symbolatom 266 142 1 0 0 0 - - -;
+#X symbolatom 131 142 1 0 0 0 - - -, f 1;
+#X symbolatom 153 142 1 0 0 0 - - -, f 1;
+#X symbolatom 176 142 1 0 0 0 - - -, f 1;
+#X symbolatom 198 142 1 0 0 0 - - -, f 1;
+#X symbolatom 221 142 1 0 0 0 - - -, f 1;
+#X symbolatom 243 142 1 0 0 0 - - -, f 1;
+#X symbolatom 266 142 1 0 0 0 - - -, f 1;
 #X msg 245 69 symbol moonix_;
 #N canvas 380 146 494 344 META 0;
 #X text 12 25 LICENSE GPL v2;

@@ -1,4 +1,4 @@
-#N canvas 0 31 546 422 10;
+#N canvas 363 195 546 422 10;
 #X obj 0 0 cnv 8 100 60 empty empty readsfv~ 10 20 1 18 -262144 -1109
 0;
 #X text 4 400 (c) Moonix: Antoine Rousseau 2003;
@@ -10,7 +10,7 @@
 #X obj 132 158 bng 15 250 50 0 empty empty play -25 4 0 8 -24198 -1
 -1;
 #X obj 183 351 s replay;
-#X obj 132 60 r replay;
+#X obj 132 51 r replay;
 #X obj 159 284 symbol;
 #X msg 159 304 open \$1;
 #X msg 229 283 symbol /usr/local/lib/pd/doc/sound/bell.aiff;
@@ -20,16 +20,15 @@
 #X obj 266 220 bng 15 250 50 0 empty empty open 0 -6 1 8 -195568 -1
 -1;
 #X obj 132 126 spigot;
-#X obj 169 109 tgl 15 1 empty empty loop 0 -6 1 8 -241291 -1 -1 1 1
-;
-#X obj 47 58 vsl 15 128 0.08 8 1 0 empty empty speed 0 -8 1 8 -260818
--1 -1 6965 1;
-#X obj 1 57 init 1;
+#X obj 165 106 tgl 15 1 empty empty loop 0 -10 1 12 -241291 -1 -1 1
+1;
+#X obj 47 118 vsl 15 128 0.08 8 1 0 empty empty speed 0 -12 1 12 -260818
+-1 -1 0 1;
 #X obj 47 278 f;
 #X text 171 207 (or;
 #X text 220 207 );
 #X obj 57 253 b;
-#X obj 113 106 del 100;
+#X obj 132 72 del 100;
 #X text 129 8 read a big soundfile in direct-to-disk mode;
 #X text 131 20 at variable speed.;
 #X text 230 104 read manual of;
@@ -47,15 +46,17 @@ at variable speed;
 #X text 12 95 OUTLET_0 signal;
 #X text 12 115 OUTLET_1 signal;
 #X restore 487 387 pd META;
+#X obj 22 53 loadbang;
+#X msg 22 76 1;
 #X connect 3 0 2 0;
 #X connect 3 0 2 1;
 #X connect 3 1 8 0;
 #X connect 4 0 5 0;
 #X connect 5 0 3 0;
-#X connect 5 0 24 0;
+#X connect 5 0 23 0;
 #X connect 7 0 4 0;
 #X connect 7 0 10 0;
-#X connect 9 0 25 0;
+#X connect 9 0 24 0;
 #X connect 10 0 11 0;
 #X connect 11 0 3 0;
 #X connect 12 0 10 1;
@@ -65,8 +66,9 @@ at variable speed;
 #X connect 16 0 15 0;
 #X connect 17 0 7 0;
 #X connect 18 0 17 1;
-#X connect 19 0 21 0;
-#X connect 20 0 19 0;
-#X connect 21 0 14 0;
-#X connect 24 0 21 0;
-#X connect 25 0 17 0;
+#X connect 19 0 20 0;
+#X connect 20 0 14 0;
+#X connect 23 0 20 0;
+#X connect 24 0 17 0;
+#X connect 31 0 32 0;
+#X connect 32 0 19 0;

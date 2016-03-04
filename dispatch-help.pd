@@ -1,4 +1,4 @@
-#N canvas 1 88 565 404 10;
+#N canvas 1 93 565 421 10;
 #X obj 0 0 cnv 8 100 60 empty empty dispatch 10 20 1 18 -262144 -1109
 0;
 #X obj 40 131 r foo1-rcv;
@@ -25,13 +25,13 @@
 #X obj 35 208 cnv 15 300 150 empty empty empty 20 12 0 14 -261681 -66577
 0;
 #X obj 77 223 tgl 15 0 \$0-bar1-snd \$0-bar1-rcv bar1 0 -6 1 8 -262144
--1 -1 0 1;
+-1 -1 1 1;
 #X obj 104 223 tgl 15 0 \$0-bar2-snd \$0-bar2-rcv bar2 0 -6 1 8 -262144
--1 -1 0 1;
+-1 -1 1 1;
 #X obj 132 223 tgl 15 0 \$0-bar3-snd \$0-bar3-rcv bar3 0 -6 1 8 -262144
 -1 -1 0 1;
 #X obj 49 223 tgl 15 0 \$0-bar0-snd \$0-bar0-rcv bar0 0 -6 1 8 -262144
--1 -1 0 1;
+-1 -1 1 1;
 #X obj 173 321 s \$0-bar-rcv;
 #X obj 49 276 r \$0-bar-snd;
 #X obj 173 276 hdl 15 0 0 4 empty empty empty 0 -6 0 8 -262144 -1 -1
@@ -39,8 +39,8 @@
 #X obj 183 221 dispatch \$0-bar 0 3;
 #X msg 173 297 \$1 bang;
 #X obj 49 298 unpack f f;
-#X floatatom 49 319 2 0 0 0 - - -;
-#X floatatom 114 320 2 0 0 0 - - -;
+#X floatatom 49 319 2 0 0 0 - - -, f 2;
+#X floatatom 114 320 2 0 0 0 - - -, f 2;
 #X text 5 383 (c) Moonix: Antoine Rousseau 2004;
 #X text 362 238 Warning: you HAVE to name;
 #X text 343 254 your boutton buses like this:;
