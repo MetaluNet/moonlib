@@ -25,9 +25,15 @@ MOONLIB puredata externals
     and some others...
 
 
-  In order to have sfread~ working with big files in direct-from-disk 
+  In order to have sfread2~ working with big files in direct-from-disk 
 mode you have to hack pd sources: change 
 	mlockall(MCL_FUTURE) 
 with 
 	mlockall(MCL_CURRENT)
-in s_linux.c (pd0.35) or s_inter.c (pd0.37). If not the whole file will be loaded in memory when opening it.
+in s_inter.c . If not the whole file will be loaded in memory when opening it.
+
+Latest source can be found (and issues can be reported) at: 
+https://github.com/MetaluNet/moonlib
+
+Antoine Rousseau
+
