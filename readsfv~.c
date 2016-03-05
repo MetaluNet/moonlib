@@ -1075,7 +1075,7 @@ is done by setting "conditions" and putting data in mutex-controlled common
 areas.
 */
 
-#ifdef __linux__
+//#ifdef __linux__
 
 #define MAXBYTESPERSAMPLE 4
 #define MAXVECSIZE 128
@@ -1678,11 +1678,11 @@ static void readsf_free(t_readsf *x)
     clock_free(x->x_clock);
 }
 
-#endif /* __linux__ */
+//#endif /* __linux__ */
 
 void readsfv_tilde_setup(void)
 {
-#ifdef __linux__
+//#ifdef __linux__
     int i;
 
     readsfv_class = class_new(gensym("readsfv~"), (t_newmethod)readsf_new,
@@ -1699,7 +1699,7 @@ void readsfv_tilde_setup(void)
 
     for(i=0; i<MAXSFCHANS; i++)
         tmpvec[i]=getbytes(sizeof(t_sample)*8*1024);
-#endif /* __linux__ */
+//#endif /* __linux__ */
 }
 
 
