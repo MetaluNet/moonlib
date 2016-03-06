@@ -11,14 +11,23 @@
 
 lib.name = moonlib
 
-class.sources = absolutepath.c basedir.c char2f.c comma.c dinlet~.c dispatch.c \
-dripchar.c f2char.c f2s.c gamme.c image.c mknob.c panvol~.c popen.c \
-relativepath.c s2f.c sarray.c sfread2~.c slist.c ssaw~.c tabdump2.c \
-tabenv.c tabreadl.c tabsort2.c tabsort.c wac.c ndmetro.c readsfv~.c
+uname := $(shell uname -s)
+ifeq (MINGW,$(findstring MINGW,$(uname)))
+ldlibs = -lpthread
+endif
+
+objects = char2f comma dispatch dripchar f2char f2s gamme image mknob panvol~ \
+s2f sarray sfread2~ slist ssaw~ tabdump2 tabenv tabreadl tabsort2 tabsort ndmetro
+
+ifneq (MINGW,$(findstring MINGW,$(uname)))
+objects += absolutepath basedir dinlet~ popen readsfv~ relativepath wac
+endif
+
+class.sources = $(addsuffix .c,$(objects))
 
 # all extra files to be included in binary distribution of the library
 datafiles = \
-$(wildcard *-help.pd) \
+$(addsuffix -help.pd,$(objects)) \
 moonlib-meta.pd \
 image.tcl \
 LICENSE.txt \
