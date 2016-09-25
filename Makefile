@@ -34,5 +34,6 @@ LICENSE.txt \
 README.txt
 
 datadirs = img
+cflags = -Wno-unused -Wno-unused-parameter 
 
 include pd-lib-builder/Makefile.pdlibbuilder
