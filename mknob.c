@@ -23,6 +23,7 @@
 #include <unistd.h>
 #endif
 
+#include <dlfcn.h>
 
 #define MKNOB_TANGLE 100
 #define MKNOB_DEFAULTH 100
@@ -52,6 +53,8 @@ typedef struct _mknob
 
 t_widgetbehavior mknob_widgetbehavior;
 static t_class *mknob_class;
+
+static int compat = 0; // current running pd version < 0.47
 
 /* widget helper functions */
 static void mknob_update_knob(t_mknob *x, t_glist *glist)
@@ -130,19 +133,35 @@ static void mknob_draw_new(t_mknob *x, t_glist *glist)
     int yc=ypos+x->x_gui.x_w/2;
     t_canvas *canvas=glist_getcanvas(glist);
 
-    sys_vgui(".x%lx.c create oval %d %d %d %d -fill #%6.6x -tags %xBASE\n",
-             canvas,xpos,ypos,xpos + x->x_gui.x_w, ypos + x->x_gui.x_w,
-             x->x_gui.x_bcol,x);
-    sys_vgui(".x%lx.c create polygon %d %d %d %d %d %d -fill #%6.6x -tags %xKNOB\n",
-             glist_getcanvas(glist),
-             xc,ypos,xc-4,yc,xc+4,yc,x->x_gui.x_fcol,x);
-    mknob_update_knob(x,glist);
-    sys_vgui(".x%lx.c create text %d %d -text {%s} -anchor w \
-	     -font {{%s} %d bold} -fill #%6.6x -tags %xLABEL\n",
+    if(compat) {
+        sys_vgui(".x%lx.c create oval %d %d %d %d -fill #%6.6x -tags %xBASE\n",
+                 canvas,xpos,ypos,xpos + x->x_gui.x_w, ypos + x->x_gui.x_w,
+                 x->x_gui.x_bcol,x);
+        sys_vgui(".x%lx.c create polygon %d %d %d %d %d %d -fill #%6.6x -tags %xKNOB\n",
+                 glist_getcanvas(glist),
+                 xc,ypos,xc-4,yc,xc+4,yc,x->x_gui.x_fcol,x);
+        mknob_update_knob(x,glist);
+        sys_vgui(".x%lx.c create text %d %d -text {%s} -anchor w \
+	         -font {{%s} -%d %s} -fill #%6.6x -tags %xLABEL\n",
+                 canvas, xpos+x->x_gui.x_ldx,
+                 ypos+x->x_gui.x_ldy,
+                 strcmp(x->x_gui.x_lab->s_name, "empty")?x->x_gui.x_lab->s_name:"",
+                 x->x_gui.x_font, x->x_gui.x_fontsize, sys_fontweight, x->x_gui.x_lcol, x);
+    } else {
+        sys_vgui(".x%lx.c create oval %d %d %d %d -fill #%06x -tags %xBASE\n",
+                 canvas,xpos,ypos,xpos + x->x_gui.x_w, ypos + x->x_gui.x_w,
+                 x->x_gui.x_bcol,x);
+        sys_vgui(".x%lx.c create polygon %d %d %d %d %d %d -fill #%06x -tags %xKNOB\n",
+                 glist_getcanvas(glist),
+                 xc,ypos,xc-4,yc,xc+4,yc,x->x_gui.x_fcol,x);
+        mknob_update_knob(x,glist);
+        sys_vgui(".x%lx.c create text %d %d -text {%s} -anchor w \
+	     -font {{%s} -%d %s} -fill #%06x -tags %xLABEL\n",
              canvas, xpos+x->x_gui.x_ldx,
              ypos+x->x_gui.x_ldy,
              strcmp(x->x_gui.x_lab->s_name, "empty")?x->x_gui.x_lab->s_name:"",
-             x->x_gui.x_font, x->x_gui.x_fontsize, x->x_gui.x_lcol, x);
+             x->x_gui.x_font, x->x_gui.x_fontsize, sys_fontweight, x->x_gui.x_lcol, x);
+    }
     /*if(!x->x_gui.x_fsf.x_snd_able)
         sys_vgui(".x%lx.c create rectangle %d %d %d %d -tags %xOUT%d\n",
          canvas, xpos+ x->x_gui.x_w/2-3, ypos + x->x_gui.x_w-1,
@@ -196,12 +215,21 @@ static void mknob_draw_config(t_mknob *x,t_glist *glist)
 {
     t_canvas *canvas=glist_getcanvas(glist);
 
-    sys_vgui(".x%lx.c itemconfigure %xLABEL -font {{%s} %d bold} -fill #%6.6x -text {%s} \n",
-             canvas, x, x->x_gui.x_font, x->x_gui.x_fontsize,
-             x->x_gui.x_fsf.x_selected?IEM_GUI_COLOR_SELECTED:x->x_gui.x_lcol,
-             strcmp(x->x_gui.x_lab->s_name, "empty")?x->x_gui.x_lab->s_name:"");
-    sys_vgui(".x%lx.c itemconfigure %xKNOB -fill #%6.6x\n", canvas, x, x->x_gui.x_fcol);
-    sys_vgui(".x%lx.c itemconfigure %xBASE -fill #%6.6x\n", canvas, x, x->x_gui.x_bcol);
+    if(compat) {
+        sys_vgui(".x%lx.c itemconfigure %xLABEL -font {{%s} -%d %s} -fill #%6.6x -text {%s} \n",
+                 canvas, x, x->x_gui.x_font, x->x_gui.x_fontsize, sys_fontweight,
+                 x->x_gui.x_fsf.x_selected?IEM_GUI_COLOR_SELECTED:x->x_gui.x_lcol,
+                 strcmp(x->x_gui.x_lab->s_name, "empty")?x->x_gui.x_lab->s_name:"");
+        sys_vgui(".x%lx.c itemconfigure %xKNOB -fill #%6.6x\n", canvas, x, x->x_gui.x_fcol);
+        sys_vgui(".x%lx.c itemconfigure %xBASE -fill #%6.6x\n", canvas, x, x->x_gui.x_bcol);
+    } else {
+        sys_vgui(".x%lx.c itemconfigure %xLABEL -font {{%s} -%d %s} -fill #%06x -text {%s} \n",
+                 canvas, x, x->x_gui.x_font, x->x_gui.x_fontsize, sys_fontweight,
+                 x->x_gui.x_fsf.x_selected?IEM_GUI_COLOR_SELECTED:x->x_gui.x_lcol,
+                 strcmp(x->x_gui.x_lab->s_name, "empty")?x->x_gui.x_lab->s_name:"");
+        sys_vgui(".x%lx.c itemconfigure %xKNOB -fill #%06x\n", canvas, x, x->x_gui.x_fcol);
+        sys_vgui(".x%lx.c itemconfigure %xBASE -fill #%06x\n", canvas, x, x->x_gui.x_bcol);
+    }
 }
 
 /*static void mknob_draw_io(t_mknob *x,t_glist *glist, int old_snd_rcv_flags)
@@ -228,17 +256,32 @@ static void mknob_draw_select(t_mknob *x,t_glist *glist)
 {
     t_canvas *canvas=glist_getcanvas(glist);
 
-    if(x->x_gui.x_fsf.x_selected)
-    {
-        //pd_bind(&x->x_gui.x_obj.ob_pd, iemgui_key_sym);
-        sys_vgui(".x%lx.c itemconfigure %xBASE -outline #%6.6x\n", canvas, x, IEM_GUI_COLOR_SELECTED);
-        sys_vgui(".x%lx.c itemconfigure %xLABEL -fill #%6.6x\n", canvas, x, IEM_GUI_COLOR_SELECTED);
-    }
-    else
-    {
-        //pd_unbind(&x->x_gui.x_obj.ob_pd, iemgui_key_sym);
-        sys_vgui(".x%lx.c itemconfigure %xBASE -outline #%6.6x\n", canvas, x, IEM_GUI_COLOR_NORMAL);
-        sys_vgui(".x%lx.c itemconfigure %xLABEL -fill #%6.6x\n", canvas, x, x->x_gui.x_lcol);
+    if(compat) {
+        if(x->x_gui.x_fsf.x_selected)
+        {
+            //pd_bind(&x->x_gui.x_obj.ob_pd, iemgui_key_sym);
+            sys_vgui(".x%lx.c itemconfigure %xBASE -outline #%6.6x\n", canvas, x, IEM_GUI_COLOR_SELECTED);
+            sys_vgui(".x%lx.c itemconfigure %xLABEL -fill #%6.6x\n", canvas, x, IEM_GUI_COLOR_SELECTED);
+        }
+        else
+        {
+            //pd_unbind(&x->x_gui.x_obj.ob_pd, iemgui_key_sym);
+            sys_vgui(".x%lx.c itemconfigure %xBASE -outline #%6.6x\n", canvas, x, IEM_GUI_COLOR_NORMAL);
+            sys_vgui(".x%lx.c itemconfigure %xLABEL -fill #%6.6x\n", canvas, x, x->x_gui.x_lcol);
+        }
+    } else  {
+        if(x->x_gui.x_fsf.x_selected)
+        {
+            //pd_bind(&x->x_gui.x_obj.ob_pd, iemgui_key_sym);
+            sys_vgui(".x%lx.c itemconfigure %xBASE -outline #%06x\n", canvas, x, IEM_GUI_COLOR_SELECTED);
+            sys_vgui(".x%lx.c itemconfigure %xLABEL -fill #%06x\n", canvas, x, IEM_GUI_COLOR_SELECTED);
+        }
+        else
+        {
+            //pd_unbind(&x->x_gui.x_obj.ob_pd, iemgui_key_sym);
+            sys_vgui(".x%lx.c itemconfigure %xBASE -outline #%06x\n", canvas, x, IEM_GUI_COLOR_NORMAL);
+            sys_vgui(".x%lx.c itemconfigure %xLABEL -fill #%06x\n", canvas, x, x->x_gui.x_lcol);
+        }
     }
 }
 
@@ -277,21 +320,39 @@ static void mknob_getrect(t_gobj *z, t_glist *glist,
 static void mknob_save(t_gobj *z, t_binbuf *b)
 {
     t_mknob *x = (t_mknob *)z;
-    int bflcol[3];
+    int bflcol_compat[3];
+    t_symbol *bflcol[3];
     t_symbol *srl[3];
 
-    iemgui_save(&x->x_gui, srl, bflcol);
-    binbuf_addv(b, "ssiisiiffiisssiiiiiiiii", gensym("#X"),gensym("obj"),
-                (t_int)x->x_gui.x_obj.te_xpix, (t_int)x->x_gui.x_obj.te_ypix,
-                atom_getsymbol(binbuf_getvec(x->x_gui.x_obj.te_binbuf)),
-                x->x_gui.x_w, x->x_gui.x_h,
-                (float)x->x_min, (float)x->x_max,
-                x->x_lin0_log1, iem_symargstoint(&x->x_gui.x_isa),
-                srl[0], srl[1], srl[2],
-                x->x_gui.x_ldx, x->x_gui.x_ldy,
-                iem_fstyletoint(&x->x_gui.x_fsf), x->x_gui.x_fontsize,
-                bflcol[0], bflcol[1], bflcol[2],
-                x->x_val, x->x_steady);
+    if(compat) {
+        ((void (*)(t_iemgui *iemgui, t_symbol **srl, int* bflcol))&iemgui_save)(&x->x_gui, srl, bflcol_compat);
+        binbuf_addv(b, "ssiisiiffiisssiiiiiiiii", gensym("#X"),gensym("obj"),
+            (t_int)x->x_gui.x_obj.te_xpix, (t_int)x->x_gui.x_obj.te_ypix,
+            atom_getsymbol(binbuf_getvec(x->x_gui.x_obj.te_binbuf)),
+            x->x_gui.x_w, x->x_gui.x_h,
+            (float)x->x_min, (float)x->x_max,
+            x->x_lin0_log1, iem_symargstoint(&x->x_gui.x_isa),
+            srl[0], srl[1], srl[2],
+            x->x_gui.x_ldx, x->x_gui.x_ldy,
+            iem_fstyletoint(&x->x_gui.x_fsf), x->x_gui.x_fontsize,
+            bflcol_compat[0], bflcol_compat[1], bflcol_compat[2],
+            x->x_val, x->x_steady);
+    }
+    else {
+        ((void (*)(t_iemgui *iemgui, t_symbol **srl, t_symbol **bflcol))&iemgui_save)(&x->x_gui, srl, bflcol);
+        binbuf_addv(b, "ssiisiiffiisssiiiisssii", gensym("#X"),gensym("obj"),
+            (t_int)x->x_gui.x_obj.te_xpix, (t_int)x->x_gui.x_obj.te_ypix,
+            atom_getsymbol(binbuf_getvec(x->x_gui.x_obj.te_binbuf)),
+            x->x_gui.x_w, x->x_gui.x_h,
+            (float)x->x_min, (float)x->x_max,
+            x->x_lin0_log1, iem_symargstoint(&x->x_gui.x_isa),
+            srl[0], srl[1], srl[2],
+            x->x_gui.x_ldx, x->x_gui.x_ldy,
+            iem_fstyletoint(&x->x_gui.x_fsf), x->x_gui.x_fontsize,
+            bflcol[0], bflcol[1], bflcol[2],
+            x->x_val, x->x_steady);
+        
+    }
     binbuf_addv(b, ";");
 }
 
@@ -371,7 +432,7 @@ static void mknob_properties(t_gobj *z, t_glist *owner)
     t_symbol *srl[3];
 
     iemgui_properties(&x->x_gui, srl);
-    sprintf(buf, "pdtk_iemgui_dialog %%s mknob \
+    if(compat) sprintf(buf, "pdtk_iemgui_dialog %%s mknob \
 	    --------dimension(pix):-------- %d %d width: %d %d mouse: \
 	    -----------output-range:----------- %g left: %g right: %g \
 	    %d lin log %d %d empty %d \
@@ -379,6 +440,21 @@ static void mknob_properties(t_gobj *z, t_glist *owner)
 	    %s %d %d \
 	    %d %d \
 	    %d %d %d\n",
+            x->x_gui.x_w, MKNOB_MINSIZE, x->x_gui.x_h, -1,
+            x->x_min, x->x_max, 0.0,/*no_schedule*/
+            x->x_lin0_log1, x->x_gui.x_isa.x_loadinit, x->x_steady, -1,/*no multi, but iem-characteristic*/
+            srl[0]->s_name, srl[1]->s_name,
+            srl[2]->s_name, x->x_gui.x_ldx, x->x_gui.x_ldy,
+            x->x_gui.x_fsf.x_font_style, x->x_gui.x_fontsize,
+            0xffffff & x->x_gui.x_bcol, 0xffffff & x->x_gui.x_fcol, 0xffffff & x->x_gui.x_lcol);
+    else sprintf(buf, "pdtk_iemgui_dialog %%s mknob \
+	    --------dimension(pix):-------- %d %d width: %d %d mouse: \
+	    -----------output-range:----------- %g left: %g right: %g \
+	    %d lin log %d %d empty %d \
+	    %s %s \
+	    %s %d %d \
+	    %d %d \
+	   #%06x #%06x #%06x\n",
             x->x_gui.x_w, MKNOB_MINSIZE, x->x_gui.x_h, -1,
             x->x_min, x->x_max, 0.0,/*no_schedule*/
             x->x_lin0_log1, x->x_gui.x_isa.x_loadinit, x->x_steady, -1,/*no multi, but iem-characteristic*/
@@ -685,13 +761,15 @@ static void mknob_float(t_mknob *x, t_floatarg f)
     }
 }
 
-static void mknob_loadbang(t_mknob *x)
+static void mknob_loadbang(t_mknob *x, t_floatarg action)
 {
-    if(!sys_noloadbang && x->x_gui.x_isa.x_loadinit)
+    /*if(!sys_noloadbang && x->x_gui.x_isa.x_loadinit)
     {
         (*x->x_gui.x_draw)(x, x->x_gui.x_glist, IEM_GUI_DRAW_MODE_UPDATE);
         mknob_bang(x);
-    }
+    }*/
+    if (action == LB_LOAD && x->x_gui.x_isa.x_loadinit)
+        mknob_bang(x);
 }
 
 /*static void mknob_list(t_mknob *x, t_symbol *s, int ac, t_atom *av)
@@ -710,128 +788,153 @@ static void mknob_loadbang(t_mknob *x)
     }
 }*/
 
+extern void iemgui_all_colfromload(t_iemgui *iemgui, int *bflcol);
+//extern void iemgui_all_loadcolors(t_iemgui *iemgui, t_atom*bcol, t_atom*fcol, t_atom*lcol);
+//static void (*iemgui_all_loadcolors_p)(t_iemgui *iemgui, t_atom*bcol, t_atom*fcol, t_atom*lcol) = NULL;
+
+typedef void (iemgui_all_loadcolors_t)(t_iemgui *iemgui, t_atom*bcol, t_atom*fcol, t_atom*lcol);
+static iemgui_all_loadcolors_t *iemgui_all_loadcolors_p = NULL;
+
+static void check_compat()
+{
+    compat = 1;
+#ifdef MSW
+    HINSTANCE ntdll= GetModuleHandle(NULL);
+    if (ntdll) 
+        iemgui_all_loadcolors_p = (iemgui_all_loadcolors_t *)GetProcAddress(ntdll, "iemgui_all_loadcolors");
+#elif defined(UNIX)
+    void *handle = dlopen(NULL, RTLD_NOW);
+    if(handle) 
+        iemgui_all_loadcolors_p = (iemgui_all_loadcolors_t *)dlsym(handle, "iemgui_all_loadcolors");
+#else
+// No dynamic loading mechanism specified, rely to version of Pd used for compilation :
+    #if PD_MINOR_VERSION >= 47
+    iemgui_all_loadcolors_p = &iemgui_all_loadcolors;
+    #endif
+#endif
+
+    if(iemgui_all_loadcolors_p) compat = 0;
+}
+
 static void *mknob_new(t_symbol *s, int argc, t_atom *argv)
 {
     t_mknob *x = (t_mknob *)pd_new(mknob_class);
-    int bflcol[]= {-262144, -1, -1};
-    //t_symbol *srl[3];
     int w=MKNOB_DEFAULTSIZE, h=MKNOB_DEFAULTH;
     int fs=8 ,lilo=0, ldx=-2, ldy=-6, f=0, v=0, steady=1;
-    //int  iinit=0, ifstyle=0;
     double min=0.0, max=(double)(IEM_SL_DEFAULTSIZE-1);
-    //t_iem_init_symargs *init=(t_iem_init_symargs *)(&iinit);
-    //t_iem_fstyle_flags *fstyle=(t_iem_fstyle_flags *)(&ifstyle);
     char str[144];
 
-    /*srl[0] = gensym("empty");
-    srl[1] = gensym("empty");
-    srl[2] = gensym("empty");*/
+    if(compat) {
+        int bflcol[]= {-262144, -1, -1};
 
-    if(((argc == 17)||(argc == 18))&&IS_A_FLOAT(argv,0)&&IS_A_FLOAT(argv,1)
-            &&IS_A_FLOAT(argv,2)&&IS_A_FLOAT(argv,3)
-            &&IS_A_FLOAT(argv,4)&&IS_A_FLOAT(argv,5)
-            &&(IS_A_SYMBOL(argv,6)||IS_A_FLOAT(argv,6))
-            &&(IS_A_SYMBOL(argv,7)||IS_A_FLOAT(argv,7))
-            &&(IS_A_SYMBOL(argv,8)||IS_A_FLOAT(argv,8))
-            &&IS_A_FLOAT(argv,9)&&IS_A_FLOAT(argv,10)
-            &&IS_A_FLOAT(argv,11)&&IS_A_FLOAT(argv,12)&&IS_A_FLOAT(argv,13)
-            &&IS_A_FLOAT(argv,14)&&IS_A_FLOAT(argv,15)&&IS_A_FLOAT(argv,16))
-    {
-        w = (int)atom_getintarg(0, argc, argv);
-        h = (int)atom_getintarg(1, argc, argv);
-        min = (double)atom_getfloatarg(2, argc, argv);
-        max = (double)atom_getfloatarg(3, argc, argv);
-        lilo = (int)atom_getintarg(4, argc, argv);
-        iem_inttosymargs(&x->x_gui.x_isa, atom_getintarg(5, argc, argv));
-        iemgui_new_getnames(&x->x_gui, 6, argv);
-        ldx = (int)atom_getintarg(9, argc, argv);
-        ldy = (int)atom_getintarg(10, argc, argv);
-        iem_inttofstyle(&x->x_gui.x_fsf, atom_getintarg(11, argc, argv));
-        fs = (int)atom_getintarg(12, argc, argv);
-        bflcol[0] = (int)atom_getintarg(13, argc, argv);
-        bflcol[1] = (int)atom_getintarg(14, argc, argv);
-        bflcol[2] = (int)atom_getintarg(15, argc, argv);
-        v = (int)atom_getintarg(16, argc, argv);
-        /*iinit = (int)atom_getintarg(5, argc, argv);
-        if(IS_A_SYMBOL(argv,6))
-            srl[0] = atom_getsymbolarg(6, argc, argv);
-        else if(IS_A_FLOAT(argv,6))
+        if(((argc == 17)||(argc == 18))&&IS_A_FLOAT(argv,0)&&IS_A_FLOAT(argv,1)
+                &&IS_A_FLOAT(argv,2)&&IS_A_FLOAT(argv,3)
+                &&IS_A_FLOAT(argv,4)&&IS_A_FLOAT(argv,5)
+                &&(IS_A_SYMBOL(argv,6)||IS_A_FLOAT(argv,6))
+                &&(IS_A_SYMBOL(argv,7)||IS_A_FLOAT(argv,7))
+                &&(IS_A_SYMBOL(argv,8)||IS_A_FLOAT(argv,8))
+                &&IS_A_FLOAT(argv,9)&&IS_A_FLOAT(argv,10)
+                &&IS_A_FLOAT(argv,11)&&IS_A_FLOAT(argv,12)&&IS_A_FLOAT(argv,13)
+                &&IS_A_FLOAT(argv,14)&&IS_A_FLOAT(argv,15)&&IS_A_FLOAT(argv,16))
         {
-            sprintf(str, "%d", (int)atom_getintarg(6, argc, argv));
-            srl[0] = gensym(str);
+            w = (int)atom_getintarg(0, argc, argv);
+            h = (int)atom_getintarg(1, argc, argv);
+            min = (double)atom_getfloatarg(2, argc, argv);
+            max = (double)atom_getfloatarg(3, argc, argv);
+            lilo = (int)atom_getintarg(4, argc, argv);
+            iem_inttosymargs(&x->x_gui.x_isa, atom_getintarg(5, argc, argv));
+            iemgui_new_getnames(&x->x_gui, 6, argv);
+            ldx = (int)atom_getintarg(9, argc, argv);
+            ldy = (int)atom_getintarg(10, argc, argv);
+            iem_inttofstyle(&x->x_gui.x_fsf, atom_getintarg(11, argc, argv));
+            fs = (int)atom_getintarg(12, argc, argv);
+            bflcol[0] = (int)atom_getintarg(13, argc, argv);
+            bflcol[1] = (int)atom_getintarg(14, argc, argv);
+            bflcol[2] = (int)atom_getintarg(15, argc, argv);
+            v = (int)atom_getintarg(16, argc, argv);
         }
-        if(IS_A_SYMBOL(argv,7))
-            srl[1] = atom_getsymbolarg(7, argc, argv);
-        else if(IS_A_FLOAT(argv,7))
+        else iemgui_new_getnames(&x->x_gui, 6, 0);
+
+        iemgui_all_colfromload(&x->x_gui, bflcol);
+    } else {
+        x->x_gui.x_bcol = 0xFCFCFC;
+        x->x_gui.x_fcol = 0x00;
+        x->x_gui.x_lcol = 0x00;
+        
+        if(((argc == 17)||(argc == 18))&&IS_A_FLOAT(argv,0)&&IS_A_FLOAT(argv,1)
+                &&IS_A_FLOAT(argv,2)&&IS_A_FLOAT(argv,3)
+                &&IS_A_FLOAT(argv,4)&&IS_A_FLOAT(argv,5)
+                &&(IS_A_SYMBOL(argv,6)||IS_A_FLOAT(argv,6))
+                &&(IS_A_SYMBOL(argv,7)||IS_A_FLOAT(argv,7))
+                &&(IS_A_SYMBOL(argv,8)||IS_A_FLOAT(argv,8))
+                &&IS_A_FLOAT(argv,9)&&IS_A_FLOAT(argv,10)
+                &&IS_A_FLOAT(argv,11)&&IS_A_FLOAT(argv,12)&&IS_A_FLOAT(argv,16))
         {
-            sprintf(str, "%d", (int)atom_getintarg(7, argc, argv));
-            srl[1] = gensym(str);
+            w = (int)atom_getintarg(0, argc, argv);
+            h = (int)atom_getintarg(1, argc, argv);
+            min = (double)atom_getfloatarg(2, argc, argv);
+            max = (double)atom_getfloatarg(3, argc, argv);
+            lilo = (int)atom_getintarg(4, argc, argv);
+            iem_inttosymargs(&x->x_gui.x_isa, atom_getintarg(5, argc, argv));
+            iemgui_new_getnames(&x->x_gui, 6, argv);
+            ldx = (int)atom_getintarg(9, argc, argv);
+            ldy = (int)atom_getintarg(10, argc, argv);
+            iem_inttofstyle(&x->x_gui.x_fsf, atom_getintarg(11, argc, argv));
+            fs = (int)atom_getintarg(12, argc, argv);
+            
+            //iemgui_all_loadcolors(&x->x_gui, argv+13, argv+14, argv+15);
+            if(iemgui_all_loadcolors_p != NULL)
+                iemgui_all_loadcolors_p(&x->x_gui, argv+13, argv+14, argv+15);
+                
+            v = (int)atom_getintarg(16, argc, argv);
         }
-        if(IS_A_SYMBOL(argv,8))
-            srl[2] = atom_getsymbolarg(8, argc, argv);
-        else if(IS_A_FLOAT(argv,8))
-        {
-            sprintf(str, "%d", (int)atom_getintarg(8, argc, argv));
-            srl[2] = gensym(str);
-        }*/
-        //ifstyle = (int)atom_getintarg(11, argc, argv);
+        else iemgui_new_getnames(&x->x_gui, 6, 0);
     }
-    else iemgui_new_getnames(&x->x_gui, 6, 0);
 
     if((argc == 18)&&IS_A_FLOAT(argv,17))
         steady = (int)atom_getintarg(17, argc, argv);
 
-    /*iinit &= IEM_INIT_ARGS_ALL;
-    ifstyle &= IEM_FSTYLE_FLAGS_ALL;
-    fstyle->x_snd_able = 1;
-    fstyle->x_rcv_able = 1;*/
     x->x_gui.x_draw = (t_iemfunptr)mknob_draw;
     x->x_gui.x_fsf.x_snd_able = 1;
     x->x_gui.x_fsf.x_rcv_able = 1;
     x->x_gui.x_glist = (t_glist *)canvas_getcurrent();
-    //x->x_gui.x_isa = *init;
+
     if(x->x_gui.x_isa.x_loadinit)
         x->x_val = v;
     else
         x->x_val = 0;
+
     x->x_pos = x->x_val;
+
     if(lilo != 0) lilo = 1;
     x->x_lin0_log1 = lilo;
+
     if(steady != 0) steady = 1;
     x->x_steady = steady;
+
     if(!strcmp(x->x_gui.x_snd->s_name, "empty")) x->x_gui.x_fsf.x_snd_able = 0;
     if(!strcmp(x->x_gui.x_rcv->s_name, "empty")) x->x_gui.x_fsf.x_rcv_able = 0;
-    //if(!strcmp(srl[0]->s_name, "empty")) fstyle->x_snd_able = 0;
-    //if(!strcmp(srl[1]->s_name, "empty")) fstyle->x_rcv_able = 0;
-    //x->x_gui.x_unique_num = 0;
+
     if(x->x_gui.x_fsf.x_font_style == 1) strcpy(x->x_gui.x_font, "helvetica");
     else if(x->x_gui.x_fsf.x_font_style == 2) strcpy(x->x_gui.x_font, "times");
     else
     {
         x->x_gui.x_fsf.x_font_style = 0;
-        /*if(fstyle->x_font_style == 1) strcpy(x->x_gui.x_font, "helvetica");
-        else if(fstyle->x_font_style == 2) strcpy(x->x_gui.x_font, "times");
-        else { fstyle->x_font_style = 0;*/
-        strcpy(x->x_gui.x_font, "courier");
+        strcpy(x->x_gui.x_font, sys_font);
     }
-    //x->x_gui.x_fsf = *fstyle;
-    //iemgui_first_dollararg2sym(&x->x_gui, srl);
-    //if(x->x_gui.x_fsf.x_rcv_able) pd_bind(&x->x_gui.x_obj.ob_pd, srl[1]);
-    /*x->x_gui.x_snd = srl[0];
-    x->x_gui.x_rcv = srl[1];
-    x->x_gui.x_lab = srl[2];*/
+
     if(x->x_gui.x_fsf.x_rcv_able) pd_bind(&x->x_gui.x_obj.ob_pd, x->x_gui.x_rcv);
+
     x->x_gui.x_ldx = ldx;
     x->x_gui.x_ldy = ldy;
-    if(fs < 4)
-        fs = 4;
+
+    if(fs < 4) fs = 4;
     x->x_gui.x_fontsize = fs;
-    //x->x_gui.x_h = iemgui_clip_size(h);
-    //x->x_gui.x_w = iemgui_clip_size(w);
+
     mknob_check_wh(x, w, h);
-    //mknob_check_width(x, w);
+
     mknob_check_minmax(x, min, max);
-    iemgui_all_colfromload(&x->x_gui, bflcol);
+
     x->x_thick = 0;
     iemgui_verify_snd_ne_rcv(&x->x_gui);
     outlet_new(&x->x_gui.x_obj, &s_float);
@@ -854,8 +957,12 @@ void canvas_mknob(t_glist *gl, t_symbol *s, int argc, t_atom *argv)
     canvas_iemguis(gl, gensym("mknob"));
 }
 
+
+
 void mknob_setup(void)
 {
+    check_compat();
+    
     mknob_class = class_new(gensym("mknob"), (t_newmethod)mknob_new,
                             (t_method)mknob_free, sizeof(t_mknob), 0, A_GIMME, 0);
 #ifndef GGEE_mknob_COMPATIBLE
