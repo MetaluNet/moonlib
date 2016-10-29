@@ -27,13 +27,21 @@ class.sources = $(addsuffix .c,$(objects))
 
 # all extra files to be included in binary distribution of the library
 datafiles = \
-$(addsuffix -help.pd,$(objects)) \
-moonlib-meta.pd \
-image.tcl \
-LICENSE.txt \
-README.txt
+    $(addsuffix -help.pd,$(objects)) \
+    moonlib-meta.pd \
+    image.tcl \
+    LICENSE.txt \
+    README.txt
 
 datadirs = img
+
 cflags = -Wno-unused -Wno-unused-parameter 
 
-include pd-lib-builder/Makefile.pdlibbuilder
+PDLIBBUILDER_DIR=pd-lib-builder/
+include $(firstword $(wildcard $(PDLIBBUILDER_DIR)/Makefile.pdlibbuilder Makefile.pdlibbuilder))
+
+update-pdlibbuilder:
+	git submodule update --init pd-lib-builder
+	cp pd-lib-builder/Makefile.pdlibbuilder .
+	
+
