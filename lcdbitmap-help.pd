@@ -1,0 +1,25 @@
+#N canvas 98 212 727 494 10;
+#X text 39 442 (c) Antoine Rousseau 2005;
+#X obj 235 297 lcdbitmap;
+#X msg 61 27 locate 0 0 0;
+#X msg 193 75 255;
+#X msg 226 74 170;
+#X msg 287 104 size 366 96;
+#X msg 194 39 0;
+#X msg 57 170 locate 1 2 0;
+#X msg 312 177 size 122 32;
+#X obj 128 296 bng 15 250 50 0 empty empty empty 0 -6 0 8 -262144 -1
+-1;
+#X obj 129 261 t b a;
+#X msg 313 51 size 130 38;
+#X connect 2 0 1 0;
+#X connect 3 0 10 0;
+#X connect 4 0 10 0;
+#X connect 5 0 1 0;
+#X connect 6 0 10 0;
+#X connect 7 0 1 0;
+#X connect 8 0 1 0;
+#X connect 9 0 1 0;
+#X connect 10 0 9 0;
+#X connect 10 1 1 0;
+#X connect 11 0 1 0;
