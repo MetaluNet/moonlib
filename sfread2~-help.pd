@@ -1,4 +1,4 @@
-#N canvas 386 72 582 490 10;
+#N canvas 588 132 708 498 10;
 #X obj 0 0 cnv 8 100 60 empty empty sfread2~ 10 20 1 18 -262144 -1109
 0;
 #X text 2 459 (c) Moonix: Antoine Rousseau 2003;
@@ -8,14 +8,14 @@
 #X msg 155 202 open \$1;
 #X obj 19 151 bng 15 250 50 0 empty empty play 20 8 1 8 -24198 -1 -1
 ;
-#X msg 278 225 loop \$1;
-#X obj 278 207 tgl 15 1 empty empty loop 20 8 0 8 -241291 -1 -1 1 1
+#X msg 253 168 loop \$1;
+#X obj 253 150 tgl 15 1 empty empty loop 20 8 0 8 -241291 -1 -1 1 1
 ;
 #X obj 57 103 tgl 15 1 empty empty interpolation 20 8 1 8 -257472 -1
 -1 1 1;
 #X msg 57 121 interp \$1;
-#X obj 458 181 vsl 15 128 -8 8 0 0 empty empty speed 0 -8 1 8 -260818
--1 -1 6244 1;
+#X obj 588 181 vsl 15 128 -8 8 0 0 empty empty speed 0 -8 1 8 -260818
+-1 -1 6644 1;
 #X text 135 12 soundfile reader at variable speed (possibly negative)
 \, whith 4-point interpolation and loop.;
 #X obj 154 296 dac~;
@@ -27,11 +27,11 @@
 #X obj 148 339 sfread~;
 #X text 43 341 read manual of;
 #X text 202 339 for more details...;
-#X text 235 159 resets sound to position;
-#X text 234 148 start position in samples;
-#X msg 238 174 index 20000;
-#X obj 497 177 loadbang;
-#X msg 497 196 1;
+#X text 354 144 resets sound to position;
+#X text 353 133 start position in samples;
+#X msg 357 159 index 20000;
+#X obj 627 177 loadbang;
+#X msg 627 196 1;
 #X msg 261 99 symbol /usr/local/lib/pd/doc/sound/voice.wav;
 #X msg 261 78 symbol ../../doc/sound/voice.wav;
 #X text 66 414 If not \, the whole file will be loaded in memory when
@@ -53,8 +53,19 @@ negative) \, whith 4-point interpolation and loop;
 #X text 67 365 CAUTION: it's possible to hack pd sources to have real
 d-t-d working :;
 #X text 66 401 in s_inter.c;
+#X obj 199 314 print status;
+#X obj 222 292 print length;
+#X msg 357 189 index;
+#X floatatom 584 140 5 0 0 0 - - -, f 5;
+#X text 401 188 get current index;
+#X msg 357 219 state;
+#X text 401 218 get playing state (0/1);
+#X msg 357 244 size;
+#X text 393 242 get file size in samples;
 #X connect 3 0 12 0;
 #X connect 3 1 12 1;
+#X connect 3 2 31 0;
+#X connect 3 3 32 0;
 #X connect 4 0 3 0;
 #X connect 5 0 3 0;
 #X connect 6 0 3 0;
@@ -71,3 +82,7 @@ d-t-d working :;
 #X connect 24 0 10 0;
 #X connect 25 0 4 0;
 #X connect 26 0 4 0;
+#X connect 33 0 3 0;
+#X connect 34 0 10 0;
+#X connect 36 0 3 0;
+#X connect 38 0 3 0;
