@@ -231,11 +231,15 @@ static void sfread_interp(t_sfread *x, t_floatarg f)
     x->x_interp = (f!=0);
 }
 
-static void sfread_index(t_sfread *x, t_floatarg f)
+static void sfread_index(t_sfread *x, t_symbol* s, int argc, t_atom* argv)
 {
-    x->x_index = f;
+  if (argc > 0 && argv[0].a_type == A_FLOAT){
+    x->x_index = argv[0].a_w.w_float;
+  }
+  t_atom a;
+  SETFLOAT(&a, x->x_index);
+  outlet_anything(x->x_stateout, s, 1, &a);
 }
-
 
 static void sfread_size(t_sfread *x)
 {
@@ -423,7 +427,7 @@ void sfread2_tilde_setup(void)
     class_addbang(sfread_class,sfread_bang);
     class_addmethod(sfread_class,(t_method)sfread_loop,gensym("loop"),A_FLOAT,A_NULL);
     class_addmethod(sfread_class,(t_method)sfread_interp,gensym("interp"),A_FLOAT,A_NULL);
-    class_addmethod(sfread_class,(t_method)sfread_index,gensym("index"),A_FLOAT,A_NULL);
+    class_addmethod(sfread_class,(t_method)sfread_index,gensym("index"),A_GIMME,A_NULL);
 
 
     // Impossible with pd-0.35 because it leaves super-user mode.
