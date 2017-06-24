@@ -26,66 +26,42 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #define UNITBIT32 1572864.  /* 3*2^19; bit 32 has place value 1 */
 
-/* machine-dependent definitions.  These ifdefs really
-should have been by CPU type and not by operating system! */
-#ifdef IRIX
-/* big-endian.  Most significant byte is at low address in memory */
-#define HIOFFSET 0    /* word offset to find MSB */
-#define LOWOFFSET 1    /* word offset to find LSB */
-#define int32 long  /* a data type that has 32 bits */
-#else
-#ifdef _WIN32
-/* little-endian; most significant byte is at highest address */
-#define HIOFFSET 1
-#define LOWOFFSET 0
-#define int32 long
-#else
-#ifdef __FreeBSD__
+#if defined(__FreeBSD__) || defined(__APPLE__) || defined(__FreeBSD_kernel__) \
+    || defined(__OpenBSD__)
 #include <machine/endian.h>
-#if BYTE_ORDER == LITTLE_ENDIAN
-#define HIOFFSET 1
-#define LOWOFFSET 0
-#else
-#define HIOFFSET 0    /* word offset to find MSB */
-#define LOWOFFSET 1    /* word offset to find LSB */
-#endif /* BYTE_ORDER */
-#include <sys/types.h>
-#define int32 int32_t
 #endif
-#ifdef __linux__
 
+#if defined(__linux__) || defined(__CYGWIN__) || defined(__GNU__) || \
+    defined(ANDROID)
 #include <endian.h>
-
-#if !defined(__BYTE_ORDER) || !defined(__LITTLE_ENDIAN)
-#error No byte order defined                                                    
 #endif
 
-#if __BYTE_ORDER == __LITTLE_ENDIAN
-#define HIOFFSET 1
-#define LOWOFFSET 0
+#ifdef __MINGW32__
+#include <sys/param.h>
+#endif
+
+#ifdef _MSC_VER
+/* _MSVC lacks BYTE_ORDER and LITTLE_ENDIAN */
+#define LITTLE_ENDIAN 0x0001
+#define BYTE_ORDER LITTLE_ENDIAN
+#endif
+
+#if !defined(BYTE_ORDER) || !defined(LITTLE_ENDIAN)
+#error No byte order defined
+#endif
+
+#if BYTE_ORDER == LITTLE_ENDIAN
+# define HIOFFSET 1
+# define LOWOFFSET 0
 #else
-#define HIOFFSET 0    /* word offset to find MSB */
-#define LOWOFFSET 1    /* word offset to find LSB */
-#endif /* __BYTE_ORDER */
-
-#include <sys/types.h>
-#define int32 int32_t
-
-#else
-#ifdef __APPLE__
-#define HIOFFSET 0    /* word offset to find MSB */
-#define LOWOFFSET 1    /* word offset to find LSB */
-#define int32 int  /* a data type that has 32 bits */
-
-#endif /* __APPLE__ */
-#endif /* __linux__ */
-#endif /* _WIN32 */
-#endif /* SGI */
+# define HIOFFSET 0    /* word offset to find MSB */
+# define LOWOFFSET 1    /* word offset to find LSB */
+#endif
 
 union tabfudge
 {
     double tf_d;
-    int32 tf_i[2];
+    int32_t tf_i[2];
 };
 
 
