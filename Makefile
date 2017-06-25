@@ -4,7 +4,7 @@
 #
 # use : make pdincludepath=/path/to/pure-data/src/
 #
-# The following command will build the external and install the distributable 
+# The following command will build the external and install the distributable
 # files into a subdirectory called build/moonlib :
 #
 # make install pdincludepath=../pure-data/src/ objectsdir=./build
@@ -35,7 +35,7 @@ datafiles = \
 
 datadirs = img
 
-cflags = -Wno-unused -Wno-unused-parameter 
+cflags = -Wno-unused -Wno-unused-parameter
 
 PDLIBBUILDER_DIR=pd-lib-builder/
 include $(firstword $(wildcard $(PDLIBBUILDER_DIR)/Makefile.pdlibbuilder Makefile.pdlibbuilder))
