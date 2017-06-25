@@ -191,4 +191,3 @@ void ssaw_tilde_setup(void)
     ssaw_initarray();
 
 }
-

@@ -234,4 +234,3 @@ void slist_setup(void)
     scommon_class = class_new(gensym("slist"), 0, 0,
                               sizeof(t_scommon), CLASS_PD, 0);
 }
-

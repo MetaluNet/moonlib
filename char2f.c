@@ -50,4 +50,3 @@ void char2f_setup(void)
 
     class_addsymbol(char2f_class, char2f_symbol);
 }
-

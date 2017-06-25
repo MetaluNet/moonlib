@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2002 Antoine Rousseau 
+Copyright (C) 2002 Antoine Rousseau
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -13,7 +13,7 @@ Lesser General Public License for more details.
 
 You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA  
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
 #include <math.h>
@@ -69,8 +69,8 @@ typedef struct _lcdbitmap
 	int x_side;
 	char x_bitmap[122][32];
 	char *x_bitmapstr;
-	char x_bitstr[65536];	     
-	t_int  x_localimage; //localimage "img%x" done 
+	char x_bitstr[65536];
+	t_int  x_localimage; //localimage "img%x" done
 } t_lcdbitmap;
 
 /* widget helper functions */
@@ -146,7 +146,7 @@ static void draw_inlets(t_lcdbitmap *x, t_glist *glist, int firsttime, int nin, 
 			onset, ypos + x->x_height - 1,
 			onset + IOWIDTH, ypos + x->x_height);
      }
-     n = nin; 
+     n = nin;
      nplus = (n == 1 ? 1 : n-1);
      for (i = 0; i < n; i++)
      {
@@ -162,7 +162,7 @@ static void draw_inlets(t_lcdbitmap *x, t_glist *glist, int firsttime, int nin, 
 			glist_getcanvas(glist), x, i,
 			onset, ypos,
 			onset + IOWIDTH, ypos + 1);
-	  
+
      }
 }
 
@@ -174,23 +174,23 @@ void lcdbitmap_drawme(t_lcdbitmap *x, t_glist *glist, int firsttime)
 	  char *color;
     int xpos=text_xpix(&x->x_obj, glist);
     int ypos=text_ypix(&x->x_obj, glist);
-	  
+
     if (firsttime) {
 	sys_vgui(".x%x.c create rectangle %d %d %d %d -tags %xS "BACKGROUND"\n",
 		glist_getcanvas(glist),
 		xpos, ypos,
 		xpos + x->x_width, ypos + x->x_height,
 		x);
-	  
-     }     
+
+     }
      else {
 	sys_vgui(".x%x.c coords %xS %d %d %d %d\n",
 		glist_getcanvas(glist), x,
 		xpos, ypos,
 		xpos + x->x_width, ypos + x->x_height);
      }
-	
-     if (firsttime) {		
+
+     if (firsttime) {
 	if(!x->x_localimage) {
 		sys_vgui("image create bitmap img%x\n",x);
 		sys_vgui("image create bitmap imgnull\n",x);
@@ -204,9 +204,9 @@ void lcdbitmap_drawme(t_lcdbitmap *x, t_glist *glist, int firsttime)
 	sys_vgui(teststr);
 	//post("%s",Hurlo);*/
 
-	sys_vgui(".x%x.c create image %d %d -image img%x -tags %xI\n", 
+	sys_vgui(".x%x.c create image %d %d -image img%x -tags %xI\n",
 		glist_getcanvas(glist),xpos + x->x_width/2,ypos+ x->x_height/2,x,x);
-      }  
+      }
      else {
 	  sys_vgui(".x%x.c coords %xI %d %d\n",
 		glist_getcanvas(glist),x,xpos + x->x_width/2 , ypos + x->x_height/2);
@@ -265,7 +265,7 @@ static void lcdbitmap_displace(t_gobj *z, t_glist *glist,
 static void lcdbitmap_select(t_gobj *z, t_glist *glist, int state)
 {
      t_lcdbitmap *x = (t_lcdbitmap *)z;
-    /* sys_vgui(".x%x.c itemconfigure %xS -fill %s\n", glist, 
+    /* sys_vgui(".x%x.c itemconfigure %xS -fill %s\n", glist,
 	     x, (state? "blue" : BACKGROUNDCOLOR));*/
 }
 
@@ -283,7 +283,7 @@ static void lcdbitmap_delete(t_gobj *z, t_glist *glist)
     canvas_deletelinesfor(glist, x);
 }
 
-       
+
 static void lcdbitmap_vis(t_gobj *z, t_glist *glist, int vis)
 {
     t_lcdbitmap* s = (t_lcdbitmap*)z;
@@ -297,9 +297,9 @@ static void lcdbitmap_vis(t_gobj *z, t_glist *glist, int vis)
 static void lcdbitmap_save(t_gobj *z, t_binbuf *b)
 {
     t_lcdbitmap *x = (t_lcdbitmap *)z;
-	 
+
     binbuf_addv(b, "ssiisii", gensym("#X"),gensym("obj"),
-		(t_int)x->x_obj.te_xpos, (t_int)x->x_obj.te_ypos,  
+		(t_int)x->x_obj.te_xpos, (t_int)x->x_obj.te_ypos,
 		gensym("lcdbitmap"),x->x_width,x->x_height);
     binbuf_addv(b, ";");
 }
@@ -309,11 +309,11 @@ void lcdbitmap_draw_byte(t_lcdbitmap *x,int i,int line)
 	t_canvas *canvas=glist_getcanvas(x->x_glist);
 	char *color;
 	int j;
-	
+
 	/*if(glist_isvisible(x->x_glist)) for(j=0;j<8;j++){
 		color=((x->x_bitmap[i][line])&(1<<j))?BLACKCOLOR:WHITECOLOR;
-		sys_vgui(".x%x.c itemconfigure %x%d_%d -fill %s -outline %s\n", canvas, 
-			x, i,j,color,color);		
+		sys_vgui(".x%x.c itemconfigure %x%d_%d -fill %s -outline %s\n", canvas,
+			x, i,j,color,color);
 	}*/
 }
 
@@ -324,24 +324,24 @@ void lcdbitmap_bang(t_lcdbitmap *x)
 	int Y=32*scale;
 	int xs,ys,xx,u,v,i,j,jj,tmp;
 	char *s=x->x_bitstr;
-	// xs[xx],ys:bitstr  u,v:real_bits  i,j[jj]:lcd 
-	
+	// xs[xx],ys:bitstr  u,v:real_bits  i,j[jj]:lcd
+
 	s+=sprintf(s,"\
 #define BM_width 122\\n\
 #define BM_height 32\\n\
 static unsigned char BM_bits[] = {\n");
-	
+
 	for(ys=0;ys<Y;ys++) {
 		for(xs=0;xs<X;xs++) { /*x,y = pos dans bmp*/
 			tmp=0;
 			for(xx=0;xx<8;xx++){
-				u=(xs*8+xx)/scale;	
+				u=(xs*8+xx)/scale;
 				v=ys/scale;
-				
+
 				i=u;
 				j=v/8;
 				jj=v%8;
-				
+
 				if( i < 122 )
 				tmp+= (((x->x_bitmap[i][j]>>jj) & 1) << /*(7-xx)*/xx) ;
 			}
@@ -351,25 +351,25 @@ static unsigned char BM_bits[] = {\n");
 		//s+=sprintf(s,"\n");
 	}
 	s+=sprintf(s," };");
-	
+
 	if(glist_isvisible(x->x_glist)) {
 	 	//sys_vgui("img%x blank\n",x);
 		//sys_vgui("img%x configure -data \n",x);
 		sys_vgui("img%x configure -data \"%s\"\n",x,x->x_bitstr);
 	 	//post("img%x configure -data \"%s\"\n",x,x->x_bitstr);
 		sys_vgui(".x%x.c itemconfigure %xI -image imgnull\n",
-			glist_getcanvas(x->x_glist),x);	
+			glist_getcanvas(x->x_glist),x);
 		sys_vgui(".x%x.c itemconfigure %xI -image img%x\n",
-			glist_getcanvas(x->x_glist),x,x);	
+			glist_getcanvas(x->x_glist),x,x);
 	}
-}	
+}
 
 void lcdbitmap_float(t_lcdbitmap *x,t_floatarg fbyte)
 {
 	int i,j=x->x_page,byte=(int)fbyte;
-		
+
 	if(x->x_x>61) return;
-	
+
 	i=x->x_x+61*x->x_side;
 	x->x_bitmap[i][j]=byte;
 	//lcdbitmap_draw_byte(x,i,j);
@@ -392,14 +392,14 @@ void lcdbitmap_locate(t_lcdbitmap *x,t_floatarg side,t_floatarg page,t_floatarg 
 static void lcdbitmap_click(t_lcdbitmap *x, t_floatarg xpos, t_floatarg ypos,
 			  t_floatarg shift, t_floatarg ctrl, t_floatarg alt)
 {
-/*	int note;    
+/*	int note;
     int x0=text_xpix(&x->x_obj, x->x_glist);
     int y0=text_ypix(&x->x_obj, x->x_glist);
-	
+
 	note=get_touched_note(
 		(xpos-x0)/x->x_width,
 		(ypos-y0)/x->x_height);
-			
+
 	if(note>=0) lcdbitmap_set(x,note,!x->x_notes[note]);*/
 }
 
@@ -434,7 +434,7 @@ static void lcdbitmap_setwidget(void)
     lcdbitmap_widgetbehavior.w_deletefn =	lcdbitmap_delete;
     lcdbitmap_widgetbehavior.w_visfn =		lcdbitmap_vis;
     lcdbitmap_widgetbehavior.w_clickfn =	lcdbitmap_newclick;
-    //lcdbitmap_widgetbehavior.w_propertiesfn =	NULL; 
+    //lcdbitmap_widgetbehavior.w_propertiesfn =	NULL;
     //lcdbitmap_widgetbehavior.w_savefn =			lcdbitmap_save;
 }
 
@@ -442,7 +442,7 @@ static void lcdbitmap_setwidget(void)
 static void *lcdbitmap_new(t_symbol *s, int argc, t_atom *argv)
 {
 	int i,j,err=0;
-	
+
 	t_lcdbitmap *x = (t_lcdbitmap *)pd_new(lcdbitmap_class);
 
 	x->x_glist = (t_glist*) canvas_getcurrent();
@@ -452,7 +452,7 @@ static void *lcdbitmap_new(t_symbol *s, int argc, t_atom *argv)
 	x->x_side=0;
 	x->x_page=0;
 	x->x_x=0;
-	
+
 	for(j=0;j<32;j++) for(i=0;i<122;i++) x->x_bitmap[i][j]=0;
 	//x->x_bitstr=strdup(Hurlo);
 	strcpy(x->x_bitstr,Hurlo);
@@ -473,7 +473,7 @@ void lcdbitmap_setup(void)
 				sizeof(t_lcdbitmap),0, A_GIMME,0);
 
     class_addfloat(lcdbitmap_class,lcdbitmap_float);
-    
+
     class_addbang(lcdbitmap_class,lcdbitmap_bang);
 
     class_addmethod(lcdbitmap_class, (t_method)lcdbitmap_locate, gensym("locate"),
@@ -491,5 +491,3 @@ void lcdbitmap_setup(void)
     //class_setsavefn(lcdbitmap_class, lcdbitmap_save);
 	class_sethelpsymbol(lcdbitmap_class, gensym("moonlibs/lcdbitmap"));
 }
-
-

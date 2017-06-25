@@ -50,4 +50,3 @@ void f2char_setup(void)
 
     class_addfloat(f2char_class, f2char_float);
 }
-

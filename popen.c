@@ -213,4 +213,3 @@ void popen_setup(void )
     class_addlist(popen_class, popen_list);
 
 }
-

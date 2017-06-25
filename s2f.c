@@ -50,4 +50,3 @@ void s2f_setup(void)
 
     class_addsymbol(s2f_class, s2f_symbol);
 }
-

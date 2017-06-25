@@ -80,4 +80,3 @@ void dripchar_setup(void)
     class_addsymbol(dripchar_class, dripchar_symbol);
     class_addfloat(dripchar_class, dripchar_float);
 }
-

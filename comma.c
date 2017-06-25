@@ -50,4 +50,3 @@ void comma_setup(void)
     class_addbang(comma_class, comma_bang);
     SETCOMMA(&_commaatom_);
 }
-
