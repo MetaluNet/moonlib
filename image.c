@@ -324,5 +324,3 @@ void image_setup(void)
              image_class->c_externdir->s_name,
              image_class->c_name->s_name);
 }
-
-

@@ -2,7 +2,7 @@
 /*                                                                              */
 /*  Antoine Rousseau 2005-2016                                                       */
 /*                                                                              */
-/* 
+/*
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
 License as published by the Free Software Foundation; either
@@ -49,9 +49,9 @@ typedef struct _ndmetro
 
 static void ndmetro_tick(t_ndmetro *x)
 {
-    double dtime,nextime,beat,tick=x->x_tick,tickk,fracpart=0; 
+    double dtime,nextime,beat,tick=x->x_tick,tickk,fracpart=0;
     double intpart;
-    
+
     x->x_hit = 0;
 
     if(tick>=0){
@@ -66,13 +66,13 @@ static void ndmetro_tick(t_ndmetro *x)
     	beat=x->x_lastbeat+dtime/x->x_tempo;
     	tick=beat*x->x_denum;
     	if(fabs((tickk=rint(tick))-tick)<1e-6) tick=tickk;
-    
+
     	fracpart=modf(tick,&intpart);
-    
+
    //fprintf(stderr,"metro_tick; beat=%.15g tick=%.15g fracpart=%.15g\n",beat,tick,fracpart);
     	if(!fracpart) outlet_float(x->x_obj.ob_outlet,fmod(tick,x->x_num));
 	else  outlet_float(x->x_floatoutlet,fmod(tick,x->x_num));
-    
+
     	if (!x->x_hit) {
     		x->x_tempo=x->x_newtempo;
     		x->x_lastbeat=beat;
@@ -97,9 +97,9 @@ static void ndmetro_list(t_ndmetro *x, t_symbol *s,  int ac, t_atom *av)
 {
     double beat,tempo;
     t_atom *ap=av;
-    
+
     //post("metro_list");
-    
+
     if(ac<1) {
 	ndmetro_bang(x);
 	return;
@@ -111,8 +111,8 @@ static void ndmetro_list(t_ndmetro *x, t_symbol *s,  int ac, t_atom *av)
     }
 
     beat=atom_getfloat(ap);ap++;
-    
-    
+
+
     //fprintf(stderr,"beat=%g\n",beat);
     if(beat==-1) {
     	clock_unset(x->x_clock);
@@ -121,18 +121,18 @@ static void ndmetro_list(t_ndmetro *x, t_symbol *s,  int ac, t_atom *av)
 	//x->x_tick=0;
 	return;
     }
-    
+
     if((ac>1)&&(ap->a_type==A_FLOAT)) {
     	tempo=atom_getfloat(ap);
     	if(tempo<1) tempo=1;
     	x->x_newtempo=tempo;
     //fprintf(stderr,"tempo=%f\n",tempo);
     }
-    
+
     x->x_lastbeat=beat;
     x->x_lasttime=clock_getsystime();
     x->x_on=1;
-        
+
     ndmetro_bang(x);
 }
 
@@ -166,7 +166,7 @@ static void ndmetro_free(t_ndmetro *x)
 static void *ndmetro_new(t_floatarg n, t_floatarg d)
 {
     t_ndmetro *x = (t_ndmetro *)pd_new(ndmetro_class);
-    
+
     if(d==0) d=1;
     if(n==0) n=1;
     if(d<0.01) d=0.01;
@@ -196,4 +196,3 @@ void ndmetro_setup(void)
     class_addmethod(ndmetro_class, (t_method)ndmetro_tempo, gensym("tempo"),
         A_FLOAT, 0);
 }
-

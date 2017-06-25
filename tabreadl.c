@@ -81,5 +81,3 @@ void tabreadl_setup(void)
                     A_SYMBOL, 0);
 
 }
-
-

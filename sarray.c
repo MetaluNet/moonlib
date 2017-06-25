@@ -48,7 +48,7 @@ static int scommon_find(t_scommon *x, t_symbol *s)
     t_int i=0;
 
     while(i<x->c_len) {
-        if(!strcmp(x->c_array[i]->s_name,s->s_name)) return i; 
+        if(!strcmp(x->c_array[i]->s_name,s->s_name)) return i;
         i++;
     }
     return -1;
@@ -69,7 +69,7 @@ static int scommon_add(t_scommon *x, t_symbol *s)
     while(i<x->c_len) {
         if(x->c_array[i]==&s_) {
             scommon_set(x,i,s);
-            return i; 
+            return i;
         }
         i++;
     }
@@ -279,4 +279,3 @@ void sarray_setup(void)
     scommon_class = class_new(gensym("sarray"), 0, 0,
                               sizeof(t_scommon), CLASS_PD, 0);
 }
-

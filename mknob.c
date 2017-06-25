@@ -59,7 +59,7 @@ static int compat = 0; // current running pd version < 0.47
 /* widget helper functions */
 static void mknob_update_knob(t_mknob *x, t_glist *glist)
 {
-	  
+
     /* only draw if something changed */
     /*if(!(x->x_val != x->x_prev_val || x->x_gui.x_h != x->x_prev_h ||
        x->x_gui.x_w != x->x_prev_w || x->x_H != x->x_prev_H))
@@ -351,7 +351,7 @@ static void mknob_save(t_gobj *z, t_binbuf *b)
             iem_fstyletoint(&x->x_gui.x_fsf), x->x_gui.x_fontsize,
             bflcol[0], bflcol[1], bflcol[2],
             x->x_val, x->x_steady);
-        
+
     }
     binbuf_addv(b, ";");
 }
@@ -800,11 +800,11 @@ static void check_compat()
     compat = 1;
 #ifdef MSW
     HINSTANCE ntdll= GetModuleHandle(NULL);
-    if (ntdll) 
+    if (ntdll)
         iemgui_all_loadcolors_p = (iemgui_all_loadcolors_t *)GetProcAddress(ntdll, "iemgui_all_loadcolors");
 #elif defined(UNIX)
     void *handle = dlopen(NULL, RTLD_NOW);
-    if(handle) 
+    if(handle)
         iemgui_all_loadcolors_p = (iemgui_all_loadcolors_t *)dlsym(handle, "iemgui_all_loadcolors");
 #else
 // No dynamic loading mechanism specified, rely to version of Pd used for compilation :
@@ -860,7 +860,7 @@ static void *mknob_new(t_symbol *s, int argc, t_atom *argv)
         x->x_gui.x_bcol = 0xFCFCFC;
         x->x_gui.x_fcol = 0x00;
         x->x_gui.x_lcol = 0x00;
-        
+
         if(((argc == 17)||(argc == 18))&&IS_A_FLOAT(argv,0)&&IS_A_FLOAT(argv,1)
                 &&IS_A_FLOAT(argv,2)&&IS_A_FLOAT(argv,3)
                 &&IS_A_FLOAT(argv,4)&&IS_A_FLOAT(argv,5)
@@ -881,11 +881,11 @@ static void *mknob_new(t_symbol *s, int argc, t_atom *argv)
             ldy = (int)atom_getintarg(10, argc, argv);
             iem_inttofstyle(&x->x_gui.x_fsf, atom_getintarg(11, argc, argv));
             fs = (int)atom_getintarg(12, argc, argv);
-            
+
             //iemgui_all_loadcolors(&x->x_gui, argv+13, argv+14, argv+15);
             if(iemgui_all_loadcolors_p != NULL)
                 iemgui_all_loadcolors_p(&x->x_gui, argv+13, argv+14, argv+15);
-                
+
             v = (int)atom_getintarg(16, argc, argv);
         }
         else iemgui_new_getnames(&x->x_gui, 6, 0);
@@ -962,7 +962,7 @@ void canvas_mknob(t_glist *gl, t_symbol *s, int argc, t_atom *argv)
 void mknob_setup(void)
 {
     check_compat();
-    
+
     mknob_class = class_new(gensym("mknob"), (t_newmethod)mknob_new,
                             (t_method)mknob_free, sizeof(t_mknob), 0, A_GIMME, 0);
 #ifndef GGEE_mknob_COMPATIBLE

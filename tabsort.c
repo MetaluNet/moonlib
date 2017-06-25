@@ -122,4 +122,3 @@ void tabsort_setup(void )
     class_addfloat(tabsort_class, tabsort_float);
 
 }
-

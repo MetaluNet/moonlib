@@ -332,9 +332,9 @@ void gamme_out_changed(t_gamme *x,int note)
 void gamme_out_b(t_gamme *x)
 {
 	int i,out_b=0;
-	
+
 	for(i=0;i<12;i++) out_b+=(x->x_notes[i]!=0)<<i;
-	
+
 	outlet_float(x->x_out_b,out_b);
 }
 
@@ -352,11 +352,11 @@ void gamme_draw_note(t_gamme *x,t_floatarg note)
     t_canvas *canvas=glist_getcanvas(x->x_glist);
     char *color;
     int notei=note;
-	
+
     if(glist_isvisible(x->x_glist)) {
         color=x->x_notes[(int)notei]?(ISWHITE(notei)?SELWHITECOLOR:SELBLACKCOLOR):
                     (ISWHITE(notei)?WHITECOLOR:BLACKCOLOR);
-        sys_vgui(".x%x.c itemconfigure %x%s -fill %s\n", canvas, 
+        sys_vgui(".x%x.c itemconfigure %x%s -fill %s\n", canvas,
         x, NoteNames[notei],color);
     }
 }
@@ -387,7 +387,7 @@ void gamme_set_b(t_gamme *x,t_floatarg in_byte)
 {
     unsigned int i,changed=0,on,in_b=in_byte;
 
-    x->x_n=0;	
+    x->x_n=0;
     for(i=0;i<12;i++){
         on=((in_b&(1<<i))!=0);
         if(x->x_notes[i]!=on) {
@@ -396,7 +396,7 @@ void gamme_set_b(t_gamme *x,t_floatarg in_byte)
             gamme_draw_note(x,i);
         }
         if(on) x->x_on_notes[(int)(x->x_n++)]=i;
-    }	
+    }
     gamme_out_b(x);
     gamme_getn(x);
 }
@@ -609,5 +609,3 @@ void gamme_setup(void)
     class_setsavefn(gamme_class, gamme_save);
 
 }
-
-

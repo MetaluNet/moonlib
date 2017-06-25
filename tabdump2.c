@@ -117,4 +117,3 @@ void tabdump2_setup(void)
     class_addmethod(tabdump_class, (t_method)tabdump_helper, gensym("help"), 0);
 
 }
-

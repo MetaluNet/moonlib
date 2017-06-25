@@ -440,4 +440,3 @@ void sfread2_tilde_setup(void)
 
 
 #endif /* NOT _WIN32 */
-

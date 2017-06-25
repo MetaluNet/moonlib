@@ -197,4 +197,3 @@ void dispatch_setup(void)
     class_addanything(dispsnd_class, dispsnd_anything);
     class_addfloat(dispsnd_class, dispsnd_float);
 }
-
