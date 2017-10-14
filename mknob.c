@@ -29,7 +29,6 @@
 #define MKNOB_DEFAULTH 100
 #define MKNOB_DEFAULTSIZE 25
 #define MKNOB_MINSIZE 12
-#define MKNOB_THICK 3
 /* ------------ mknob  ----------------------- */
 typedef struct _mknob
 {
@@ -57,8 +56,11 @@ static void mknob_update_knob(t_mknob *x, t_glist *glist)
     float val = (x->x_val + 50.0) / 100.0 / x->x_H;
     float angle;
     float radius = x->x_gui.x_w / 2.0;
-    float miniradius = MKNOB_THICK;
+    float miniradius = radius / 6.0;
     int x0, y0, x1, y1, xc, yc, xp, yp, xpc, ypc;
+
+    if(miniradius < 3.0) miniradius = 3.0;
+
     x0 = text_xpix(&x->x_gui.x_obj, glist);
     y0 = text_ypix(&x->x_gui.x_obj, glist);
     x1 = x0 + x->x_gui.x_w;
@@ -272,7 +274,7 @@ void mknob_draw(t_mknob *x, t_glist *glist, int mode)
 
 /* ------------------------ mknob widgetbehaviour----------------------------- */
 
-#define GRECTRATIO 0.1 //0.135
+#define GRECTRATIO 0
 static void mknob_getrect(t_gobj *z, t_glist *glist,
                           int *xp1, int *yp1, int *xp2, int *yp2)
 {
