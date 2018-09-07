@@ -42,6 +42,8 @@ typedef struct _mknob
     int   	 x_H;
     double   x_k;
     t_float  x_fval;
+    int		 x_show_io;
+    int 	 x_io_visible;
 } t_mknob;
 
 t_widgetbehavior mknob_widgetbehavior;
@@ -90,6 +92,8 @@ static void mknob_draw_update(t_mknob *x, t_glist *glist)
     }
 }
 
+static void mknob_draw_io(t_mknob *x,t_glist *glist);
+
 static void mknob_draw_new(t_mknob *x, t_glist *glist)
 {
     int xpos=text_xpix(&x->x_gui.x_obj, glist);
@@ -130,6 +134,9 @@ static void mknob_draw_new(t_mknob *x, t_glist *glist)
              x->x_gui.x_font, x->x_gui.x_fontsize * IEMGUI_ZOOM(x), sys_fontweight, 
              x->x_gui.x_lcol, x);
     }
+    
+    x->x_io_visible = 0;
+    mknob_draw_io(x, glist);
     /*if(!x->x_gui.x_fsf.x_snd_able)
         sys_vgui(".x%lx.c create rectangle %d %d %d %d -tags %lxOUT%d\n",
          canvas, xpos+ x->x_gui.x_w/2-3, ypos + x->x_gui.x_w-1,
@@ -145,26 +152,31 @@ static void mknob_draw_move(t_mknob *x, t_glist *glist)
     int xpos=text_xpix(&x->x_gui.x_obj, glist);
     int ypos=text_ypix(&x->x_gui.x_obj, glist);
     int r = xpos + (x->x_val + 50)/100;
+    int iow = IOWIDTH * IEMGUI_ZOOM(x), ioh = IEM_GUI_IOHEIGHT * IEMGUI_ZOOM(x);
     t_canvas *canvas=glist_getcanvas(glist);
 
     sys_vgui(".x%lx.c coords %lxBASE %d %d %d %d\n",
              canvas, x,
              xpos, ypos,
              xpos + x->x_gui.x_w, ypos + x->x_gui.x_w);
+    if(x->x_io_visible) {
+    	sys_vgui(".x%lx.c coords %lxBORDER %d %d %d %d\n",
+             canvas, x,
+             xpos, ypos,
+             xpos + x->x_gui.x_w, ypos + x->x_gui.x_w);
+        sys_vgui(".x%lx.c coords %lxOUT%d %d %d %d %d\n",
+             canvas, x, 0,
+             xpos, ypos + x->x_gui.x_w + IEMGUI_ZOOM(x) - ioh,
+             xpos + iow, ypos + x->x_gui.x_w);
+        sys_vgui(".x%lx.c coords %lxIN%d %d %d %d %d\n",
+             canvas, x, 0,
+             xpos, ypos,
+             xpos + iow, ypos - IEMGUI_ZOOM(x) + ioh);
+	}
     mknob_update_knob(x,glist);
     sys_vgui(".x%lx.c coords %lxLABEL %d %d\n",
              canvas, x, xpos+x->x_gui.x_ldx * IEMGUI_ZOOM(x),
              ypos+x->x_gui.x_ldy * IEMGUI_ZOOM(x));
-    /*if(!x->x_gui.x_fsf.x_snd_able)
-        sys_vgui(".x%lx.c coords %lxOUT %d %d %d %d %d\n",
-         canvas, x, 0,
-         xpos+ x->x_gui.x_w/2-3, ypos + x->x_gui.x_w-1,
-         xpos+ x->x_gui.x_w/2+4, ypos + x->x_gui.x_w);
-    if(!x->x_gui.x_fsf.x_rcv_able)
-    sys_vgui(".x%lx.c coords %lxIN%d %d %d %d %d\n",
-         canvas, x, 0,
-         xpos+ x->x_gui.x_w/2-3, ypos,
-         xpos+ x->x_gui.x_w/2+4, ypos+1);*/
 }
 
 static void mknob_draw_erase(t_mknob *x,t_glist *glist)
@@ -174,10 +186,12 @@ static void mknob_draw_erase(t_mknob *x,t_glist *glist)
     sys_vgui(".x%lx.c delete %lxBASE\n", canvas, x);
     sys_vgui(".x%lx.c delete %lxKNOB\n", canvas, x);
     sys_vgui(".x%lx.c delete %lxLABEL\n", canvas, x);
-    /*if(!x->x_gui.x_fsf.x_snd_able)
-        sys_vgui(".x%lx.c delete %xOUT%d\n", canvas, x, 0);
-    if(!x->x_gui.x_fsf.x_rcv_able)
-        sys_vgui(".x%lx.c delete %xIN%d\n", canvas, x, 0);*/
+    if(x->x_io_visible) {
+        sys_vgui(".x%lx.c delete %lxBORDER\n", canvas, x);
+        sys_vgui(".x%lx.c delete %lxOUT%d\n", canvas, x, 0);
+        sys_vgui(".x%lx.c delete %lxIN%d\n", canvas, x, 0);
+    	x->x_io_visible = 0;
+    }
 }
 
 static void mknob_draw_config(t_mknob *x,t_glist *glist)
@@ -185,41 +199,54 @@ static void mknob_draw_config(t_mknob *x,t_glist *glist)
     t_canvas *canvas=glist_getcanvas(glist);
 
     if(compat) {
-        sys_vgui(".x%lx.c itemconfigure %xLABEL -font {{%s} -%d %s} -fill #%6.6x -text {%s} \n",
+        sys_vgui(".x%lx.c itemconfigure %lxLABEL -font {{%s} -%d %s} -fill #%6.6x -text {%s} \n",
                  canvas, x, x->x_gui.x_font, x->x_gui.x_fontsize * IEMGUI_ZOOM(x), sys_fontweight,
                  x->x_gui.x_fsf.x_selected?IEM_GUI_COLOR_SELECTED:x->x_gui.x_lcol,
                  strcmp(x->x_gui.x_lab->s_name, "empty")?x->x_gui.x_lab->s_name:"");
-        sys_vgui(".x%lx.c itemconfigure %xKNOB -fill #%6.6x -width %d\n", canvas, x, x->x_gui.x_fcol, IEMGUI_ZOOM(x));
-        sys_vgui(".x%lx.c itemconfigure %xBASE -fill #%6.6x\n", canvas, x, x->x_gui.x_bcol);
+        sys_vgui(".x%lx.c itemconfigure %lxKNOB -fill #%6.6x -width %d\n", canvas, x, x->x_gui.x_fcol, IEMGUI_ZOOM(x));
+        sys_vgui(".x%lx.c itemconfigure %lxBASE -fill #%6.6x\n", canvas, x, x->x_gui.x_bcol);
     } else {
-        sys_vgui(".x%lx.c itemconfigure %xLABEL -font {{%s} -%d %s} -fill #%06x -text {%s} \n",
+        sys_vgui(".x%lx.c itemconfigure %lxLABEL -font {{%s} -%d %s} -fill #%06x -text {%s} \n",
                  canvas, x, x->x_gui.x_font, x->x_gui.x_fontsize * IEMGUI_ZOOM(x), sys_fontweight,
                  x->x_gui.x_fsf.x_selected?IEM_GUI_COLOR_SELECTED:x->x_gui.x_lcol,
                  strcmp(x->x_gui.x_lab->s_name, "empty")?x->x_gui.x_lab->s_name:"");
-        sys_vgui(".x%lx.c itemconfigure %xKNOB -fill #%06x -width %d\n", canvas, x, x->x_gui.x_fcol, IEMGUI_ZOOM(x));
-        sys_vgui(".x%lx.c itemconfigure %xBASE -fill #%06x\n", canvas, x, x->x_gui.x_bcol);
+        sys_vgui(".x%lx.c itemconfigure %lxKNOB -fill #%06x -width %d\n", canvas, x, x->x_gui.x_fcol, IEMGUI_ZOOM(x));
+        sys_vgui(".x%lx.c itemconfigure %lxBASE -fill #%06x\n", canvas, x, x->x_gui.x_bcol);
     }
 }
 
-/*static void mknob_draw_io(t_mknob *x,t_glist *glist, int old_snd_rcv_flags)
+static void mknob_draw_io(t_mknob *x,t_glist *glist)
 {
     int xpos=text_xpix(&x->x_gui.x_obj, glist);
     int ypos=text_ypix(&x->x_gui.x_obj, glist);
-    t_canvas *canvas=glist_getcanvas(glist);*/
+    int iow = IOWIDTH * IEMGUI_ZOOM(x), ioh = IEM_GUI_IOHEIGHT * IEMGUI_ZOOM(x);
+    t_canvas *canvas=glist_getcanvas(glist);
 
-    /*if((old_snd_rcv_flags & IEM_GUI_OLD_SND_FLAG) && !x->x_gui.x_fsf.x_snd_able)
-        sys_vgui(".x%lx.c create rectangle %d %d %d %d -tags %xOUT%d\n",
-         canvas, xpos+ x->x_gui.x_w/2-3, ypos + x->x_gui.x_w-1,
-         xpos+ x->x_gui.x_w/2+4, ypos + x->x_gui.x_w, x, 0);
-    if(!(old_snd_rcv_flags & IEM_GUI_OLD_SND_FLAG) && x->x_gui.x_fsf.x_snd_able)
-        sys_vgui(".x%lx.c delete %xOUT%d\n", canvas, x, 0);
-    if((old_snd_rcv_flags & IEM_GUI_OLD_RCV_FLAG) && !x->x_gui.x_fsf.x_rcv_able)
-        sys_vgui(".x%lx.c create rectangle %d %d %d %d -tags %xIN%d\n",
-         canvas, xpos+ x->x_gui.x_w/2-3, ypos,
-         xpos+ x->x_gui.x_w/2+4, ypos+1, x, 0);
-    if(!(old_snd_rcv_flags & IEM_GUI_OLD_RCV_FLAG) && x->x_gui.x_fsf.x_rcv_able)
-    sys_vgui(".x%lx.c delete %xIN%d\n", canvas, x, 0);*/
-//}
+    if(x->x_show_io && !x->x_io_visible) {
+	    sys_vgui(".x%lx.c create rectangle %d %d %d %d -width %d -tags %lxBORDER\n",
+             canvas, xpos, ypos,
+             xpos + x->x_gui.x_w, ypos + x->x_gui.x_w,
+             IEMGUI_ZOOM(x),
+             x);
+        sys_vgui(".x%lx.c create rectangle %d %d %d %d -fill black -tags %lxOUT%d\n",
+             canvas,
+             xpos, ypos + x->x_gui.x_w + IEMGUI_ZOOM(x) - ioh,
+             xpos + iow, ypos + x->x_gui.x_w,
+             x, 0);
+        sys_vgui(".x%lx.c create rectangle %d %d %d %d -fill black -tags %lxIN%d\n",
+             canvas,
+             xpos, ypos,
+             xpos + iow, ypos - IEMGUI_ZOOM(x) + ioh,
+             x, 0);
+        x->x_io_visible = 1;
+    }
+    else if((!x->x_show_io) && x->x_io_visible) {
+        sys_vgui(".x%lx.c delete %lxBORDER\n", canvas, x);
+        sys_vgui(".x%lx.c delete %lxOUT%d\n", canvas, x, 0);
+    	sys_vgui(".x%lx.c delete %lxIN%d\n", canvas, x, 0);
+        x->x_io_visible = 1;
+	}
+}
 
 static void mknob_draw_select(t_mknob *x,t_glist *glist)
 {
@@ -229,27 +256,27 @@ static void mknob_draw_select(t_mknob *x,t_glist *glist)
         if(x->x_gui.x_fsf.x_selected)
         {
             //pd_bind(&x->x_gui.x_obj.ob_pd, iemgui_key_sym);
-            sys_vgui(".x%lx.c itemconfigure %xBASE -outline #%6.6x\n", canvas, x, IEM_GUI_COLOR_SELECTED);
-            sys_vgui(".x%lx.c itemconfigure %xLABEL -fill #%6.6x\n", canvas, x, IEM_GUI_COLOR_SELECTED);
+            sys_vgui(".x%lx.c itemconfigure %lxBASE -outline #%6.6x\n", canvas, x, IEM_GUI_COLOR_SELECTED);
+            sys_vgui(".x%lx.c itemconfigure %lxLABEL -fill #%6.6x\n", canvas, x, IEM_GUI_COLOR_SELECTED);
         }
         else
         {
             //pd_unbind(&x->x_gui.x_obj.ob_pd, iemgui_key_sym);
-            sys_vgui(".x%lx.c itemconfigure %xBASE -outline #%6.6x\n", canvas, x, IEM_GUI_COLOR_NORMAL);
-            sys_vgui(".x%lx.c itemconfigure %xLABEL -fill #%6.6x\n", canvas, x, x->x_gui.x_lcol);
+            sys_vgui(".x%lx.c itemconfigure %lxBASE -outline #%6.6x\n", canvas, x, IEM_GUI_COLOR_NORMAL);
+            sys_vgui(".x%lx.c itemconfigure %lxLABEL -fill #%6.6x\n", canvas, x, x->x_gui.x_lcol);
         }
     } else  {
         if(x->x_gui.x_fsf.x_selected)
         {
             //pd_bind(&x->x_gui.x_obj.ob_pd, iemgui_key_sym);
-            sys_vgui(".x%lx.c itemconfigure %xBASE -outline #%06x\n", canvas, x, IEM_GUI_COLOR_SELECTED);
-            sys_vgui(".x%lx.c itemconfigure %xLABEL -fill #%06x\n", canvas, x, IEM_GUI_COLOR_SELECTED);
+            sys_vgui(".x%lx.c itemconfigure %lxBASE -outline #%06x\n", canvas, x, IEM_GUI_COLOR_SELECTED);
+            sys_vgui(".x%lx.c itemconfigure %lxLABEL -fill #%06x\n", canvas, x, IEM_GUI_COLOR_SELECTED);
         }
         else
         {
             //pd_unbind(&x->x_gui.x_obj.ob_pd, iemgui_key_sym);
-            sys_vgui(".x%lx.c itemconfigure %xBASE -outline #%06x\n", canvas, x, IEM_GUI_COLOR_NORMAL);
-            sys_vgui(".x%lx.c itemconfigure %xLABEL -fill #%06x\n", canvas, x, x->x_gui.x_lcol);
+            sys_vgui(".x%lx.c itemconfigure %lxBASE -outline #%06x\n", canvas, x, IEM_GUI_COLOR_NORMAL);
+            sys_vgui(".x%lx.c itemconfigure %lxLABEL -fill #%06x\n", canvas, x, x->x_gui.x_lcol);
         }
     }
 }
@@ -637,6 +664,8 @@ static int mknob_newclick(t_gobj *z, struct _glist *glist,
 {
     t_mknob *x = (t_mknob *)z;
 
+    post("hovered %d\n", doit);
+    
     if(doit)
     {
         mknob_click( x, (t_floatarg)xpix, (t_floatarg)ypix, (t_floatarg)shift,
@@ -912,6 +941,8 @@ static void *mknob_new(t_symbol *s, int argc, t_atom *argv)
     iemgui_verify_snd_ne_rcv(&x->x_gui);
     iemgui_newzoom(&x->x_gui);
     x->x_fval = mknob_getfval(x);
+    x->x_show_io = 1;
+    x->x_io_visible = 0;
     outlet_new(&x->x_gui.x_obj, &s_float);
     return (x);
 }
