@@ -421,7 +421,7 @@ ifeq ($(findstring $(machine), i386 i686), $(machine))
 endif
 
 # Intel/AMD 64 bit, build with SSE, SSE2 and SSE3 instructions
-ifeq ($(findstring $(machine), x86_64), $(machine))
+ifeq ($(findstring $(machine), ia64 x86_64), $(machine))
   arch.flags = -march=core2 -mfpmath=sse -msse -msse2 -msse3 
 endif
 
