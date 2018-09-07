@@ -42,6 +42,7 @@ typedef struct _mknob
     int   	 x_H;
     double   x_k;
     t_float  x_fval;
+    t_outlet *x_outlets[3];
 } t_mknob;
 
 t_widgetbehavior mknob_widgetbehavior;
@@ -480,11 +481,12 @@ static void mknob_set(t_mknob *x, t_floatarg f)
 static void mknob_bang(t_mknob *x)
 {
     double out;
+    int i;
 
     if (pd_compatibilitylevel < 46)
         out = mknob_getfval(x);
     else out = x->x_fval;
-    outlet_float(x->x_gui.x_obj.ob_outlet, out);
+    for (i = 0; i < 3; i++) outlet_float(x->x_outlets[i], out);
     if(x->x_gui.x_fsf.x_snd_able && x->x_gui.x_snd->s_thing)
         pd_float(x->x_gui.x_snd->s_thing, out);
 }
@@ -794,6 +796,7 @@ static void *mknob_new(t_symbol *s, int argc, t_atom *argv)
     int fs=8 ,lilo=0, ldx=-2, ldy=-6, f=0, v=0, steady=1;
     double min=0.0, max=(double)(IEM_SL_DEFAULTSIZE-1);
     char str[144];
+    int i;
 
     if(compat) {
         int bflcol[]= {-262144, -1, -1};
@@ -912,7 +915,10 @@ static void *mknob_new(t_symbol *s, int argc, t_atom *argv)
     iemgui_verify_snd_ne_rcv(&x->x_gui);
     iemgui_newzoom(&x->x_gui);
     x->x_fval = mknob_getfval(x);
-    outlet_new(&x->x_gui.x_obj, &s_float);
+    for(i =0; i < 3; i++){
+        if(i != 0) inlet_new(&x->x_gui.x_obj, (t_pd*)x, 0, 0);//&s_anything, &s_anything);
+        x->x_outlets[i] = outlet_new(&x->x_gui.x_obj, &s_float);
+    }
     return (x);
 }
 
