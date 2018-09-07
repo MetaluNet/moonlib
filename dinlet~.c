@@ -23,37 +23,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *  is connected to this inlet~. */
 
 /***********************************************************************/
-/* CAUTION :
-		You MUST fix a bug pd sources and recompile them in order to have
-	dinlet~ working !!
-
-	this function must be fixed in pd/m_obj.c:								  */
-#if 0
-t_sample *obj_findsignalscalar(t_object *x, int m)
-{
-    int n = 0,mbak=m;
-    t_inlet *i;
-    post("my obj_findsignalscalar");
-    if (x->ob_pd->c_firstin && x->ob_pd->c_floatsignalin)
-    {
-        if (!m--)
-            return (x->ob_pd->c_floatsignalin > 0 ?
-                    (t_sample *)(((char *)x) + x->ob_pd->c_floatsignalin) : 0);
-        n++;
-    }
-    for (i = x->ob_inlet; i; i = i->i_next, m--)
-        if (i->i_symfrom == &s_signal)
-        {
-            /*if (m == 0)*/
-            if(n==mbak)
-                return (&i->i_un.iu_floatsignalvalue);
-            n++;
-        }
-    return (0);
-}
-#endif
-/***********************************************************************/
-
 #include "m_pd.h"
 #include "m_imp.h"
 #include "g_canvas.h"
