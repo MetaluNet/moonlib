@@ -52,6 +52,9 @@ static t_class *mknob_class;
 static int compat = 0; // current running pd version < 0.47
 
 /* widget helper functions */
+
+static void mknob_draw_io(t_mknob *x,t_glist *glist);
+
 static void mknob_update_knob(t_mknob *x, t_glist *glist)
 {
     t_canvas *canvas = glist_getcanvas(glist);
@@ -82,6 +85,11 @@ static void mknob_update_knob(t_mknob *x, t_glist *glist)
 
     sys_vgui(".x%lx.c coords %lxKNOB %d %d %d %d %d %d\n",
              canvas,x,xp,yp,xc+xpc,yc+ypc,xc-xpc,yc-ypc);
+
+	if(x->x_show_io && !x->x_gui.x_fsf.x_selected) {
+		x->x_show_io = 0;
+		mknob_draw_io(x, glist);
+	}
 }
 
 static void mknob_draw_update(t_mknob *x, t_glist *glist)
@@ -91,8 +99,6 @@ static void mknob_draw_update(t_mknob *x, t_glist *glist)
         mknob_update_knob(x,glist);
     }
 }
-
-static void mknob_draw_io(t_mknob *x,t_glist *glist);
 
 static void mknob_draw_new(t_mknob *x, t_glist *glist)
 {
@@ -136,15 +142,6 @@ static void mknob_draw_new(t_mknob *x, t_glist *glist)
     }
     
     x->x_io_visible = 0;
-    mknob_draw_io(x, glist);
-    /*if(!x->x_gui.x_fsf.x_snd_able)
-        sys_vgui(".x%lx.c create rectangle %d %d %d %d -tags %lxOUT%d\n",
-         canvas, xpos+ x->x_gui.x_w/2-3, ypos + x->x_gui.x_w-1,
-         xpos+ x->x_gui.x_w/2+4, ypos + x->x_gui.x_w, x, 0);
-    if(!x->x_gui.x_fsf.x_rcv_able)
-    sys_vgui(".x%lx.c create rectangle %d %d %d %d -tags %lxIN%d\n",
-         canvas, xpos+ x->x_gui.x_w/2-3, ypos,
-         xpos+ x->x_gui.x_w/2+4, ypos+1, x, 0);*/
 }
 
 static void mknob_draw_move(t_mknob *x, t_glist *glist)
@@ -244,7 +241,7 @@ static void mknob_draw_io(t_mknob *x,t_glist *glist)
         sys_vgui(".x%lx.c delete %lxBORDER\n", canvas, x);
         sys_vgui(".x%lx.c delete %lxOUT%d\n", canvas, x, 0);
     	sys_vgui(".x%lx.c delete %lxIN%d\n", canvas, x, 0);
-        x->x_io_visible = 1;
+        x->x_io_visible = 0;
 	}
 }
 
@@ -255,30 +252,37 @@ static void mknob_draw_select(t_mknob *x,t_glist *glist)
     if(compat) {
         if(x->x_gui.x_fsf.x_selected)
         {
-            //pd_bind(&x->x_gui.x_obj.ob_pd, iemgui_key_sym);
             sys_vgui(".x%lx.c itemconfigure %lxBASE -outline #%6.6x\n", canvas, x, IEM_GUI_COLOR_SELECTED);
             sys_vgui(".x%lx.c itemconfigure %lxLABEL -fill #%6.6x\n", canvas, x, IEM_GUI_COLOR_SELECTED);
         }
         else
         {
-            //pd_unbind(&x->x_gui.x_obj.ob_pd, iemgui_key_sym);
             sys_vgui(".x%lx.c itemconfigure %lxBASE -outline #%6.6x\n", canvas, x, IEM_GUI_COLOR_NORMAL);
             sys_vgui(".x%lx.c itemconfigure %lxLABEL -fill #%6.6x\n", canvas, x, x->x_gui.x_lcol);
         }
     } else  {
         if(x->x_gui.x_fsf.x_selected)
         {
-            //pd_bind(&x->x_gui.x_obj.ob_pd, iemgui_key_sym);
             sys_vgui(".x%lx.c itemconfigure %lxBASE -outline #%06x\n", canvas, x, IEM_GUI_COLOR_SELECTED);
             sys_vgui(".x%lx.c itemconfigure %lxLABEL -fill #%06x\n", canvas, x, IEM_GUI_COLOR_SELECTED);
         }
         else
         {
-            //pd_unbind(&x->x_gui.x_obj.ob_pd, iemgui_key_sym);
             sys_vgui(".x%lx.c itemconfigure %lxBASE -outline #%06x\n", canvas, x, IEM_GUI_COLOR_NORMAL);
             sys_vgui(".x%lx.c itemconfigure %lxLABEL -fill #%06x\n", canvas, x, x->x_gui.x_lcol);
         }
     }
+    
+    if(x->x_gui.x_fsf.x_selected) {
+    	x->x_show_io = 1;
+    	mknob_draw_io(x, glist);
+    }
+    if(x->x_io_visible){
+    	if(x->x_gui.x_fsf.x_selected)
+    		sys_vgui(".x%lx.c itemconfigure %lxBORDER -outline #%06x\n", canvas, x, IEM_GUI_COLOR_SELECTED);		
+		else
+			sys_vgui(".x%lx.c itemconfigure %lxBORDER -outline #%06x\n", canvas, x, IEM_GUI_COLOR_NORMAL);
+	}
 }
 
 void mknob_draw(t_mknob *x, t_glist *glist, int mode)
@@ -379,15 +383,6 @@ void mknob_check_wh(t_mknob *x, int w, int h)
     x->x_gui.x_h = h * IEMGUI_ZOOM(x);
 
     mknob_update_H(x);
-    /*H = x->x_gui.x_h;
-    if(H < 0) H = 360;
-    if(H == 0) H = 270;
-    x->x_H = H;
-
-    if(x->x_lin0_log1)
-        x->x_k = log(x->x_max/x->x_min)/(double)(x->x_H/IEMGUI_ZOOM(x) - 1);
-    else
-        x->x_k = (x->x_max - x->x_min)/(double)(x->x_H/IEMGUI_ZOOM(x) - 1);*/
 }
 
 void mknob_check_minmax(t_mknob *x, double min, double max)
@@ -534,8 +529,7 @@ static void mknob_dialog(t_mknob *x, t_symbol *s, int argc, t_atom *argv)
     else
         x->x_steady = 0;
     sr_flags = iemgui_dialog(&x->x_gui, srl, argc, argv);
-    //x->x_gui.x_h = iemgui_clip_size(h);
-    //x->x_gui.x_w = iemgui_clip_size(w);
+
     mknob_check_wh(x, w, h);
     mknob_check_minmax(x, min, max);
     (*x->x_gui.x_draw)(x, x->x_gui.x_glist, IEM_GUI_DRAW_MODE_CONFIG);
@@ -617,8 +611,6 @@ static void mknob_motion_fullcircular(t_mknob *x, t_floatarg dx, t_floatarg dy)
     alpha=atan2(xm-xc,ym-yc)*180.0/M_PI;
 
     x->x_pos=(int)(36000-alpha*100.0)%36000;
-    /*if(x->x_pos>31500) x->x_pos=0;
-    else if(x->x_pos>(27000-100)) x->x_pos=(27000-100);*/
 
     if(x->x_pos>(36000-100)) x->x_pos=(36000-100);
     x->x_val=x->x_pos;
@@ -664,7 +656,10 @@ static int mknob_newclick(t_gobj *z, struct _glist *glist,
 {
     t_mknob *x = (t_mknob *)z;
 
-    post("hovered %d\n", doit);
+	if(x->x_show_io) {
+		x->x_show_io = 0;
+		mknob_draw_io(x, glist);
+	}
     
     if(doit)
     {
@@ -941,7 +936,7 @@ static void *mknob_new(t_symbol *s, int argc, t_atom *argv)
     iemgui_verify_snd_ne_rcv(&x->x_gui);
     iemgui_newzoom(&x->x_gui);
     x->x_fval = mknob_getfval(x);
-    x->x_show_io = 1;
+    x->x_show_io = 0;
     x->x_io_visible = 0;
     outlet_new(&x->x_gui.x_obj, &s_float);
     return (x);
@@ -961,20 +956,15 @@ void canvas_mknob(t_glist *gl, t_symbol *s, int argc, t_atom *argv)
     canvas_iemguis(gl, gensym("mknob"));
 }
 
-
-
 void mknob_setup(void)
 {
     check_compat();
 
     mknob_class = class_new(gensym("mknob"), (t_newmethod)mknob_new,
                             (t_method)mknob_free, sizeof(t_mknob), 0, A_GIMME, 0);
-#ifndef GGEE_mknob_COMPATIBLE
-//    class_addcreator((t_newmethod)mknob_new, gensym("mknob"), A_GIMME, 0);
-#endif
+
     class_addbang(mknob_class,mknob_bang);
     class_addfloat(mknob_class,mknob_float);
-    //class_addlist(mknob_class, mknob_list);
     class_addmethod(mknob_class, (t_method)mknob_click, gensym("click"),
                     A_FLOAT, A_FLOAT, A_FLOAT, A_FLOAT, A_FLOAT, 0);
     class_addmethod(mknob_class, (t_method)mknob_motion, gensym("motion"),
@@ -998,8 +988,7 @@ void mknob_setup(void)
     class_addmethod(mknob_class, (t_method)mknob_steady, gensym("steady"), A_FLOAT, 0);
     class_addmethod(mknob_class, (t_method)mknob_zoom,
         gensym("zoom"), A_CANT, 0);
-    /*if(!iemgui_key_sym)
-    iemgui_key_sym = gensym("#keyname");*/
+
     mknob_widgetbehavior.w_getrectfn =    mknob_getrect;
     mknob_widgetbehavior.w_displacefn =   iemgui_displace;
     mknob_widgetbehavior.w_selectfn =     iemgui_select;
@@ -1007,12 +996,12 @@ void mknob_setup(void)
     mknob_widgetbehavior.w_deletefn =     iemgui_delete;
     mknob_widgetbehavior.w_visfn =        iemgui_vis;
     mknob_widgetbehavior.w_clickfn =      mknob_newclick;
-    //mknob_widgetbehavior.w_propertiesfn = mknob_properties;
-    //mknob_widgetbehavior.w_savefn =       mknob_save;
+
     class_setwidget(mknob_class, &mknob_widgetbehavior);
 
     class_setsavefn(mknob_class, mknob_save);
     class_setpropertiesfn(mknob_class, mknob_properties);
+
     class_addmethod(canvas_class, (t_method)canvas_mknob, gensym("mknob"),
                     A_GIMME, A_NULL);
 }
