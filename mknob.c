@@ -656,7 +656,7 @@ static int mknob_newclick(t_gobj *z, struct _glist *glist,
 {
     t_mknob *x = (t_mknob *)z;
 
-	if(x->x_show_io) {
+	if(x->x_show_io && !x->x_gui.x_fsf.x_selected) {
 		x->x_show_io = 0;
 		mknob_draw_io(x, glist);
 	}
