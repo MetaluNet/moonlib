@@ -16,7 +16,6 @@ MOONLIB puredata externals
 	 (slider1-snd/slider1-rcv) ... (sliderN-snd/sliderN-rcv), creates only
 	 one pair of buses named (slider-snd/slider-rcv) , in which datas are
 	 prepended by the number of the "sub-bus".
-    joystik : an improvment of Joseph A. Sarlo's joystick.
     image :  an improvment  of Guenter Geiger's one. Same name, but it's
 	 compatible. Here you can share images through different objects, preload
 	 a list of images, and animate this list.
