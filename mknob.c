@@ -421,7 +421,7 @@ static void mknob_properties(t_gobj *z, t_glist *owner)
 
     iemgui_properties(&x->x_gui, srl);
     if(compat) sprintf(buf, "pdtk_iemgui_dialog %%s mknob \
-	    --------dimension(pix):-------- %d %d width: %d %d mouse: \
+	    --------dimension(pix):-------- %d %d size: %d %d mouse: \
 	    -----------output-range:----------- %g left: %g right: %g \
 	    %d lin log %d %d empty %d \
 	    %s %s \
@@ -436,7 +436,7 @@ static void mknob_properties(t_gobj *z, t_glist *owner)
             x->x_gui.x_fsf.x_font_style, x->x_gui.x_fontsize,
             0xffffff & x->x_gui.x_bcol, 0xffffff & x->x_gui.x_fcol, 0xffffff & x->x_gui.x_lcol);
     else sprintf(buf, "pdtk_iemgui_dialog %%s mknob \
-	    --------dimension(pix):-------- %d %d width: %d %d mouse: \
+	    --------dimension(pix):-------- %d %d size: %d %d mouse: \
 	    -----------output-range:----------- %g left: %g right: %g \
 	    %d lin log %d %d empty %d \
 	    %s %s \
