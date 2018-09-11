@@ -6,6 +6,7 @@
 *.dll
 *.o
 build
+build_src
 
 #########################
 # operating system

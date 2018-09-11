@@ -23,7 +23,7 @@ ifneq (MINGW,$(findstring MINGW,$(uname)))
 objects += absolutepath basedir dinlet~ popen readsfv~ relativepath wac
 endif
 
-class.sources = $(addsuffix .c,$(objects))
+class.sources = $(addsuffix .c,$(objects)) _soundfile.c
 
 # all extra files to be included in binary distribution of the library
 datafiles = \
@@ -40,10 +40,23 @@ cflags = -Wno-unused -Wno-unused-parameter
 PDLIBBUILDERDIR ?= .
 include $(PDLIBBUILDERDIR)/Makefile.pdlibbuilder
 
-VERSION = $(shell git describe)
+VERSION = $(shell git describe --abbrev=4)
 
 update-pdlibbuilder:
 	curl https://raw.githubusercontent.com/pure-data/pd-lib-builder/master/Makefile.pdlibbuilder > ./Makefile.pdlibbuilder
 
+deken-source:
+	@rm -rf build_src
+	@mkdir -p build_src/moonlib
+	@cp $(class.sources) \
+		$(datafiles) Makefile.pdlibbuilder Makefile \
+			build_src/moonlib
+	@cp -r $(datadirs) build_src/moonlib
+	cd build_src/ ; deken upload -v $(VERSION) moonlib
+
+deken-binary:
+	@rm -rf build
+	@make install objectsdir=./build
+	cd build/ ; deken upload -v $(VERSION) moonlib
 
 
