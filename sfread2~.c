@@ -1,8 +1,6 @@
-#ifndef _WIN32
-
 #include <m_pd.h>
-//#include <m_imp.h>
 #include "g_canvas.h"
+
 #ifdef _MSC_VER
 #pragma warning( disable : 4244 )
 #pragma warning( disable : 4305 )
@@ -20,6 +18,8 @@
 
 #include <fcntl.h>
 #include <sys/stat.h>
+
+#include "_soundfile.c"
 
 /* ------------------------ sfread~ ----------------------------- */
 
@@ -59,20 +59,11 @@ typedef struct _sfread
 
 #define MAX_CHANS 4
 
-
-
-//1 -> 2
-
-//1 -> 4
-
-//2 -> 4
-
-
 static t_int *sfread_perform(t_int *w)
 {
     t_sfread *x = (t_sfread *)(w[1]);
-    short *fp, *buf = x->x_mapaddr+x->x_skip;
-    /*     t_float *in = (t_float *)(w[2]); will we need this (indexing) ?*/
+    short *fp, *buf = NULL /*= x->x_mapaddr+x->x_skip*/;
+
     int c = x->x_outchannels;
     int fc = x->x_fchannels,fc2=2*fc;
     double findex = x->x_index;
@@ -84,45 +75,47 @@ static t_int *sfread_perform(t_int *w)
     t_int in_off[MAX_CHANS];
     t_int loground=(fc==1?0:fc==2?1:2);
 
-    if(!x->x_mapaddr) return(w+c+4);
+    //if(!x->x_mapaddr) return(w+c+4);
 
-    for (i=0; i<c; i++)
-    {
-        out[i] = (t_float *)(w[3+i]);
-        in_off[i]=i%fc;
-    }
-    n = (int)(w[3+c]);
+	for (i=0; i<c; i++)
+	{
+	    out[i] = (t_float *)(w[3+i]);
+	    if(fc) in_off[i] = i%fc;
+	    else in_off[i] = 0;
+	}
+	n = (int)(w[3+c]);
 
-    /* loop */
+	if(x->x_mapaddr) {
+		buf = x->x_mapaddr+x->x_skip;
+		/* loop */
 
-    if (findex >  end)
-        findex = end;
+		if (findex >  end)
+		    findex = end;
 
-    if (findex + n*speed > end)   // playing forward end
-    {
-        if (!x->x_loop)
-        {
-            x->x_play=0;
-            findex = 0;
-            clock_delay(x->x_clock, 0);
-        }
-    }
+		if (findex + n*speed > end)   // playing forward end
+		{
+		    if (!x->x_loop)
+		    {
+		        x->x_play=0;
+		        findex = 0;
+		        clock_delay(x->x_clock, 0);
+		    }
+		}
 
-    if (findex + n*speed < 1)    // playing backwards end
-    {
-        if (!x->x_loop)
-        {
-            x->x_play=0;
-            findex = end;
-            clock_delay(x->x_clock, 0);
-        }
+		if (findex + n*speed < 1)    // playing backwards end
+		{
+		    if (!x->x_loop)
+		    {
+		        x->x_play=0;
+		        findex = end;
+		        clock_delay(x->x_clock, 0);
+		    }
 
-    }
-
+		}
+	}
 
     if (x->x_play && x->x_mapaddr)
     {
-
         if (speed != 1)   /* different speed */
         {
             if (x->x_interp) while (n--)
@@ -132,16 +125,19 @@ static t_int *sfread_perform(t_int *w)
                     frac = findex - index;
                     for (i=0; i<c; i++)
                     {
-                        fp=buf + rindex +in_off[i];
-                        a = fp[-fc];
-                        b = fp[0];
-                        cc = fp[fc];
-                        d = fp[fc2];
-                        cminusb = cc-b;
-                        *out[i]++ = 3.052689e-05*
-                                    (b + frac * (cminusb - 0.5f * (frac-1.) *
-                                                 ((a - d + 3.0f * cminusb) * frac + (b - a - cminusb))));
-                        //*out[i]++ = *(buf+rindex+in_off[i])*3.052689e-05;
+                        if(i > fc) *out[i]++ = 0;
+                        else {
+		                    fp=buf + rindex +in_off[i];
+		                    a = fp[-fc];
+		                    b = fp[0];
+		                    cc = fp[fc];
+		                    d = fp[fc2];
+		                    cminusb = cc-b;
+		                    *out[i]++ = 3.052689e-05*
+		                                (b + frac * (cminusb - 0.5f * (frac-1.) *
+		                                             ((a - d + 3.0f * cminusb) * frac + (b - a - cminusb))));
+		                    //*out[i]++ = *(buf+rindex+in_off[i])*3.052689e-05;
+	                    }
                     }
                     findex=findex+speed;
                     if (findex > end)
@@ -160,7 +156,8 @@ static t_int *sfread_perform(t_int *w)
                     rindex=((int)findex)<<loground;
                     for (i=0; i<c; i++)
                     {
-                        *out[i]++ = *(buf+rindex+in_off[i])*3.052689e-05;
+                        if(i > fc) *out[i]++ = 0;
+                        else *out[i]++ = *(buf+rindex+in_off[i])*3.052689e-05;
                     }
                     findex+=speed;
                     if (findex > end)
@@ -189,7 +186,8 @@ static t_int *sfread_perform(t_int *w)
             {
                 for (i=0; i<c; i++)
                 {
-                    *out[i]++ = *(buf+rindex+in_off[i])*3.052689e-05;
+                    if(i > fc) *out[i]++ = 0;
+                    else *out[i]++ = *(buf+rindex+in_off[i])*3.052689e-05;
                 }
                 rindex+=fc;
                 if (rindex > end2)
@@ -275,7 +273,6 @@ static void sfread_bang(t_sfread *x)
 
 static void sfread_dsp(t_sfread *x, t_signal **sp)
 {
-    /*     post("sfread: dsp"); */
     switch (x->x_outchannels)
     {
     case 1:
@@ -296,17 +293,19 @@ static void sfread_dsp(t_sfread *x, t_signal **sp)
 }
 
 
-extern int open_soundfile(const char *dirname, const char *filename, int headersize,
-                          int *p_bytespersamp, int *p_bigendian, int *p_nchannels, long *p_bytelimit,
-                          long skipframes); /* in pd/src/d_soundfile.c */
-
-
-static void sfread_open(t_sfread *x,t_symbol *filename)
+static void sfread_open(t_sfread *x, t_symbol *filename)
 {
-    struct stat  fstate;
+    struct stat fstate;
     char fname[MAXPDSTRING];
-    int bytespersamp=0,bigendian=0,channels=0;
-    long bytelimit= 0x7fffffff,skipframes = 0;
+
+    t_soundfile_info info;
+
+	info.samplerate = 0;
+    info.channels = 0;
+    info.bytespersample = 0;
+    info.headersize = -1;
+    info.bigendian = 0;
+    info.bytelimit = 0x7fffffff;
 
     if (filename == &s_)
     {
@@ -317,50 +316,43 @@ static void sfread_open(t_sfread *x,t_symbol *filename)
     canvas_makefilename(glist_getcanvas(x->x_glist), filename->s_name,
                         fname, MAXPDSTRING);
 
-
     /* close the old file */
 
-    if (x->x_mapaddr) munmap(x->x_mapaddr,x->x_size);
+    if (x->x_mapaddr) munmap(x->x_mapaddr, x->x_size);
     if (x->x_fd >= 0) close(x->x_fd);
 
-    /*if ((x->x_fd = open(fname,O_RDONLY)) < 0)*/
-    //post("fname: %s",fname);
-
-    if ((x->x_fd = open_soundfile("",fname, -1,&bytespersamp,&bigendian,
-                                  &channels, &bytelimit,0)) < 0)
+    if ((x->x_fd = open_soundfile("", fname, &info, 0)) < 0)
     {
-        error("can't open %s",fname);
+        error("can't open %s", fname);
         x->x_play = 0;
         x->x_mapaddr = NULL;
         return;
     }
 
-    if( ((x->x_fchannels!=1)&&(x->x_fchannels!=2)&&(x->x_fchannels!=4)) ||
-            (bytespersamp!=2) )
+    if( ((info.channels != 1) && (info.channels != 2) && (info.channels != 4)) ||
+            (info.bytespersample != 2) )
     {
         error("file %s error: not a 1 or 2 or 4 channels soundfile, or not a 16 bits soundfile",fname);
-        post("channels:%d bytes:%d ",x->x_fchannels,bytespersamp);
+        post("channels:%d bytes:%d ", info.channels, info.bytespersample);
         x->x_play = 0;
         x->x_mapaddr = NULL;
         return;
     }
 
-    x->x_fchannels=channels;
+    x->x_fchannels = info.channels;
 
     /* get the size */
 
-    fstat(x->x_fd,&fstate);
+    fstat(x->x_fd, &fstate);
     x->x_size = (int)fstate.st_size;
-    x->x_skip=x->x_size-bytelimit;
-    x->x_len = (bytelimit)/(bytespersamp*x->x_fchannels);
-
-    //post("bytelimit=%d    x->x_size-x->x_skip=%d  x->x_size=%d x->x_skip=%d",bytelimit,x->x_size-x->x_skip,x->x_size,x->x_skip);
+    x->x_skip = x->x_size - info.bytelimit;
+    x->x_len = (info.bytelimit) / (info.bytespersample*x->x_fchannels);
 
     /* map the file into memory */
 
-    if (!(x->x_mapaddr = mmap(NULL,x->x_size,PROT_READ,MAP_PRIVATE,x->x_fd,0)))
+    if (!(x->x_mapaddr = mmap(NULL, x->x_size, PROT_READ, MAP_PRIVATE, x->x_fd, 0)))
     {
-        error("can't mmap %s",fname);
+        error("can't mmap %s", fname);
         return;
     }
     sfread_size(x);
@@ -384,8 +376,8 @@ static void *sfread_new(t_floatarg chan,t_floatarg interp)
     x->x_len = 0;
     x->x_loop = 0;
     x->x_outchannels = c;
-    x->x_fchannels = 1;
-    x->x_mapaddr=NULL;
+    x->x_fchannels = 0;
+    x->x_mapaddr = NULL;
     x->x_index = 1;
     x->x_skip = 0;
     x->x_speed = 1.0;
@@ -436,7 +428,3 @@ void sfread2_tilde_setup(void)
 }
 
 
-
-
-
-#endif /* NOT _WIN32 */
