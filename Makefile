@@ -25,7 +25,7 @@ ifneq (MINGW,$(findstring MINGW,$(uname)))
 objects += absolutepath basedir dinlet~ popen readsfv~ relativepath wac
 endif
 
-class.sources = $(addsuffix .c,$(objects)) _soundfile.c
+class.sources = $(addsuffix .c,$(objects))
 
 # all extra files to be included in binary distribution of the library
 datafiles = \
@@ -50,7 +50,7 @@ update-pdlibbuilder:
 deken-source:
 	@rm -rf build_src
 	@mkdir -p build_src/moonlib
-	@cp $(class.sources) \
+	@cp $(class.sources) _soundfile.c \
 		$(datafiles) Makefile.pdlibbuilder Makefile \
 			build_src/moonlib
 	@cp -r $(datadirs) build_src/moonlib
