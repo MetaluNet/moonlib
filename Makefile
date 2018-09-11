@@ -37,11 +37,13 @@ datadirs = img
 
 cflags = -Wno-unused -Wno-unused-parameter
 
-PDLIBBUILDER_DIR=pd-lib-builder/
-include $(firstword $(wildcard $(PDLIBBUILDER_DIR)/Makefile.pdlibbuilder Makefile.pdlibbuilder))
+PDLIBBUILDERDIR ?= .
+include $(PDLIBBUILDERDIR)/Makefile.pdlibbuilder
+
+VERSION = $(shell git describe)
 
 update-pdlibbuilder:
-	git submodule update --init pd-lib-builder
-	cp pd-lib-builder/Makefile.pdlibbuilder .
-	
+	curl https://raw.githubusercontent.com/pure-data/pd-lib-builder/master/Makefile.pdlibbuilder > ./Makefile.pdlibbuilder
+
+
 
