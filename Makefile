@@ -17,7 +17,9 @@ ldlibs = -lpthread
 endif
 
 objects = char2f comma dispatch dripchar f2char f2s gamme image mknob panvol~ \
-s2f sarray sfread2~ slist ssaw~ tabdump2 tabenv tabreadl tabsort2 tabsort ndmetro lcdbitmap
+s2f sarray sfread2~ slist ssaw~ tabdump2 tabenv tabreadl tabsort2 tabsort ndmetro
+
+# lcdbitmap
 
 ifneq (MINGW,$(findstring MINGW,$(uname)))
 objects += absolutepath basedir dinlet~ popen readsfv~ relativepath wac
