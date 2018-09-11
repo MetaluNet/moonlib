@@ -29,7 +29,9 @@ objects use Posix-like threads.  */
 
 #include "m_pd.h"
 
+#ifndef MAXSFCHANS
 #define MAXSFCHANS 64
+#endif
 
 #ifdef _LARGEFILE64_SOURCE
 # define open open64

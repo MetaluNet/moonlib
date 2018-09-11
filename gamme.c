@@ -56,8 +56,6 @@ static char *NoteNames[]=
 { "C","C#","D","D#","E","F","F#","G","G#","A","A#","B" };
 static char NoteColPos[]=
 { 1,-1,2,-2,3,4,-4,5,-5,6,-6,7 };
-static char Whites[]= {0,2,4,5,7,9,11};
-static char Blacks[]= {1,3,6,8,10};
 static char BlacksWhites[]= {1,3,6,8,10,0,2,4,5,7,9,11};
 static char WhitesBlacks[]= {0,2,4,5,7,9,11,1,3,6,8,10};
 
@@ -305,7 +303,7 @@ static void gamme_vis(t_gobj *z, t_glist *glist, int vis)
 static void gamme_save(t_gobj *z, t_binbuf *b)
 {
     t_gamme *x = (t_gamme *)z;
-    char *c=x->x_notes;
+    char *c=(char*)x->x_notes;
 
     binbuf_addv(b, "ssiisiiiiiiiiiiiiii", gensym("#X"),gensym("obj"),
                 (t_int)x->x_obj.te_xpos, (t_int)x->x_obj.te_ypos,
@@ -364,9 +362,6 @@ void gamme_draw_note(t_gamme *x,t_floatarg note)
 void gamme_set(t_gamme *x,t_floatarg note,t_floatarg on)
 {
     unsigned int i,notei=tonotei(note),changed=0;
-    char *color;
-    t_canvas *canvas=glist_getcanvas(x->x_glist);
-
 
     if(x->x_notes[notei]!=on) changed=1;
     if(on<0) x->x_notes[notei]=!(x->x_notes[notei]);
@@ -385,7 +380,7 @@ void gamme_set(t_gamme *x,t_floatarg note,t_floatarg on)
 
 void gamme_set_b(t_gamme *x,t_floatarg in_byte)
 {
-    unsigned int i,changed=0,on,in_b=in_byte;
+    unsigned int i,on,in_b=in_byte;
 
     x->x_n=0;
     for(i=0;i<12;i++){
@@ -405,8 +400,8 @@ void gamme_set_b(t_gamme *x,t_floatarg in_byte)
 	(my_div(n,(int)x->x_n)*12+x->x_on_notes[(int)my_mod(n,x->x_n)])
 void gamme_get(t_gamme *x,t_floatarg ref_octave,t_floatarg note)
 {
-    int no0,no1,ni0,ni1,n0,n1,n;
-    float xn,xx,nn;
+    int no0,no1,n;
+    float xx,nn;
 
     if(!x->x_n) return;
     no0=floor(note);
@@ -496,16 +491,6 @@ void gamme_getall(t_gamme *x)
     gamme_getn(x);
 }
 
-extern int sys_noloadbang;
-static void gamme_loadbang(t_gamme *x)
-{
-    int i;
-
-    if(sys_noloadbang) return;
-    for(i=0; i<12; i++) gamme_out_changed(x,i);
-    gamme_getn(x);
-}
-
 void gamme_size(t_gamme *x,t_floatarg w,t_floatarg h)
 {
     x->x_width = w;
@@ -557,7 +542,7 @@ static void *gamme_new(t_symbol *s, int argc, t_atom *argv)
             for(i=0; i<12; i++) err+=(!IS_A_FLOAT(argv,i+2));
             if(!err)
             {
-                for(i=0; i<12; i++) if(x->x_notes[i]=atom_getfloat(&argv[i+2]))
+                for(i=0; i<12; i++) if((x->x_notes[i]=atom_getfloat(&argv[i+2])) != 0)
                         x->x_on_notes[(int)(x->x_n++)]=i;
                 /*gamme_set(x,i,atom_getfloat(&argv[i+2]));gamme_getn(x);*/
             }
@@ -601,7 +586,6 @@ void gamme_setup(void)
 
     class_addmethod(gamme_class, (t_method)gamme_getn, gensym("getn"), 0);
 
-    /*class_addmethod(gamme_class, (t_method)gamme_loadbang, gensym("loadbang"), 0);*/
 
 
     gamme_setwidget();
