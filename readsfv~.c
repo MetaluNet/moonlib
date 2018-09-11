@@ -13,287 +13,27 @@ thread so that they can be used in real time.  The real-time disk access
 objects are available for linux only so far, although they could be compiled
 for Windows if someone were willing to find a Pthreads package for it. */
 
-/* this is a partial copy of d_soundfile, with some hacking:
-	(- a fix in soundfiler to compute the normalization factor only on
-		the samples we want to write on the disk... - removed as the bug is fixed in pd / 2017)
-	- a version of readsf~ that works with a (positive) speed parameter.
+/* this is a version of readsf~ that works with a (positive) speed parameter.
 
 	Antoine Rousseau
 */
 
-#include <pthread.h>
-#ifdef _WIN32
-#include <io.h>
-#else
-#include <unistd.h>
-#include <fcntl.h>
-#endif
-#include <stdio.h>
-#include <string.h>
-#include <errno.h>
-
 #include "m_pd.h"
 
-#define MAXSFCHANS 4
+#define MAXSFCHANS 8
 
-
-/***************** soundfile header structures ************************/
-
-typedef unsigned short uint16;
-typedef unsigned long uint32;
-
-#define FORMAT_WAVE 0
-#define FORMAT_AIFF 1
-#define FORMAT_NEXT 2
-
-/* the NeXTStep sound header structure; can be big or little endian  */
-
-typedef struct _nextstep
-{
-    char ns_fileid[4]; 	    /* magic number '.snd' if file is big-endian */
-    uint32 ns_onset; 	    /* byte offset of first sample */
-    uint32 ns_length;	    /* length of sound in bytes */
-    uint32 ns_format;        /* format; see below */
-    uint32 ns_sr;    	    /* sample rate */
-    uint32 ns_nchans;	    /* number of channels */
-    char ns_info[4];   	    /* comment */
-} t_nextstep;
-
-#define NS_FORMAT_LINEAR_16	3
-#define NS_FORMAT_LINEAR_24	4
-#define NS_FORMAT_FLOAT         6
-#define SCALE (1./(1024. * 1024. * 1024. * 2.))
-
-/* the WAVE header.  All Wave files are little endian.  We assume
-    the "fmt" chunk comes first which is usually the case but perhaps not
-    always; same for AIFF and the "COMM" chunk.   */
-
-typedef unsigned word;
-typedef unsigned long dword;
-
-typedef struct _wave
-{
-    char  w_fileid[4];	    	    /* chunk id 'RIFF'            */
-    uint32 w_chunksize;     	    /* chunk size                 */
-    char  w_waveid[4];	    	    /* wave chunk id 'WAVE'       */
-    char  w_fmtid[4];	    	    /* format chunk id 'fmt '     */
-    uint32 w_fmtchunksize;   	    /* format chunk size          */
-    uint16  w_fmttag;	    	    /* format tag, 1 for PCM      */
-    uint16  w_nchannels;    	    /* number of channels         */
-    uint32 w_samplespersec;  	    /* sample rate in hz          */
-    uint32 w_navgbytespersec; 	    /* average bytes per second   */
-    uint16  w_nblockalign;    	    /* number of bytes per sample */
-    uint16  w_nbitspersample; 	    /* number of bits in a sample */
-    char  w_datachunkid[4]; 	    /* data chunk id 'data'       */
-    uint32 w_datachunksize;         /* length of data chunk       */
-} t_wave;
-
-typedef struct _fmt	    /* format chunk */
-{
-    uint16 f_fmttag;	    	    /* format tag, 1 for PCM      */
-    uint16 f_nchannels;    	    /* number of channels         */
-    uint32 f_samplespersec;  	    /* sample rate in hz          */
-    uint32 f_navgbytespersec; 	    /* average bytes per second   */
-    uint16 f_nblockalign;    	    /* number of bytes per frame  */
-    uint16 f_nbitspersample; 	    /* number of bits in a sample */
-} t_fmt;
-
-typedef struct _wavechunk	    /* ... and the last two items */
-{
-    char  wc_id[4]; 	    	    /* data chunk id, e.g., 'data' or 'fmt ' */
-    uint32 wc_size;         	    /* length of data chunk       */
-} t_wavechunk;
-
-/* the AIFF header.  I'm assuming AIFC is compatible but don't really know
-    that. */
-
-typedef struct _datachunk
-{
-    char  dc_id[4]; 	    	    /* data chunk id 'SSND'       */
-    uint32 dc_size;         	    /* length of data chunk       */
-} t_datachunk;
-
-//#define CHUNKHDRSIZE sizeof(t_datachunk)
-
-typedef struct _comm
-{
-    uint16 c_nchannels;	            /* number of channels         */
-    uint16 c_nframeshi;    	    /* # of sample frames (hi)    */
-    uint16 c_nframeslo;    	    /* # of sample frames (lo)    */
-    uint16 c_bitspersamp;  	    /* bits per sample            */
-    unsigned char c_samprate[10];   /* sample rate, 80-bit float! */
-} t_comm;
-
-/* this version is more convenient for writing them out: */
-typedef struct _aiff
-{
-    char  a_fileid[4];	    	    /* chunk id 'FORM'            */
-    uint32 a_chunksize;     	    /* chunk size                 */
-    char  a_aiffid[4];	    	    /* aiff chunk id 'AIFF'       */
-    char  a_fmtid[4];	    	    /* format chunk id 'COMM'     */
-    uint32 a_fmtchunksize;   	    /* format chunk size, 18      */
-    uint16 a_nchannels;	            /* number of channels         */
-    uint16 a_nframeshi;    	    /* # of sample frames (hi)    */
-    uint16 a_nframeslo;    	    /* # of sample frames (lo)    */
-    uint16 a_bitspersamp;  	    /* bits per sample            */
-    unsigned char a_samprate[10];   /* sample rate, 80-bit float! */
-} t_aiff;
-
-#define AIFFHDRSIZE 38	    /* probably not what sizeof() gives */
-
-
-#define AIFFPLUS (AIFFHDRSIZE + 8)  /* header size including first chunk hdr */
-
-#define WHDR1 sizeof(t_nextstep)
-#define WHDR2 (sizeof(t_wave) > WHDR1 ? sizeof (t_wave) : WHDR1)
-#define WRITEHDRSIZE (AIFFPLUS > WHDR2 ? AIFFPLUS : WHDR2)
-
-#define READHDRSIZE (16 > WHDR2 ? 16 : WHDR2)
-
-#define OBUFSIZE MAXPDSTRING  /* assume MAXPDSTRING is bigger than headers */
-
-#ifdef _WIN32
-#include <fcntl.h>
-#define BINCREATE _O_WRONLY | _O_CREAT | _O_BINARY | _O_TRUNC |
-#else
-#define BINCREATE O_WRONLY|O_CREAT|O_TRUNC
-#endif
-
-/* this routine returns 1 if the high order byte comes at the lower
-address on our architecture (big-endianness.).  It's 1 for Motorola,
-0 for Intel: */
-
-extern int garray_ambigendian(void);
-
-/* byte swappers */
-
-static uint32 swap4(uint32 n, int doit)
-{
-    if (doit)
-        return (((n & 0xff) << 24) | ((n & 0xff00) << 8) |
-                ((n & 0xff0000) >> 8) | ((n & 0xff000000) >> 24));
-    else return (n);
-}
-
-static uint16 swap2(uint32 n, int doit)
-{
-    if (doit)
-        return (((n & 0xff) << 8) | ((n & 0xff00) >> 8));
-    else return (n);
-}
-
-static void swapstring(char *foo, int doit)
-{
-    if (doit)
-    {
-        char a = foo[0], b = foo[1], c = foo[2], d = foo[3];
-        foo[0] = d;
-        foo[1] = c;
-        foo[2] = b;
-        foo[3] = a;
-    }
-}
-
-/******************** soundfile access routines **********************/
-
-void readsf_banana( void);    /* debugging */
-
-/* This routine opens a file, looks for either a nextstep or "wave" header,
-* seeks to end of it, and fills in bytes per sample and number of channels.
-* Only 2- and 3-byte fixed-point samples and 4-byte floating point samples
-* are supported.  If "headersize" is nonzero, the
-* caller should supply the number of channels, endinanness, and bytes per
-* sample; the header is ignored.  Otherwise, the routine tries to read the
-* header and fill in the properties.
-*/
-
-extern int open_soundfile(const char *dirname, const char *filename, int headersize,
-                          int *p_bytespersamp, int *p_bigendian, int *p_nchannels, long *p_bytelimit,
-                          long skipframes);
-
-
-static void soundfile_xferin(int sfchannels, int nvecs, float **vecs,
-                             long itemsread, unsigned char *buf, int nitems, int bytespersamp,
-                             int bigendian)
-{
-    int i, j;
-    unsigned char *sp, *sp2;
-    float *fp;
-    int nchannels = (sfchannels < nvecs ? sfchannels : nvecs);
-    int bytesperframe = bytespersamp * sfchannels;
-    for (i = 0, sp = buf; i < nchannels; i++, sp += bytespersamp)
-    {
-        if (bytespersamp == 2)
-        {
-            if (bigendian)
-            {
-                for (j = 0, sp2 = sp, fp=vecs[i] + itemsread;
-                        j < nitems; j++, sp2 += bytesperframe, fp++)
-                    *fp = SCALE * ((sp2[0] << 24) | (sp2[1] << 16));
-            }
-            else
-            {
-                for (j = 0, sp2 = sp, fp=vecs[i] + itemsread;
-                        j < nitems; j++, sp2 += bytesperframe, fp++)
-                    *fp = SCALE * ((sp2[1] << 24) | (sp2[0] << 16));
-            }
-        }
-        else if (bytespersamp == 3)
-        {
-            if (bigendian)
-            {
-                for (j = 0, sp2 = sp, fp=vecs[i] + itemsread;
-                        j < nitems; j++, sp2 += bytesperframe, fp++)
-                    *fp = SCALE * ((sp2[0] << 24) | (sp2[1] << 16)
-                                   | (sp2[2] << 8));
-            }
-            else
-            {
-                for (j = 0, sp2 = sp, fp=vecs[i] + itemsread;
-                        j < nitems; j++, sp2 += bytesperframe, fp++)
-                    *fp = SCALE * ((sp2[2] << 24) | (sp2[1] << 16)
-                                   | (sp2[0] << 8));
-            }
-        }
-        else if (bytespersamp == 4)
-        {
-            if (bigendian)
-            {
-                for (j = 0, sp2 = sp, fp=vecs[i] + itemsread;
-                        j < nitems; j++, sp2 += bytesperframe, fp++)
-                    *(long *)fp = ((sp2[0] << 24) | (sp2[1] << 16)
-                                   | (sp2[2] << 8) | sp2[3]);
-            }
-            else
-            {
-                for (j = 0, sp2 = sp, fp=vecs[i] + itemsread;
-                        j < nitems; j++, sp2 += bytesperframe, fp++)
-                    *(long *)fp = ((sp2[3] << 24) | (sp2[2] << 16)
-                                   | (sp2[1] << 8) | sp2[0]);
-            }
-        }
-    }
-    /* zero out other outputs */
-    for (i = sfchannels; i < nvecs; i++)
-        for (j = nitems, fp = vecs[i]; j--; )
-            *fp++ = 0;
-
-}
+#include "_soundfile.c"
 
 static void interpolate(int nvec,float **invec,int nin,
                         float **outvec,int nout)
 {
-
     float r=nin/(float)nout;
     int i,j;
-
 
     for(i=0; i<nout; i++)
         for(j=0; j<nvec; j++)
             outvec[j][i]=invec[j][(int)(i*r)];
-
 }
-
 
 /************************* readsf object ******************************/
 
@@ -349,7 +89,7 @@ typedef struct _readsf
     int x_state;    	    	    	    /* opened, running, or idle */
     /* parameters to communicate with subthread */
     int x_requestcode;	    /* pending request from parent to I/O thread */
-    char *x_filename;	    /* file to open (string is permanently allocated) */
+    const char *x_filename;	    /* file to open (string is permanently allocated) */
     int x_fileerror;	    /* slot for "errno" return */
     int x_skipheaderbytes;  /* size of header we'll skip */
     int x_bytespersample;   /* bytes per sample (2 or 3) */
@@ -445,14 +185,18 @@ static void *readsf_child_main(void *zz)
 
             /* copy file stuff out of the data structure so we can
             relinquish the mutex while we're in open_soundfile(). */
+			t_soundfile_info info;
+
+			info.samplerate = 0;
+			info.channels = x->x_sfchannels;
+			info.bytespersample = x->x_bytespersample;
+			info.headersize = x->x_skipheaderbytes;
+			info.bigendian = x->x_bigendian;
+			info.bytelimit = 0x7fffffff;
+
             long onsetframes = x->x_onsetframes;
-            long bytelimit = 0x7fffffff;
-            int skipheaderbytes = x->x_skipheaderbytes;
-            int bytespersample = x->x_bytespersample;
-            int sfchannels = x->x_sfchannels;
-            int bigendian = x->x_bigendian;
-            char *filename = x->x_filename;
-            char *dirname = canvas_getdir(x->x_canvas)->s_name;
+            const char *filename = x->x_filename;
+            const char *dirname = canvas_getdir(x->x_canvas)->s_name;
             /* alter the request code so that an ensuing "open" will get
             noticed. */
             pute("4\n");
@@ -472,18 +216,16 @@ static void *readsf_child_main(void *zz)
             }
             /* open the soundfile with the mutex unlocked */
             pthread_mutex_unlock(&x->x_mutex);
-            fd = open_soundfile(dirname, filename,
-                                skipheaderbytes, &bytespersample, &bigendian,
-                                &sfchannels, &bytelimit, onsetframes);
+            fd = open_soundfile(dirname, filename, &info, onsetframes);
             pthread_mutex_lock(&x->x_mutex);
 
             pute("5\n");
             /* copy back into the instance structure. */
-            x->x_bytespersample = bytespersample;
-            x->x_sfchannels = sfchannels;
-            x->x_bigendian = bigendian;
+            x->x_bytespersample = info.bytespersample;
+            x->x_sfchannels = info.channels;
+            x->x_bigendian = info.bigendian;
             x->x_fd = fd;
-            x->x_bytelimit = bytelimit;
+            x->x_bytelimit = info.bytelimit;
             if (fd < 0)
             {
                 x->x_fileerror = errno;
@@ -758,12 +500,12 @@ static t_int *readsf_perform(t_int *w)
         }
 
         if(speed==1)
-            soundfile_xferin(sfchannels, noutlets, x->x_outvec, 0,
+            soundfile_xferin_sample(sfchannels, noutlets, x->x_outvec, 0,
                              (unsigned char *)(x->x_buf + x->x_fifotail), vecsize,
                              bytespersample, bigendian);
         else
         {
-            soundfile_xferin(sfchannels, noutlets, tmpvec, 0,
+            soundfile_xferin_sample(sfchannels, noutlets, tmpvec, 0,
                              (unsigned char *)(x->x_buf + x->x_fifotail), wantsamples,
                              bytespersample, bigendian);
             interpolate(noutlets,tmpvec,wantsamples,x->x_outvec,vecsize);
