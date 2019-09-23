@@ -54,7 +54,7 @@ static t_class *gamme_class;
 
 static char *NoteNames[]=
 { "C","C#","D","D#","E","F","F#","G","G#","A","A#","B" };
-static char NoteColPos[]=
+static int NoteColPos[]=
 { 1,-1,2,-2,3,4,-4,5,-5,6,-6,7 };
 static char BlacksWhites[]= {1,3,6,8,10,0,2,4,5,7,9,11};
 static char WhitesBlacks[]= {0,2,4,5,7,9,11,1,3,6,8,10};
