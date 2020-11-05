@@ -101,5 +101,6 @@ static void *dinlet_newsig(t_floatarg f)
 
 void dinlet_tilde_setup(void)
 {
-    class_addcreator((t_newmethod)dinlet_newsig, gensym("dinlet~"), A_DEFFLOAT,0);
+    //class_addcreator((t_newmethod)dinlet_newsig, gensym("dinlet~"), A_DEFFLOAT,0);
+    class_new(gensym("dinlet~"), (t_newmethod)dinlet_newsig, 0, 0, 0, A_DEFFLOAT, 0);
 }
