@@ -121,7 +121,7 @@ static void mknob_draw_new(t_mknob *x, t_glist *glist)
 	         -font {{%s} -%d %s} -fill #%6.6x -tags %lxLABEL\n",
                  canvas, xpos+x->x_gui.x_ldx,
                  ypos+x->x_gui.x_ldy,
-                 strcmp(x->x_gui.x_lab->s_name, "empty")?x->x_gui.x_lab->s_name:"",
+                 (x->x_gui.x_lab && strcmp(x->x_gui.x_lab->s_name, "empty"))?x->x_gui.x_lab->s_name:"",
                  x->x_gui.x_font, x->x_gui.x_fontsize, sys_fontweight, x->x_gui.x_lcol, x);
     } else {
         sys_vgui(".x%lx.c create oval %d %d %d %d -fill #%06x -width %d -tags %lxBASE\n",
@@ -136,7 +136,7 @@ static void mknob_draw_new(t_mknob *x, t_glist *glist)
 	     -font {{%s} -%d %s} -fill #%06x -tags [list %lxLABEL label text]\n",
              canvas, xpos+x->x_gui.x_ldx * IEMGUI_ZOOM(x),
              ypos+x->x_gui.x_ldy * IEMGUI_ZOOM(x),
-             strcmp(x->x_gui.x_lab->s_name, "empty")?x->x_gui.x_lab->s_name:"",
+             (x->x_gui.x_lab && strcmp(x->x_gui.x_lab->s_name, "empty"))?x->x_gui.x_lab->s_name:"",
              x->x_gui.x_font, x->x_gui.x_fontsize * IEMGUI_ZOOM(x), sys_fontweight, 
              x->x_gui.x_lcol, x);
     }
@@ -199,14 +199,14 @@ static void mknob_draw_config(t_mknob *x,t_glist *glist)
         sys_vgui(".x%lx.c itemconfigure %lxLABEL -font {{%s} -%d %s} -fill #%6.6x -text {%s} \n",
                  canvas, x, x->x_gui.x_font, x->x_gui.x_fontsize * IEMGUI_ZOOM(x), sys_fontweight,
                  x->x_gui.x_fsf.x_selected?IEM_GUI_COLOR_SELECTED:x->x_gui.x_lcol,
-                 strcmp(x->x_gui.x_lab->s_name, "empty")?x->x_gui.x_lab->s_name:"");
+                 (x->x_gui.x_lab && strcmp(x->x_gui.x_lab->s_name, "empty"))?x->x_gui.x_lab->s_name:"");
         sys_vgui(".x%lx.c itemconfigure %lxKNOB -fill #%6.6x -width %d\n", canvas, x, x->x_gui.x_fcol, IEMGUI_ZOOM(x));
         sys_vgui(".x%lx.c itemconfigure %lxBASE -fill #%6.6x\n", canvas, x, x->x_gui.x_bcol);
     } else {
         sys_vgui(".x%lx.c itemconfigure %lxLABEL -font {{%s} -%d %s} -fill #%06x -text {%s} \n",
                  canvas, x, x->x_gui.x_font, x->x_gui.x_fontsize * IEMGUI_ZOOM(x), sys_fontweight,
                  x->x_gui.x_fsf.x_selected?IEM_GUI_COLOR_SELECTED:x->x_gui.x_lcol,
-                 strcmp(x->x_gui.x_lab->s_name, "empty")?x->x_gui.x_lab->s_name:"");
+                 (x->x_gui.x_lab && strcmp(x->x_gui.x_lab->s_name, "empty"))?x->x_gui.x_lab->s_name:"");
         sys_vgui(".x%lx.c itemconfigure %lxKNOB -fill #%06x -width %d\n", canvas, x, x->x_gui.x_fcol, IEMGUI_ZOOM(x));
         sys_vgui(".x%lx.c itemconfigure %lxBASE -fill #%06x\n", canvas, x, x->x_gui.x_bcol);
     }
@@ -325,7 +325,7 @@ static void mknob_save(t_gobj *z, t_binbuf *b)
     t_symbol *srl[3];
 
     if(compat) {
-        ((void (*)(t_iemgui *iemgui, t_symbol **srl, int* bflcol))&iemgui_save)(&x->x_gui, srl, bflcol_compat);
+        ((void (*)(t_iemgui *iemgui, t_symbol **srl, int *bflcol))&iemgui_save)(&x->x_gui, srl, bflcol_compat);
         binbuf_addv(b, "ssiisiiffiisssiiiiiiiii", gensym("#X"),gensym("obj"),
             (t_int)x->x_gui.x_obj.te_xpix, (t_int)x->x_gui.x_obj.te_ypix,
             atom_getsymbol(binbuf_getvec(x->x_gui.x_obj.te_binbuf)),
@@ -424,30 +424,30 @@ static void mknob_properties(t_gobj *z, t_glist *owner)
 	    --------dimension(pix):-------- %d %d size: %d %d mouse: \
 	    -----------output-range:----------- %g left: %g right: %g \
 	    %d lin log %d %d empty %d \
-	    %s %s \
-	    %s %d %d \
+	    {%s} {%s} \
+	    {%s} %d %d \
 	    %d %d \
 	    %d %d %d\n",
             x->x_gui.x_w/IEMGUI_ZOOM(x), MKNOB_MINSIZE, x->x_gui.x_h/IEMGUI_ZOOM(x), -1,
             x->x_min, x->x_max, 0.0,/*no_schedule*/
             x->x_lin0_log1, x->x_gui.x_isa.x_loadinit, x->x_steady, -1,/*no multi, but iem-characteristic*/
-            srl[0]->s_name, srl[1]->s_name,
-            srl[2]->s_name, x->x_gui.x_ldx, x->x_gui.x_ldy,
+            srl[0]?srl[0]->s_name:"", srl[1]?srl[1]->s_name:"",
+            srl[2]?srl[2]->s_name:"", x->x_gui.x_ldx, x->x_gui.x_ldy,
             x->x_gui.x_fsf.x_font_style, x->x_gui.x_fontsize,
             0xffffff & x->x_gui.x_bcol, 0xffffff & x->x_gui.x_fcol, 0xffffff & x->x_gui.x_lcol);
     else sprintf(buf, "pdtk_iemgui_dialog %%s mknob \
 	    --------dimension(pix):-------- %d %d size: %d %d mouse: \
 	    -----------output-range:----------- %g left: %g right: %g \
 	    %d lin log %d %d empty %d \
-	    %s %s \
-	    %s %d %d \
+	    {%s} {%s} \
+	    {%s} %d %d \
 	    %d %d \
 	   #%06x #%06x #%06x\n",
             x->x_gui.x_w/IEMGUI_ZOOM(x), MKNOB_MINSIZE, x->x_gui.x_h/IEMGUI_ZOOM(x), -1,
             x->x_min, x->x_max, 0.0,/*no_schedule*/
             x->x_lin0_log1, x->x_gui.x_isa.x_loadinit, x->x_steady, -1,/*no multi, but iem-characteristic*/
-            srl[0]->s_name, srl[1]->s_name,
-            srl[2]->s_name, x->x_gui.x_ldx, x->x_gui.x_ldy,
+            srl[0]?srl[0]->s_name:"", srl[1]?srl[1]->s_name:"",
+            srl[2]?srl[2]->s_name:"", x->x_gui.x_ldx, x->x_gui.x_ldy,
             x->x_gui.x_fsf.x_font_style, x->x_gui.x_fontsize,
             0xffffff & x->x_gui.x_bcol, 0xffffff & x->x_gui.x_fcol, 0xffffff & x->x_gui.x_lcol);
     gfxstub_new(&x->x_gui.x_obj.ob_pd, x, buf);
@@ -507,7 +507,7 @@ static void mknob_bang(t_mknob *x)
         out = mknob_getfval(x);
     else out = x->x_fval;
     outlet_float(x->x_gui.x_obj.ob_outlet, out);
-    if(x->x_gui.x_fsf.x_snd_able && x->x_gui.x_snd->s_thing)
+    if(x->x_gui.x_fsf.x_snd_able && x->x_gui.x_snd && x->x_gui.x_snd->s_thing)
         pd_float(x->x_gui.x_snd->s_thing, out);
 }
 
@@ -682,6 +682,8 @@ static void mknob_size(t_mknob *x, t_symbol *s, int ac, t_atom *av)
 
     mknob_check_wh(x, w, h);
     iemgui_size((void *)x, &x->x_gui);
+    if(glist_isvisible(x->x_gui.x_glist)) 
+    	(*x->x_gui.x_draw)(x, x->x_gui.x_glist, IEM_GUI_DRAW_MODE_MOVE);
 }
 
 static void mknob_delta(t_mknob *x, t_symbol *s, int ac, t_atom *av)
@@ -813,7 +815,7 @@ static void check_compat()
 
 static void *mknob_new(t_symbol *s, int argc, t_atom *argv)
 {
-    t_mknob *x = (t_mknob *)pd_new(mknob_class);
+    t_mknob *x = (t_mknob *)iemgui_new(mknob_class);
     int w=MKNOB_DEFAULTSIZE, h=MKNOB_DEFAULTH;
     int fs=8 ,lilo=0, ldx=-2, ldy=-6, f=0, v=0, steady=1;
     double min=0.0, max=(double)(IEM_SL_DEFAULTSIZE-1);
@@ -910,8 +912,8 @@ static void *mknob_new(t_symbol *s, int argc, t_atom *argv)
     if(steady != 0) steady = 1;
     x->x_steady = steady;
 
-    if(!strcmp(x->x_gui.x_snd->s_name, "empty")) x->x_gui.x_fsf.x_snd_able = 0;
-    if(!strcmp(x->x_gui.x_rcv->s_name, "empty")) x->x_gui.x_fsf.x_rcv_able = 0;
+    if(x->x_gui.x_snd == NULL || !strcmp(x->x_gui.x_snd->s_name, "empty")) x->x_gui.x_fsf.x_snd_able = 0;
+    if(x->x_gui.x_snd == NULL || !strcmp(x->x_gui.x_rcv->s_name, "empty")) x->x_gui.x_fsf.x_rcv_able = 0;
 
     if(x->x_gui.x_fsf.x_font_style == 1) strcpy(x->x_gui.x_font, "helvetica");
     else if(x->x_gui.x_fsf.x_font_style == 2) strcpy(x->x_gui.x_font, "times");
