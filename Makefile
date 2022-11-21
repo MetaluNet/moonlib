@@ -39,8 +39,8 @@ datadirs = img
 
 cflags = -Wno-unused -Wno-unused-parameter
 
-PDLIBBUILDERDIR ?= .
-include $(PDLIBBUILDERDIR)/Makefile.pdlibbuilder
+PDLIBBUILDER_DIR ?= .
+include $(PDLIBBUILDER_DIR)/Makefile.pdlibbuilder
 
 VERSION = $(shell git describe --abbrev=4)
 
