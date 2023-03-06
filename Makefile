@@ -59,6 +59,6 @@ deken-source:
 deken-binary:
 	@rm -rf build
 	@make install objectsdir=./build
-	cd build/ ; deken upload -v $(VERSION) moonlib
+	cd build/ ; deken upload --no-source-error -v $(VERSION) moonlib
 
 
