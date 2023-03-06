@@ -56,8 +56,8 @@ static void wac_open(t_wac *x)
     x->fd = open (x->file->s_name, O_RDONLY | O_NONBLOCK);
     if(x->fd<0)
     {
-        post("open (%s, O_RDONLY | O_NONBLOCK)",x->file->s_name);
-        perror("open");
+        pd_error(x, "couldn't open (%s, O_RDONLY | O_NONBLOCK)", x->file->s_name);
+        //perror("open");
         return;
     }
     sys_addpollfn(x->fd,(t_fdpollfn)wac_read,(void *)x);

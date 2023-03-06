@@ -37,9 +37,9 @@ static void tabreadl_float(t_tabreadl *x, t_float f)
     t_word *vec;
 
     if (!(a = (t_garray *)pd_findbyclass(x->x_arrayname, garray_class)))
-        error("%s: no such array", x->x_arrayname->s_name);
+        pd_error(x, "%s: no such array", x->x_arrayname->s_name);
     else if (!garray_getfloatwords(a, &npoints, &vec))
-        error("%s: bad template for tabreadl", x->x_arrayname->s_name);
+        pd_error(x, "%s: bad template for tabreadl", x->x_arrayname->s_name);
     else
     {
         int n ;

@@ -70,7 +70,7 @@ static void tabsort_float(t_tabsort *x, t_floatarg n)
     }
     else if (!garray_getfloatwords(a, &n1, &vec1))
     {
-        error("%s: bad template for tabsort", x->x_arrayname1->s_name);
+        pd_error(x, "%s: bad template for tabsort", x->x_arrayname1->s_name);
         return;
     }
 
@@ -82,7 +82,7 @@ static void tabsort_float(t_tabsort *x, t_floatarg n)
     }
     else if (!garray_getfloatwords(a, &n2, &vec2))
     {
-        error("%s: bad template for tabsort", x->x_arrayname2->s_name);
+        pd_error(x, "%s: bad template for tabsort", x->x_arrayname2->s_name);
         return;
     }
 

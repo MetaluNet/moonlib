@@ -645,7 +645,7 @@ static void readsf_free(t_readsf *x)
     }
     pthread_mutex_unlock(&x->x_mutex);
     if (pthread_join(x->x_childthread, &threadrtn))
-        error("readsf_free: join failed");
+        pd_error(0, "readsf_free: join failed");
     post("... done.");
 
     pthread_cond_destroy(&x->x_requestcondition);

@@ -38,9 +38,9 @@ static void tabdump_bang(t_tabdump *x, t_float findex)
     t_word *vec;
 
     if (!(A = (t_garray *)pd_findbyclass(x->x_arrayname, garray_class)))
-        error("%s: no such array", x->x_arrayname->s_name);
+        pd_error(x, "%s: no such array", x->x_arrayname->s_name);
     else if (!garray_getfloatwords(A, &npoints, &vec))
-        error("%s: bad template for tabdump", x->x_arrayname->s_name);
+        pd_error(x, "%s: bad template for tabdump", x->x_arrayname->s_name);
     else
     {
         int n;
@@ -59,11 +59,11 @@ static void tabdump_dump(t_tabdump *x, t_float min, t_float max)
     t_word *vec;
 
     if (!(A = (t_garray *)pd_findbyclass(x->x_arrayname, garray_class)))
-        error("%s: no such array", x->x_arrayname->s_name);
+        pd_error(x, "%s: no such array", x->x_arrayname->s_name);
     else if (!garray_getfloatwords(A, &npoints, &vec))
-        error("%s: bad template for tabdump", x->x_arrayname->s_name);
+        pd_error(x, "%s: bad template for tabdump", x->x_arrayname->s_name);
     else if ((min<0)||(max<=min)||(max>npoints))
-        error("tabdump: bad arguments min=%d max=%d for %s (%d elements)",
+        pd_error(x, "tabdump: bad arguments min=%d max=%d for %s (%d elements)",
               nmin,nmax,x->x_arrayname->s_name,npoints);
     else
     {

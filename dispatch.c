@@ -164,7 +164,7 @@ static void dispatch_list(t_dispatch *x, t_symbol *s, int argc, t_atom *argv)
 
     if((!argc)|(argv[0].a_type!=A_FLOAT))
     {
-        error("dispatch: bad list format");
+        pd_error(x, "dispatch: bad list format");
         return;
     }
 
@@ -172,7 +172,7 @@ static void dispatch_list(t_dispatch *x, t_symbol *s, int argc, t_atom *argv)
 
     if((num<x->x_from)|(num>x->x_to))
     {
-        //error("dispatch: bad num");
+        //pd_error(x, "dispatch: bad num");
         return;
     }
 

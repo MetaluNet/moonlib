@@ -64,7 +64,7 @@ static void *tabenv_new(t_symbol *s,t_floatarg fnpoints, t_floatarg fperiod)
         period = npoints / MAXOVERLAP + 1;
     if (!(buf = getbytes(sizeof(float) * (npoints + MAXVSTAKEN))))
     {
-        error("env: couldn't allocate buffer");
+        pd_error(0,"env: couldn't allocate buffer");
         return (0);
     }
     x = (t_tabenv *)pd_new(tabenv_class);
@@ -135,7 +135,7 @@ static void tabenv_set(t_tabenv *x, t_symbol *s)
     }
     else if (!garray_getfloatwords(a, &x->x_nsampsintab, &x->x_vec))
     {
-        error("%s: bad template for tabenv", x->x_arrayname->s_name);
+        pd_error(x, "%s: bad template for tabenv", x->x_arrayname->s_name);
         x->x_vec = 0;
     }
 }

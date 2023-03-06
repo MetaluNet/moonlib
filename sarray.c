@@ -217,7 +217,7 @@ static void sarray_set(t_sarray *x, t_symbol *sfoo,int argc, t_atom *argv)
 
     if(argv[j].a_type!=A_FLOAT)
     {
-        error("Bad arguments for message 'set' to object 'sarray'");
+        pd_error(x, "Bad arguments for message 'set' to object 'sarray'");
         return ;
     }
 

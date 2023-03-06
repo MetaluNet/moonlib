@@ -323,7 +323,7 @@ static void sfread_open(t_sfread *x, t_symbol *filename)
 
     if ((x->x_fd = open_soundfile("", fname, &info, 0)) < 0)
     {
-        error("can't open %s", fname);
+        pd_error(x, "can't open %s", fname);
         x->x_play = 0;
         x->x_mapaddr = NULL;
         return;
@@ -332,7 +332,7 @@ static void sfread_open(t_sfread *x, t_symbol *filename)
     if( ((info.channels != 1) && (info.channels != 2) && (info.channels != 4)) ||
             (info.bytespersample != 2) )
     {
-        error("file %s error: not a 1 or 2 or 4 channels soundfile, or not a 16 bits soundfile",fname);
+        pd_error(x, "file %s error: not a 1 or 2 or 4 channels soundfile, or not a 16 bits soundfile",fname);
         post("channels:%d bytes:%d ", info.channels, info.bytespersample);
         x->x_play = 0;
         x->x_mapaddr = NULL;
@@ -352,7 +352,7 @@ static void sfread_open(t_sfread *x, t_symbol *filename)
 
     if (!(x->x_mapaddr = mmap(NULL, x->x_size, PROT_READ, MAP_PRIVATE, x->x_fd, 0)))
     {
-        error("can't mmap %s", fname);
+        pd_error(x, "can't mmap %s", fname);
         return;
     }
     sfread_size(x);
