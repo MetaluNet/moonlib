@@ -53,7 +53,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 static t_class *gamme_class;
 
 static char *NoteNames[]=
-{ "C","C#","D","D#","E","F","F#","G","G#","A","A#","B" };
+{ "C.","C#","D.","D#","E.","F.","F#","G.","G#","A.","A#","B."};
 static int NoteColPos[]=
 { 1,-1,2,-2,3,4,-4,5,-5,6,-6,7 };
 static char BlacksWhites[]= {1,3,6,8,10,0,2,4,5,7,9,11};
@@ -119,40 +119,38 @@ static void draw_inlets(t_gamme *x, t_glist *glist, int firsttime, int nin, int 
     int nplus, i;
     int xpos=text_xpix(&x->x_obj, glist);
     int ypos=text_ypix(&x->x_obj, glist);
+    char tag[128];
 
     nplus = (n == 1 ? 1 : n-1);
     for (i = 0; i < n; i++)
     {
         int onset = xpos + (x->x_width - IOWIDTH) * i / nplus;
+        sprintf(tag, "%po%d", x, i);
         if (firsttime)
-            sys_vgui(".x%lx.c create rectangle %d %d %d %d -tags %xo%d\n",
-                     glist_getcanvas(glist),
-                     onset, ypos + x->x_height - 1,
-                     onset + IOWIDTH, ypos + x->x_height,
-                     x, i);
+            pdgui_vmess(0, "crr iiii rs", glist_getcanvas(glist), "create", "rectangle",
+                onset, ypos + x->x_height - 1,
+                onset + IOWIDTH, ypos + x->x_height,
+                "-tags", tag);
         else
-            sys_vgui(".x%lx.c coords %xo%d %d %d %d %d\n",
-                     glist_getcanvas(glist), x, i,
-                     onset, ypos + x->x_height - 1,
-                     onset + IOWIDTH, ypos + x->x_height);
+            pdgui_vmess(0, "crs iiii", glist_getcanvas(glist), "coords", tag,
+                onset, ypos + x->x_height - 1,
+                onset + IOWIDTH, ypos + x->x_height);
     }
     n = nin;
     nplus = (n == 1 ? 1 : n-1);
     for (i = 0; i < n; i++)
     {
+        sprintf(tag, "%pi%d", x, i);
         int onset = xpos + (x->x_width - IOWIDTH) * i / nplus;
         if (firsttime)
-            sys_vgui(".x%lx.c create rectangle %d %d %d %d -tags %xi%d\n",
-                     glist_getcanvas(glist),
-                     onset, ypos,
-                     onset + IOWIDTH, ypos + 1,
-                     x, i);
+            pdgui_vmess(0, "crr iiii rs", glist_getcanvas(glist), "create", "rectangle",
+                onset, ypos,
+                onset + IOWIDTH, ypos + 1,
+                "-tags", tag);
         else
-            sys_vgui(".x%lx.c coords %xi%d %d %d %d %d\n",
-                     glist_getcanvas(glist), x, i,
-                     onset, ypos,
-                     onset + IOWIDTH, ypos + 1);
-
+            pdgui_vmess(0, "crs iiii", glist_getcanvas(glist), "coords", tag,
+                onset, ypos,
+                onset + IOWIDTH, ypos + 1);
     }
 }
 
@@ -164,25 +162,18 @@ void gamme_drawme(t_gamme *x, t_glist *glist, int firsttime)
     char *color;
     int xpos=text_xpix(&x->x_obj, glist);
     int ypos=text_ypix(&x->x_obj, glist);
+    char tag[128];
 
+    sprintf(tag, "%pS", x);
     if (firsttime)
-    {
-        sys_vgui(".x%lx.c create rectangle \
-%d %d %d %d -tags %xS "BACKGROUND"\n",
-                 glist_getcanvas(glist),
-                 xpos, ypos,
-                 xpos + x->x_width, ypos + x->x_height,
-                 x);
-
-    }
+        pdgui_vmess(0, "crr iiii rs", glist_getcanvas(glist), "create", "rectangle",
+             xpos, ypos,
+             xpos + x->x_width, ypos + x->x_height,
+            "-tags", tag);
     else
-    {
-        sys_vgui(".x%lx.c coords %xS \
-%d %d %d %d\n",
-                 glist_getcanvas(glist), x,
-                 xpos, ypos,
-                 xpos + x->x_width, ypos + x->x_height);
-    }
+        pdgui_vmess(0, "crs iiii", glist_getcanvas(glist), "coords", tag,
+            xpos, ypos,
+            xpos + x->x_width, ypos + x->x_height);
 
     for(j=0; j<12; j++)
     {
@@ -192,21 +183,18 @@ void gamme_drawme(t_gamme *x, t_glist *glist, int firsttime)
         xi2=xpos + x->x_width*x2;
         yi1=ypos + x->x_height*y1;
         yi2=ypos + x->x_height*y2;
+        sprintf(tag, "%p%s", x, NoteNames[i]);
 
         if (firsttime)
         {
             color=x->x_notes[i]? (ISWHITE(i)?SELWHITECOLOR:SELBLACKCOLOR):
                       (ISWHITE(i)?WHITECOLOR:BLACKCOLOR);
-            sys_vgui(".x%lx.c create rectangle \
-%d %d %d %d -tags %x%s -fill %s\n",
-                     glist_getcanvas(glist),xi1,yi1,xi2,yi2,
-                     x,NoteNames[i],color);
-        }
-        else
-    {
-            sys_vgui(".x%lx.c coords %x%s \
-%d %d %d %d\n",
-                     glist_getcanvas(glist),x,NoteNames[i],xi1,yi1,xi2,yi2);
+            pdgui_vmess(0, "crr iiii rs rs", glist_getcanvas(glist), "create", "rectangle",
+                 xi1, yi1, xi2, yi2,
+                "-tags", tag, "-fill", color);
+        } else {
+            pdgui_vmess(0, "crs iiii", glist_getcanvas(glist), "coords", tag,
+                xi1, yi1, xi2, yi2);
         }
     }
 
@@ -218,21 +206,27 @@ void gamme_erase(t_gamme *x,t_glist *glist)
 {
     int n;
     t_canvas *canvas=glist_getcanvas(glist);
+    char tag[128];
 
-    sys_vgui(".x%lx.c delete %xS\n",canvas, x);
+    sprintf(tag, "%pS", x);
+    pdgui_vmess(0, "crs", canvas, "delete", tag);
 
-    for(n=0; n<12; n++)
-        sys_vgui(".x%lx.c delete %x%s\n",canvas,x,NoteNames[n]);
+    for(n=0; n<12; n++) {
+        sprintf(tag, "%p%s", x, NoteNames[n]);
+        pdgui_vmess(0, "crs", canvas, "delete", tag);
+    }
 
     n = 1;
     while (n--)
     {
-        sys_vgui(".x%lx.c delete %xi%d\n",canvas,x,n);
+        sprintf(tag, "%pi%d", x, n);
+        pdgui_vmess(0, "crs", canvas, "delete", tag);
     }
     n = 4;
     while (n--)
     {
-        sys_vgui(".x%lx.c delete %xo%d\n",canvas,x,n);
+        sprintf(tag, "%po%d", x, n);
+        pdgui_vmess(0, "crs", canvas, "delete", tag);
     }
 }
 
@@ -270,8 +264,9 @@ static void gamme_displace(t_gobj *z, t_glist *glist,
 static void gamme_select(t_gobj *z, t_glist *glist, int state)
 {
     t_gamme *x = (t_gamme *)z;
-    sys_vgui(".x%lx.c itemconfigure %xS -fill %s\n", glist,
-             x, (state? "blue" : BACKGROUNDCOLOR));
+    char tag[128];
+    sprintf(tag, "%pS", x);
+    pdgui_vmess(0, "crs rs", glist_getcanvas(glist), "itemconfigure", tag, "-fill", state? "blue" : BACKGROUNDCOLOR);
 }
 
 
@@ -350,12 +345,15 @@ void gamme_draw_note(t_gamme *x,t_floatarg note)
     t_canvas *canvas=glist_getcanvas(x->x_glist);
     char *color;
     int notei=note;
+    char tag[128];
+
+    sprintf(tag, "%p%s", x, NoteNames[notei]);
 
     if(glist_isvisible(x->x_glist)) {
         color=x->x_notes[(int)notei]?(ISWHITE(notei)?SELWHITECOLOR:SELBLACKCOLOR):
                     (ISWHITE(notei)?WHITECOLOR:BLACKCOLOR);
-        sys_vgui(".x%x.c itemconfigure %x%s -fill %s\n", canvas,
-        x, NoteNames[notei],color);
+        pdgui_vmess(0, "crs rs", glist_getcanvas(x->x_glist), "itemconfigure", tag, "-fill", color);
+
     }
 }
 
