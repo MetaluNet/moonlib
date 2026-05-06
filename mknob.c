@@ -81,7 +81,7 @@ static void mknob_update_knob(t_mknob *x, t_glist *glist)
     xpc=miniradius*cos(angle-M_PI/2);
     ypc=miniradius*sin(angle-M_PI/2);
 
-    sprintf(tag, "%pWIPER", x);
+    sprintf(tag, "%p_WIPER", x);
     pdgui_vmess(0, "crs iiiiii", canvas, "coords", tag,
             xp, yp, xc+xpc, yc+ypc, xc-xpc, yc-ypc);
 }
@@ -101,20 +101,20 @@ static void mknob_draw_new(t_mknob *x, t_glist *glist)
     char *seltags[] = {tag_object, tag, tag_select};
     t_canvas *canvas=glist_getcanvas(glist);
 
-    sprintf(tag_object, "%pOBJ", x);
-    sprintf(tag_select, "%pSELECT", x);
+    sprintf(tag_object, "%p_", x);
+    sprintf(tag_select, "%p_SELECT", x);
 
-    sprintf(tag, "%pBASE", x);
+    sprintf(tag, "%p_BASE", x);
     pdgui_vmess(0, "crr iiii rS", canvas, "create", "oval",
          0, 0, 0, 0, "-tags", 3, seltags);
 
     mknob_draw_io(x, glist, 0);
 
-    sprintf(tag, "%pWIPER", x);
+    sprintf(tag, "%p_WIPER", x);
     pdgui_vmess(0, "crr iiiiii rS", canvas, "create", "polygon",
          0, 0, 0, 0, 0, 0, "-tags", 2, tags);
 
-    sprintf(tag, "%pLABEL", x);
+    sprintf(tag, "%p_LABEL", x);
     pdgui_vmess(0, "crr ii rs rS", canvas, "create", "text",
          0, 0,
          "-anchor", "w",
@@ -136,7 +136,7 @@ static void mknob_draw_config(t_mknob *x,t_glist *glist)
     SETFLOAT (fontatoms+1, -iemgui->x_fontsize*zoom);
     SETSYMBOL(fontatoms+2, gensym(sys_fontweight));
 
-    sprintf(tag, "%pLABEL", x);
+    sprintf(tag, "%p_LABEL", x);
     pdgui_vmess(0, "crs ii", canvas, "coords", tag,
         xpos+x->x_gui.x_ldx * zoom,
         ypos+x->x_gui.x_ldy * zoom);
@@ -145,12 +145,12 @@ static void mknob_draw_config(t_mknob *x,t_glist *glist)
         "-font", 3, fontatoms,
         "-fill", (x->x_gui.x_fsf.x_selected ? IEM_GUI_COLOR_SELECTED : x->x_gui.x_lcol));
 
-    sprintf(tag, "%pWIPER", x);
+    sprintf(tag, "%p_WIPER", x);
     pdgui_vmess(0, "crs rk ri", canvas, "itemconfigure", tag,
         "-fill", x->x_gui.x_fcol,
         "-width", 3 * zoom);
 
-    sprintf(tag, "%pBASE", x);
+    sprintf(tag, "%p_BASE", x);
     pdgui_vmess(0, "crs rk", canvas, "itemconfigure", tag,
         "-fill", x->x_gui.x_bcol);
 
@@ -172,11 +172,11 @@ static void mknob_draw_io(t_mknob *x,t_glist *glist, int old_snd_rcv_flags)
     char *tags[] = {tag_object, tag, tag_select};
     int show_io = (!x->x_gui.x_fsf.x_snd_able) || (!x->x_gui.x_fsf.x_rcv_able);
 
-    sprintf(tag_object, "%pOBJ", x);
-    sprintf(tag_select, "%pSELECT", x);
-    sprintf(tag_label, "%pLABEL", x);
+    sprintf(tag_object, "%p_", x);
+    sprintf(tag_select, "%p_SELECT", x);
+    sprintf(tag_label, "%p_LABEL", x);
 
-    sprintf(tag, "%pOUTLINE", x);
+    sprintf(tag, "%p_OUTLINE", x);
     pdgui_vmess(0, "crs", canvas, "delete", tag);
     if (show_io)
     {
@@ -187,7 +187,7 @@ static void mknob_draw_io(t_mknob *x,t_glist *glist, int old_snd_rcv_flags)
             "-tags", 3, tags);
     }
 
-    sprintf(tag, "%pOUT%d", x, 0);
+    sprintf(tag, "%p_OUT%d", x, 0);
     pdgui_vmess(0, "crs", canvas, "delete", tag);
     if (show_io)
     {
@@ -201,7 +201,7 @@ static void mknob_draw_io(t_mknob *x,t_glist *glist, int old_snd_rcv_flags)
         pdgui_vmess(0, "crss", canvas, "raise", tag_label, tag);
     }
 
-    sprintf(tag, "%pIN%d", x, 0);
+    sprintf(tag, "%p_IN%d", x, 0);
     pdgui_vmess(0, "crs", canvas, "delete", tag);
     if (show_io)
     {
@@ -226,9 +226,9 @@ static void mknob_draw_select(t_mknob *x,t_glist *glist)
     if(x->x_gui.x_fsf.x_selected)
         lcol = col = IEM_GUI_COLOR_SELECTED;
 
-    sprintf(tag, "%pSELECT", x);
+    sprintf(tag, "%p_SELECT", x);
     pdgui_vmess(0, "crs rk", canvas, "itemconfigure", tag, "-outline", col);
-    sprintf(tag, "%pLABEL", x);
+    sprintf(tag, "%p_LABEL", x);
     pdgui_vmess(0, "crs rk", canvas, "itemconfigure", tag, "-fill", lcol);
 
 }
@@ -328,26 +328,25 @@ void mknob_check_minmax(t_mknob *x, double min, double max)
 static void mknob_properties(t_gobj *z, t_glist *owner)
 {
     t_mknob *x = (t_mknob *)z;
-    char buf[800];
     t_symbol *srl[3];
 
     iemgui_properties(&x->x_gui, srl);
-    sprintf(buf, "pdtk_iemgui_dialog %%s mknob \
-        --------dimension(pix):-------- %d %d size: %d %d mouse: \
-        -----------output-range:----------- %g left: %g right: %g \
-        %d lin log %d %d empty %d \
-        {%s} {%s} \
-        {%s} %d %d \
-        %d %d \
-        #%06x #%06x #%06x\n",
-            x->x_gui.x_w/IEMGUI_ZOOM(x), MKNOB_MINSIZE, x->x_gui.x_h/IEMGUI_ZOOM(x), -1,
-            x->x_min, x->x_max, 0.0,/*no_schedule*/
-            x->x_lin0_log1, x->x_gui.x_isa.x_loadinit, x->x_steady, -1,/*no multi, but iem-characteristic*/
-            srl[0]?srl[0]->s_name:"", srl[1]?srl[1]->s_name:"",
-            srl[2]?srl[2]->s_name:"", x->x_gui.x_ldx, x->x_gui.x_ldy,
-            x->x_gui.x_fsf.x_font_style, x->x_gui.x_fontsize,
-            0xffffff & x->x_gui.x_bcol, 0xffffff & x->x_gui.x_fcol, 0xffffff & x->x_gui.x_lcol);
-    gfxstub_new(&x->x_gui.x_obj.ob_pd, x, buf);
+
+    pdgui_stub_vnew(&x->x_gui.x_obj.ob_pd, "pdtk_iemgui_dialog", x,
+    "r s ffs ffs sfsfs i iss ii si sss ii ii kkk",
+    "|mknob|",
+    "",
+    (float)x->x_gui.x_w/IEMGUI_ZOOM(x), (float)MKNOB_MINSIZE, "size",
+    (float)x->x_gui.x_h/IEMGUI_ZOOM(x), (float)-1.0, "mouse",
+    "", x->x_min, "", x->x_max, "",
+    0,
+    x->x_lin0_log1, "linear", "logarithmic",
+    x->x_gui.x_isa.x_loadinit, x->x_steady,
+    "", -1,
+    srl[0]?srl[0]->s_name:"", srl[1]?srl[1]->s_name:"", srl[2]?srl[2]->s_name:"",
+    x->x_gui.x_ldx, x->x_gui.x_ldy,
+    x->x_gui.x_fsf.x_font_style, x->x_gui.x_fontsize,
+    x->x_gui.x_bcol, x->x_gui.x_fcol, x->x_gui.x_lcol);
 }
 
     /* compute numeric value (fval) from pixel location (val) and range */
@@ -773,13 +772,6 @@ static void *mknob_new(t_symbol *s, int argc, t_atom *argv)
     return (x);
 }
 
-static void mknob_free(t_mknob *x)
-{
-    if(x->x_gui.x_fsf.x_rcv_able)
-        pd_unbind(&x->x_gui.x_obj.ob_pd, x->x_gui.x_rcv);
-    gfxstub_deleteforkey(x);
-}
-
 extern void canvas_iemguis(t_glist *gl, t_symbol *guiobjname);
 
 void canvas_mknob(t_glist *gl, t_symbol *s, int argc, t_atom *argv)
@@ -790,7 +782,7 @@ void canvas_mknob(t_glist *gl, t_symbol *s, int argc, t_atom *argv)
 void mknob_setup(void)
 {
     mknob_class = class_new(gensym("mknob"), (t_newmethod)mknob_new,
-                            (t_method)mknob_free, sizeof(t_mknob), 0, A_GIMME, 0);
+                            (t_method)iemgui_free, sizeof(t_mknob), 0, A_GIMME, 0);
 
     class_addbang(mknob_class,mknob_bang);
     class_addfloat(mknob_class,mknob_float);
