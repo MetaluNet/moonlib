@@ -14,7 +14,9 @@
 #include "m_pd.h"
 #include "g_canvas.h"
 
-#include "g_all_guis.h"
+#include "m_imp.h" // for being able to access (t_class*)->c_externdir
+
+#include "iemgui_static.h" // local copy of iemgui code
 #include <math.h>
 
 #ifdef _WIN32
@@ -332,21 +334,21 @@ static void mknob_properties(t_gobj *z, t_glist *owner)
 
     iemgui_properties(&x->x_gui, srl);
 
-    pdgui_stub_vnew(&x->x_gui.x_obj.ob_pd, "pdtk_iemgui_dialog", x,
-    "r s ffs ffs sfsfs i iss ii si sss ii ii kkk",
-    "|mknob|",
-    "",
-    (float)x->x_gui.x_w/IEMGUI_ZOOM(x), (float)MKNOB_MINSIZE, "size",
-    (float)x->x_gui.x_h/IEMGUI_ZOOM(x), (float)-1.0, "mouse",
-    "", x->x_min, "", x->x_max, "",
-    0,
-    x->x_lin0_log1, "linear", "logarithmic",
-    x->x_gui.x_isa.x_loadinit, x->x_steady,
-    "", -1,
-    srl[0]?srl[0]->s_name:"", srl[1]?srl[1]->s_name:"", srl[2]?srl[2]->s_name:"",
-    x->x_gui.x_ldx, x->x_gui.x_ldy,
-    x->x_gui.x_fsf.x_font_style, x->x_gui.x_fontsize,
-    x->x_gui.x_bcol, x->x_gui.x_fcol, x->x_gui.x_lcol);
+    pdgui_stub_vnew(&x->x_gui.x_obj.ob_pd, "::dialog_mknob::mknob_properties", x,
+        "r s ffs ffs sfsfs i iss ii si sss ii ii kkk",
+        "Mknob",
+        "",
+        (float)x->x_gui.x_w/IEMGUI_ZOOM(x), (float)MKNOB_MINSIZE, "Size:",
+        (float)x->x_gui.x_h/IEMGUI_ZOOM(x), (float)-1.0, "Height:",
+        "", x->x_min, "", x->x_max, "",
+        0,
+        x->x_lin0_log1, "linear", "logarithmic",
+        x->x_gui.x_isa.x_loadinit, x->x_steady,
+        "", -1,
+        srl[0]?srl[0]->s_name:"", srl[1]?srl[1]->s_name:"", srl[2]?srl[2]->s_name:"",
+        x->x_gui.x_ldx, x->x_gui.x_ldy,
+        x->x_gui.x_fsf.x_font_style, x->x_gui.x_fontsize,
+        x->x_gui.x_bcol, x->x_gui.x_fcol, x->x_gui.x_lcol);
 }
 
     /* compute numeric value (fval) from pixel location (val) and range */
@@ -683,7 +685,7 @@ static void *mknob_new(t_symbol *s, int argc, t_atom *argv)
     t_mknob *x = (t_mknob *)iemgui_new(mknob_class);
     int width = MKNOB_DEFAULTSIZE, height = MKNOB_DEFAULTH;
     int fs = 8, lilo = 0, ldx = -2, ldy = -6, f = 0, v = 0, steady = 1;
-    double min = 0.0, max = (double)(IEM_SL_DEFAULTSIZE-1);
+    double min = 0.0, max = 127.0;
     char str[144];
 
     iem_inttosymargs(&x->x_gui.x_isa, 0);
@@ -825,4 +827,10 @@ void mknob_setup(void)
 
     class_addmethod(canvas_class, (t_method)canvas_mknob, gensym("mknob"),
                     A_GIMME, A_NULL);
+
+    char command[MAXPDSTRING];
+    snprintf(command, sizeof(command),
+        "eval [read [open {%s/mknob_properties_dialog.tcl}]]\n",
+        mknob_class->c_externdir->s_name);
+    pdgui_vmess(0, "r", command);
 }

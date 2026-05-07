@@ -31,13 +31,13 @@ class.sources = $(addsuffix .c,$(objects))
 datafiles = \
     $(addsuffix -help.pd,$(objects)) \
     moonlib-meta.pd \
-    image.tcl \
+    image.tcl mknob_properties_dialog.tcl \
     LICENSE.txt \
     README.txt
 
 datadirs = img
 
-cflags = -Wno-unused -Wno-unused-parameter
+cflags = -Wno-unused -Wno-unused-parameter -Wno-cast-function-type
 
 PDLIBBUILDER_DIR ?= .
 include $(PDLIBBUILDER_DIR)/Makefile.pdlibbuilder
