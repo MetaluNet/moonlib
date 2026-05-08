@@ -9,6 +9,8 @@ on:
     branches:
       - 'externals/moonlib'
       - 'test-ci'
+    tags:
+      - '*'
 
   pull_request:
 
@@ -66,7 +68,7 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: "moonlib-${{ matrix.os }}-build"
-          path: 'build/moonlib'
+          path: 'build/'
           if-no-files-found: error
 
   publish:
@@ -88,12 +90,12 @@ jobs:
         run: |
           ls -la
           for artifact in moonlib-*-build; do
-            echo "Packaging $artifact $artifact..."
+            echo "Packaging $artifact ..."
             docker run --rm \
               --user $(id -u) \
               --volume ${{ github.workspace }}:/deken \
               registry.git.iem.at/pd/deken \
-              deken package --name moonlib --version "${{ github.ref_name }}" "$artifact"
+              deken package --name moonlib --version "${{ github.ref_name }}" "$artifact/moonlib"
           done
 
       - name: Upload all to deken
@@ -108,5 +110,5 @@ jobs:
             --env DEKEN_USERNAME \
             --env DEKEN_PASSWORD \
             registry.git.iem.at/pd/deken \
-            sh -c "deken upload *.dek"
+            sh -c "deken upload --no-source-error *.dek"
 
