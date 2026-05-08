@@ -331,7 +331,7 @@ void gamme_out_b(t_gamme *x)
 	outlet_float(x->x_out_b,out_b);
 }
 
-inline float my_mod(float x,int n)
+float my_mod(float x,int n)
 {
     float y=fmod(x,n);
     return y<0?y+n:y;
