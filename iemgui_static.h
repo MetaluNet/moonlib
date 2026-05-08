@@ -13,7 +13,8 @@
 #include <stdio.h>
 #include <ctype.h>
 #include "m_pd.h"
-#include "s_stuff.h"
+
+#include <stdarg.h>
 
 #ifdef _WIN32
 #include <io.h>
