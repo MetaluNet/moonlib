@@ -1,0 +1,18 @@
+# borrowed from https://github.com/fdch/fd_lib (thanks fdch!)
+name: Setup Pure Data
+description: Checkout code and setup Pure Data dependencies
+
+runs:
+  using: composite
+  steps:
+    - name: get pdlibbuilder
+      shell: bash
+      run: |
+        git submodule init
+        git submodule update
+
+    - name: get pd
+      uses: actions/checkout@v6
+      with:
+        repository: pure-data/pure-data
+        path: pure-data
