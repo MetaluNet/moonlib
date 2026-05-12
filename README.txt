@@ -1,6 +1,6 @@
 MOONLIB puredata externals
 
-- tabenv : like env~, an enveloppe follower, but computing on a table, so
+- tabenv : like env~, an envelope follower, but computing on a table, so
     possibly faster than real-time env~'s computation.
 
 - tabsort and tabsort2 : return the indices of the sorted table (tabsort2
@@ -9,7 +9,7 @@ MOONLIB puredata externals
 - gamme : one octave of a piano keyboard used to filter/choose notes in a
     selected scale.
 
-- absolutepath/relativepath (OBSOLETE): use datas (sounds, texts, presets, images,
+- absolutepath/relativepath (OBSOLETE): use data (sounds, texts, presets, images,
     programs...) nested in the patch's directory (and in subdirs).
 
 - sarray and slist : create shared dynamic arrays or lists with symbols.
@@ -25,7 +25,7 @@ MOONLIB puredata externals
     one pair of buses named (slider-snd/slider-rcv) , in which values are
     prepended by the number of the "sub-bus".
 
-- image : an improvment of Guenter Geiger's one. Same name, but it's
+- image : an improvement of Guenter Geiger's one. Same name, but it's
 	 compatible. Here you can share images through different objects, preload
 	 a list of images, and animate this list.
 

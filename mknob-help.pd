@@ -34,7 +34,7 @@
 #X text 529 113 low sensitivity;
 #X text 442 84 Set it with the 2nd argument of "size" message:;
 #X text 6 274 (c) moonix: Antoine Rousseau 2003-2026;
-#X text 439 68 "heigth" parameter sets mouse excursion for full range.;
+#X text 439 68 "height" parameter sets mouse excursion for full range.;
 #X text 94 11 round knob GUI;
 #X text 18 50 Right-click properties to modify geometry \, colors \, etc., f 57;
 #X text 8 198 Shift-click & drag for fine-tuning (0.01 pixels), f 25;

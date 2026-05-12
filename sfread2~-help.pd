@@ -17,7 +17,7 @@
 #X obj 588 181 vsl 15 128 -8 8 0 0 empty empty speed 0 -8 1 8 -260818
 -1 -1 6644 1;
 #X text 135 12 soundfile reader at variable speed (possibly negative)
-\, whith 4-point interpolation and loop.;
+\, with 4-point interpolation and loop.;
 #X obj 154 296 dac~;
 #X obj 155 92 openpanel;
 #X obj 155 72 bng 15 250 50 0 empty empty open 0 -6 1 8 -166441 -1
@@ -43,7 +43,7 @@ opened (use of C function mmap()).;
 added by Jonathan Wilkes for Pd version 0.42.;
 #X text 12 5 KEYWORDS signal soundfile;
 #X text 12 45 DESCRIPTION soundfile reader at variable speed (possibly
-negative) \, whith 4-point interpolation and loop;
+negative) \, with 4-point interpolation and loop;
 #X text 12 85 INLET_0 float bang interp open index loop;
 #X text 12 105 INLET_1 float;
 #X text 12 145 comment;
