@@ -4,7 +4,7 @@ MOONLIB puredata externals
     possibly faster than real-time env~'s computation.
 
 - tabsort and tabsort2 : return the indices of the sorted table (tabsort2
-    is bidimentionnal).
+    is bidimensional).
 
 - gamme : one octave of a piano keyboard used to filter/choose notes in a
     selected scale.
