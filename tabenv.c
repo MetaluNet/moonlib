@@ -32,13 +32,13 @@ typedef struct tabenv
     /*env part*/
     t_object x_obj; 	    	    /* header */
     t_outlet *x_outlet;		    /* a "float" outlet */
-    float *x_buf;		    /* a Hanning window */
+    t_sample *x_buf;		    /* a Hanning window */
     int x_phase;		    /* number of points since last output */
     int x_period;		    /* requested period of output */
     int x_realperiod;		    /* period rounded up to vecsize multiple */
     int x_npoints;		    /* analysis window size in samples */
-    float x_result;		    /* result to output */
-    float x_sumbuf[MAXOVERLAP];	    /* summing buffer */
+    t_sample x_result;		    /* result to output */
+    t_sample x_sumbuf[MAXOVERLAP];	    /* summing buffer */
 
     /*tabplay part*/
     int x_tabphase;
@@ -55,14 +55,14 @@ static void *tabenv_new(t_symbol *s,t_floatarg fnpoints, t_floatarg fperiod)
     int npoints = fnpoints;
     int period = fperiod;
     t_tabenv *x;
-    float *buf;
+    t_sample *buf;
     int i;
 
     if (npoints < 1) npoints = 1024;
     if (period < 1) period = npoints/2;
     if (period < npoints / MAXOVERLAP + 1)
         period = npoints / MAXOVERLAP + 1;
-    if (!(buf = getbytes(sizeof(float) * (npoints + MAXVSTAKEN))))
+    if (!(buf = getbytes(sizeof(t_sample) * (npoints + MAXVSTAKEN))))
     {
         pd_error(0,"env: couldn't allocate buffer");
         return (0);
@@ -90,14 +90,14 @@ static void tabenv_perform_64(t_tabenv *x,t_word *in)
 {
     int n = 64;
     int count;
-    float *sump;
+    t_sample *sump;
     in += n;
     for (count = x->x_phase, sump = x->x_sumbuf;
             count < x->x_npoints; count += x->x_realperiod, sump++)
     {
-        float *hp = x->x_buf + count;
+        t_sample *hp = x->x_buf + count;
         t_word *fp = in;
-        float sum = *sump;
+        t_sample sum = *sump;
         int i;
 
         for (i = 0; i < n; i++)
@@ -177,7 +177,7 @@ static void tabenv_reset(t_tabenv *x)
 
 static void tabenv_ff(t_tabenv *x)		/* cleanup on free */
 {
-    freebytes(x->x_buf, (x->x_npoints + MAXVSTAKEN) * sizeof(float));
+    freebytes(x->x_buf, (x->x_npoints + MAXVSTAKEN) * sizeof(t_sample));
 }
 
 

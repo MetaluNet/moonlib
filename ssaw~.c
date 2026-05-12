@@ -67,7 +67,7 @@ union tabfudge
 
 /* -------------------------- ssaw~ ------------------------------ */
 static t_class *ssaw_class, *scalarssaw_class;
-static float ssaw_array[1002];
+static t_sample ssaw_array[1002];
 #define SAW_ARRAY_LEN 1002
 
 typedef struct _ssaw
@@ -75,9 +75,9 @@ typedef struct _ssaw
     t_object x_obj;
     //from phasor~:
     double x_phase;
-    float x_conv;
-    float x_f;	    /* scalar frequency */
-    float x_band;	/* band limit (Hertz)*/
+    t_float x_conv;
+    t_float x_f;	    /* scalar frequency */
+    t_float x_band;	/* band limit (Hertz)*/
 } t_ssaw;
 
 static void *ssaw_new(t_floatarg f)
@@ -101,9 +101,9 @@ static t_int *ssaw_perform(t_int *w)
     double dphase = x->x_phase + UNITBIT32;
     union tabfudge tf;
     int normhipart;
-    float conv = x->x_conv;
-    float band=x->x_band*.33;
-    float *buf = ssaw_array;
+    t_sample conv = x->x_conv;
+    t_sample band=x->x_band*.33;
+    t_sample *buf = ssaw_array;
 
     tf.tf_d = UNITBIT32;
     normhipart = tf.tf_i[HIOFFSET];
@@ -112,9 +112,9 @@ static t_int *ssaw_perform(t_int *w)
     for (i = 0; i < n; i++)
         //while (n--)
     {
-        float phase,band2,findex /*= *in++*/;
+        t_sample phase,band2,findex /*= *in++*/;
         int index /*= findex*/;
-        float frac,  a,  b,  c,  d, cminusb, *fp;
+        t_sample frac,  a,  b,  c,  d, cminusb, *fp;
 
         tf.tf_i[HIOFFSET] = normhipart;
         band2=abs(*in);
@@ -170,7 +170,7 @@ static void ssaw_ft1(t_ssaw *x, t_float f)
 static void ssaw_initarray(void)
 {
     int i;
-    float j;
+    t_sample j;
 
     for(i=0; i<1002; i++)
     {

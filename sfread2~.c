@@ -68,10 +68,10 @@ static t_int *sfread_perform(t_int *w)
     int fc = x->x_fchannels,fc2=2*fc;
     double findex = x->x_index;
     t_float speed = x->x_speed;
-    float frac,  a,  b,  cc,  d, cminusb;
+    t_sample frac,  a,  b,  cc,  d, cminusb;
     int i,n,index,rindex;
     int end =  x->x_len -3;/* -3 is for safe interpolation*/
-    t_float *out[MAX_CHANS];
+    t_sample *out[MAX_CHANS];
     t_int in_off[MAX_CHANS];
     t_int loground=(fc==1?0:fc==2?1:2);
 
