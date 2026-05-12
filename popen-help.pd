@@ -52,17 +52,17 @@
 #X restore 19 161 pd example;
 #X obj 31 109 popen;
 #X text 20 191 Remarks:;
-#X text 46 204 The danger here comes from the fact processes lauched
+#X text 46 204 The danger here comes from the fact processes launched
 by;
 #X text 47 215 popen runs concurrently with pd: if they are blocking
 \, pd;
 #X text 46 228 is blocking too. Very dangerous if pd has real-time
-priority: it blocks all the sytem. You have to switch off the computer...
+priority: it blocks all the system. You have to switch off the computer...
 ;
-#X text 47 267 It's much safer to use netsend/netreceive in conjonction
+#X text 47 267 It's much safer to use netsend/netreceive in conjunction
 with pdsend/pdreceive.;
 #X obj 206 333 system;
-#X text 46 297 You can use "at now" to lauch programs totally independantly
+#X text 46 297 You can use "at now" to launch programs totally independently
 from Pd:;
 #X msg 206 313 echo xclock -display 0:0 | at now;
 #N canvas 370 189 494 344 META 0;

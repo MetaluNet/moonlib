@@ -32,7 +32,7 @@ typedef struct _f2s
 {
    t_object x_ob;
 	t_float x_f;
-	int x_type; /*0: p/n/µ/m/./k/M/G with n digits */
+	int x_type; /*0: p/n/Âµ/m/./k/M/G with n digits */
 	int x_n;
 } t_f2s;
 

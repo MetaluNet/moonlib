@@ -36,11 +36,11 @@ static t_class *pan_class;
 typedef struct _pan
 {
     t_object x_obj;
-    float x_f;
-    float pan;
-    float left;
-    float right;
-    float vol;
+    t_float x_f;
+    t_float pan;
+    t_float left;
+    t_float right;
+    t_float vol;
 } t_pan;
 
 static void *pan_new(t_symbol *s, int argc, t_atom *argv)
@@ -60,14 +60,14 @@ static void *pan_new(t_symbol *s, int argc, t_atom *argv)
 
 static t_int *pan_perform(t_int *w)
 {
-    float *in1 = (t_float *)(w[1]);
-    float *out1 = (t_float *)(w[2]);
-    float *out2 = (t_float *)(w[3]);
+    t_sample *in1 = (t_sample *)(w[1]);
+    t_sample *out1 = (t_sample *)(w[2]);
+    t_sample *out2 = (t_sample *)(w[3]);
     int n = (int)(w[4]);
     t_pan *x = (t_pan *)(w[5]);
-    float left=x->left*x->vol;
-    float right=x->right*x->vol;
-    float value;
+    t_float left=x->left*x->vol;
+    t_float right=x->right*x->vol;
+    t_sample value;
 
     while  (n--)
     {
@@ -81,9 +81,9 @@ static t_int *pan_perform(t_int *w)
 static void pan_dsp(t_pan *x, t_signal **sp)
 {
     int n = sp[0]->s_n;
-    float *in1 = sp[0]->s_vec;
-    float *out1 = sp[1]->s_vec;
-    float *out2 = sp[2]->s_vec;
+    t_sample *in1 = sp[0]->s_vec;
+    t_sample *out1 = sp[1]->s_vec;
+    t_sample *out2 = sp[2]->s_vec;
 
     dsp_add(pan_perform, 5,
             in1, out1, out2, n, x);

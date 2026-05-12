@@ -43,7 +43,7 @@ static void tabreadl_float(t_tabreadl *x, t_float f)
     else
     {
         int n ;
-        float r,v;
+        t_float r,v;
 
         if (f < 0) f = 0;
         else if (f >= npoints) f = npoints - 1;

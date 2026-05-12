@@ -24,10 +24,10 @@ for Windows if someone were willing to find a Pthreads package for it. */
 
 #include "_soundfile.c"
 
-static void interpolate(int nvec,float **invec,int nin,
-                        float **outvec,int nout)
+static void interpolate(int nvec,t_sample **invec,int nin,
+                        t_sample **outvec,int nout)
 {
-    float r=nin/(float)nout;
+    t_sample r=nin/(t_sample)nout;
     int i,j;
 
     for(i=0; i<nout; i++)
@@ -107,10 +107,10 @@ typedef struct _readsf
     int x_filetype; 	    /* writesf~ only; type of file to create */
     int x_itemswritten;     /* writesf~ only; items writen */
     int x_swap; 	    /* writesf~ only; true if byte swapping */
-    float x_f; 	    	    /* writesf~ only; scalar for signal inlet */
+    t_float x_f; 	    	    /* writesf~ only; scalar for signal inlet */
     /*----HACK------*/
-    float x_speed;    /*speed of reading*/
-    float x_frac;    /*fractionnal part of sample to play next buffer*/
+    t_float x_speed;    /*speed of reading*/
+    t_float x_frac;    /*fractionnal part of sample to play next buffer*/
 
     pthread_mutex_t x_mutex;
     pthread_cond_t x_requestcondition;
@@ -460,7 +460,7 @@ static t_int *readsf_perform(t_int *w)
     int vecsize = x->x_vecsize, noutlets = x->x_noutlets, i, j,
         bytespersample = x->x_bytespersample,
         bigendian = x->x_bigendian,wantsamples;
-    float *fp,tmp,speed=x->x_speed;
+    t_sample *fp,tmp,speed=x->x_speed;
     if (x->x_state == STATE_STREAM)
     {
         int wantbytes, nchannels, sfchannels = x->x_sfchannels;
