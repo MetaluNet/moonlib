@@ -287,7 +287,7 @@ proc ::dialog_mknob::apply {mytoplevel} {
     if {$::dialog_mknob::var_label_dx($vid) eq ""} {set ::dialog_mknob::var_label_dx($vid) 0}
     if {$::dialog_mknob::var_label_dy($vid) eq ""} {set ::dialog_mknob::var_label_dy($vid) 0}
 
-    pdsend [list $mytoplevel dialog \
+    pdsend [concat $mytoplevel dialog \
                 $::dialog_mknob::var_width($vid) \
                 $::dialog_mknob::var_height($vid) \
                 $::dialog_mknob::var_range_min($vid) \
